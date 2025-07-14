@@ -23,7 +23,6 @@ class TranscriptFetcher:
 
         tasks = [run_in_thread(vid, snip) for vid, snip in zip(self.video_ids, self.snippets)]
         results = await asyncio.gather(*tasks)
-        print('results', results)
 
         return [
             FetchAndMetaResponse(
@@ -38,7 +37,6 @@ class TranscriptFetcher:
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.httpx_client)
             transcript = yt_api.fetch(video_id).to_raw_data()
-            print('Fetched.')
             return {
                 "video_id": video_id,
                 "transcript": transcript,
