@@ -44,9 +44,3 @@ class YTFetcher:
     
     def get_video_ids(self) -> list[str]:
         return self.snippets.video_ids
-    
-    def get_transcript(self, video_id: str) -> Transcript:
-        return self.fetcher.fetch_transcript(video_id)
-    
-    def list_transcript(self, video_id: str):
-        return self.fetcher.list_transcript(video_id)

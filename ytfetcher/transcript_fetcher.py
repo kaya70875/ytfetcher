@@ -14,15 +14,6 @@ class TranscriptFetcher:
         self.executor = ThreadPoolExecutor(max_workers=30)
     
         self.httpx_client = httpx.Client(timeout=http_config.timeout, headers=http_config.headers)
-    
-    # Expose youtube-transcript-api methods
-    def fetch_transcript(self, video_id: str) -> list[Transcript]:
-        yt_api = YouTubeTranscriptApi(http_client=self.httpx_client)
-        return yt_api.fetch(video_id)
-    
-    def list_transcript(self, video_id: str):
-        yt_api = YouTubeTranscriptApi(http_client=self.httpx_client)
-        return yt_api.list(video_id)
 
     async def fetch(self) -> list[FetchAndMetaResponse]:
         async def run_in_thread(vid: str, snip: Snippet):
