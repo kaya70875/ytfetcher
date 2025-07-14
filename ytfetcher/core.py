@@ -10,10 +10,7 @@ class YTFetcher:
         self.fetcher = TranscriptFetcher(self.snippets.video_ids, self.snippets.metadata, timeout=timeout)
 
     async def get_transcripts(self) -> Transcript:
-        data = await self.fetcher.fetch()
-        transcripts = [x.transcript for x in data]
-
-        return transcripts
+        return [x.transcript for x in await self.fetcher.fetch()]
 
     async def get_transcripts_with_metadata(self) -> list[FetchAndMetaResponse]:
         return await self.fetcher.fetch()
