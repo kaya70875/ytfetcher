@@ -1,21 +1,25 @@
 from ytfetcher.youtube_v3 import YoutubeV3
-from ytfetcher.types.channel import ChannelData
+from ytfetcher.types.channel import ChannelData, FetchAndMetaResponse, Transcript
 from ytfetcher.transcript_fetcher import TranscriptFetcher
 import httpx
 
-timeout = httpx.Timeout(connect=2.0, read=2.0, write=2.0, pool=2.0)
-
 class YTFetcher:
-    def __init__(self, yt_client: YoutubeV3):
-        self.yt_client = yt_client
-        self.channel_data = self.yt_client.fetch_channel_snippets()
-        self.fetcher = TranscriptFetcher(self.channel_data.video_ids, self.channel_data.metadata, timeout=timeout)
+    def __init__(self, api_key: str, channel_handle:str, max_results: int, timeout: httpx.Timeout):
+        self.v3 = YoutubeV3(api_key, channel_handle, max_results)
+        self.snippets = self.v3.fetch_channel_snippets()
+        self.fetcher = TranscriptFetcher(self.snippets.video_ids, self.snippets.metadata, timeout=timeout)
 
-    def fetch_transcripts(self):
-        pass
+    async def get_transcripts(self) -> Transcript:
+        data = await self.fetcher.fetch()
+        transcripts = [x.transcript for x in data]
 
-    async def fetch_transcripts_with_metadata(self):
+        return transcripts
+
+    async def get_transcripts_with_metadata(self) -> list[FetchAndMetaResponse]:
         return await self.fetcher.fetch()
     
     def get_channel_data(self) -> ChannelData:
-        return self.channel_data
+        return self.snippets
+    
+    def get_video_ids(self) -> list[str]:
+        return self.snippets.video_ids
