@@ -1,13 +1,13 @@
 from ytfetcher.youtube_v3 import YoutubeV3
 from ytfetcher.types.channel import ChannelData, FetchAndMetaResponse, Transcript
 from ytfetcher.transcript_fetcher import TranscriptFetcher
-import httpx
+from ytfetcher.config.http_config import HTTPConfig
 
 class YTFetcher:
-    def __init__(self, api_key: str, channel_handle:str, max_results: int, timeout: httpx.Timeout):
+    def __init__(self, api_key: str, channel_handle:str, max_results: int, http_config: HTTPConfig):
         self.v3 = YoutubeV3(api_key, channel_handle, max_results)
         self.snippets = self.v3.fetch_channel_snippets()
-        self.fetcher = TranscriptFetcher(self.snippets.video_ids, self.snippets.metadata, timeout=timeout)
+        self.fetcher = TranscriptFetcher(self.snippets.video_ids, self.snippets.metadata, http_config=http_config)
 
     async def get_transcripts(self) -> Transcript:
         return [x.transcript for x in await self.fetcher.fetch()]

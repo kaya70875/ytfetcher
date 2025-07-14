@@ -3,19 +3,17 @@ from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, 
 from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent.futures import ThreadPoolExecutor
 from ytfetcher.types.channel import FetchAndMetaResponse
-from scripts.headers import get_realistic_headers
+from ytfetcher.config.http_config import HTTPConfig
 import asyncio
 import httpx
 
 class TranscriptFetcher:
-    def __init__(self, video_ids: list[str], snippets: list[Snippet], timeout: httpx.Timeout | None = None, headers: dict | None = None):
+    def __init__(self, video_ids: list[str], snippets: list[Snippet], http_config: HTTPConfig):
         self.video_ids = video_ids
         self.snippets = snippets
         self.executor = ThreadPoolExecutor(max_workers=30)
     
-        self.timeout = timeout or httpx.Timeout(10.0)
-        self.headers = headers or get_realistic_headers()
-        self.httpx_client = httpx.Client(timeout=self.timeout, headers=headers)
+        self.httpx_client = httpx.Client(timeout=http_config.timeout, headers=http_config.headers)
 
     async def fetch(self) -> list[FetchAndMetaResponse]:
         async def run_in_thread(vid: str, snip: Snippet):
@@ -37,6 +35,7 @@ class TranscriptFetcher:
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.httpx_client)
             transcript = yt_api.fetch(video_id).to_raw_data()
+            print(f'{video_id} fetched.')
             return {
                 "video_id": video_id,
                 "transcript": transcript,
