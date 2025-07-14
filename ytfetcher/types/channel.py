@@ -23,3 +23,8 @@ class FetchAndMetaResponse(BaseModel):
     video_id: str
     transcript: list[dict]
     snippet: Snippet
+
+class Transcript(BaseModel):
+    text: str
+    start: float
+    duration: float
