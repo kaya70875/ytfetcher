@@ -36,7 +36,7 @@ def get_realistic_headers() -> dict:
         "Connection": "keep-alive",
         "DNT": "1",
         "Upgrade-Insecure-Requests": "1",
-        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Encoding": "gzip, deflate",
 
         # Optional but can help mimic modern Chrome/Firefox more
         "Sec-Fetch-Dest": random.choice(SEC_FETCH_DEST),
