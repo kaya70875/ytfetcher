@@ -3,13 +3,14 @@ from ytfetcher.types.channel import ChannelData
 from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed
 
 class YoutubeV3:
-    def __init__(self, api_key: str, channel_name: str, max_results: int = 50):
-        if not(1 <= max_results <= 500):
-            raise MaxResultsExceed("You can only fetch 500 videos per channel.")
-
+    def __init__(self, api_key: str, channel_name: str, video_ids: list[str] = [], max_results: int = 50):
         self.api_key = api_key
         self.channel_name = channel_name
+        self.video_ids = video_ids
         self.max_results = max_results
+
+        if not(1 <= self.max_results <= 500):
+            raise MaxResultsExceed("You can only fetch 500 videos per channel.")
     
     def fetch_channel_snippets(self):
         """
@@ -18,6 +19,9 @@ class YoutubeV3:
 
         channel_id = self._get_channel_id()
 
+        if self.video_ids:
+            return self._fetch_with_custom_video_ids()
+        
         uploads_playlist_id = self._get_upload_playlist_id(channel_id)
         return self._fetch_with_playlist_id(uploads_playlist_id)
     
@@ -35,7 +39,7 @@ class YoutubeV3:
                     params = {
                         'part': 'snippet',
                         'playlistId': uploads_playlist_id,
-                        'maxResults': self.max_results,
+                        'maxResults': 50,
                         'pageToken': next_page_token,
                         'key': self.api_key,
                         'fields': 'items(snippet(title,description,publishedAt,channelId,thumbnails,resourceId/videoId)),nextPageToken'
@@ -54,6 +58,33 @@ class YoutubeV3:
                     next_page_token = res.get('nextPageToken')
                     if not next_page_token:
                         break
+            return ChannelData(**data)
+        except AttributeError as attr_err:
+            print('Error fetching video IDs:', attr_err)
+            return ChannelData(video_ids=[], metadata=[])
+    
+    def _fetch_with_custom_video_ids(self) -> ChannelData:
+        try:
+            data = {
+                'video_ids' : self.video_ids,
+                'metadata' : []
+            }
+            base_url = 'https://www.googleapis.com/youtube/v3/videos'
+
+            with httpx.Client() as client:
+                params = {
+                    'part': 'snippet',
+                    'id': [*self.video_ids],
+                    'key': self.api_key,
+                }
+
+                response = client.get(base_url, params=params)
+                res = response.json()
+                
+                for item in res['items']:
+                    snippet = item['snippet']
+                    data['metadata'].append(snippet)
+                        
             return ChannelData(**data)
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)

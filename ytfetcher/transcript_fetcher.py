@@ -2,7 +2,7 @@ from ytfetcher.types.channel import Snippet
 from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled, IpBlocked
 from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent.futures import ThreadPoolExecutor
-from ytfetcher.types.channel import FetchAndMetaResponse
+from ytfetcher.types.channel import FetchAndMetaResponse, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 import asyncio
 import httpx
@@ -14,6 +14,15 @@ class TranscriptFetcher:
         self.executor = ThreadPoolExecutor(max_workers=30)
     
         self.httpx_client = httpx.Client(timeout=http_config.timeout, headers=http_config.headers)
+    
+    # Expose youtube-transcript-api methods
+    def fetch_transcript(self, video_id: str) -> list[Transcript]:
+        yt_api = YouTubeTranscriptApi(http_client=self.httpx_client)
+        return yt_api.fetch(video_id)
+    
+    def list_transcript(self, video_id: str):
+        yt_api = YouTubeTranscriptApi(http_client=self.httpx_client)
+        return yt_api.list(video_id)
 
     async def fetch(self) -> list[FetchAndMetaResponse]:
         async def run_in_thread(vid: str, snip: Snippet):
