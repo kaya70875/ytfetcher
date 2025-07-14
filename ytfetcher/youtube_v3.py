@@ -1,8 +1,12 @@
 import httpx
 from ytfetcher.types.channel import ChannelData
+from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed
 
 class YoutubeV3:
     def __init__(self, api_key: str, channel_name: str, max_results: int = 50):
+        if not(1 <= max_results <= 500):
+            raise MaxResultsExceed("You can only fetch 500 videos per channel.")
+
         self.api_key = api_key
         self.channel_name = channel_name
         self.max_results = max_results
@@ -50,7 +54,6 @@ class YoutubeV3:
                     next_page_token = res.get('nextPageToken')
                     if not next_page_token:
                         break
-            print('total videos fetched: ',len(data['video_ids']))
             return ChannelData(**data)
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)
@@ -80,10 +83,14 @@ class YoutubeV3:
                     'key': self.api_key
                 }
             )
+            
+            if response.status_code == 400 or response.status_code == 403:
+                raise InvalidApiKey("Your api key is invalid.")
+
             response.raise_for_status()
             res = response.json()
 
             if 'items' in res and res['items']:
                 return res['items'][0]['id']
             else:
-                raise ValueError(f"Channel '{self.channel_name}' not found.")
+                raise InvalidChannel(f"Channel '{self.channel_name}' not found.")
