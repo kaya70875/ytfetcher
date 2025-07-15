@@ -12,7 +12,6 @@ class YTFetcher:
 
     def _get_fetcher(self) -> TranscriptFetcher:
         if self._fetcher is None:
-            print('Fetcher initialized.')
             self._fetcher = TranscriptFetcher(self.snippets.video_ids, self.snippets.metadata, http_config=self.http_config)
         return self._fetcher
     

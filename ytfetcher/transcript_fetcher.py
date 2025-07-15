@@ -1,11 +1,14 @@
 from ytfetcher.types.channel import Snippet
-from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled, IpBlocked
+from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled
 from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent.futures import ThreadPoolExecutor
-from ytfetcher.types.channel import FetchAndMetaResponse, Transcript
+from ytfetcher.types.channel import FetchAndMetaResponse
 from ytfetcher.config.http_config import HTTPConfig
 import asyncio
 import httpx
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TranscriptFetcher:
     def __init__(self, video_ids: list[str], snippets: list[Snippet], http_config: HTTPConfig):
@@ -35,17 +38,15 @@ class TranscriptFetcher:
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.httpx_client)
             transcript = yt_api.fetch(video_id).to_raw_data()
-            print(f'{video_id} fetched.')
+            logger.info(f'{video_id} fetched.')
             return {
                 "video_id": video_id,
                 "transcript": transcript,
                 "snippet": snippet.model_dump()
             }
-        except (NoTranscriptFound, VideoUnavailable, TranscriptsDisabled):
-            return None
-        except(IpBlocked):
-            print('Youtube is blocking your ip...')
+        except (NoTranscriptFound, VideoUnavailable, TranscriptsDisabled) as e:
+            logger.warning(e)
             return None
         except Exception as e:
-            print(f"⚠️ Unexpected error: {e}")
+            logger.warning(f"⚠️ Unexpected error: {e}")
             return None
