@@ -12,7 +12,7 @@ class YoutubeV3:
         if not(1 <= self.max_results <= 500):
             raise MaxResultsExceed("You can only fetch 500 videos per channel.")
     
-    def fetch_channel_snippets(self):
+    def fetch_channel_snippets(self) -> ChannelData:
         """
         Get all channel snippets from a YouTube channel using the YouTube Data API v3.
         """
