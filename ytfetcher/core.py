@@ -10,13 +10,7 @@ class YTFetcher:
         self.snippets = self.v3.fetch_channel_snippets()
         self.http_config = http_config
         self.proxy_config = proxy_config
-
-        self._fetcher: TranscriptFetcher | None = None
-
-    def _get_fetcher(self) -> TranscriptFetcher:
-        if self._fetcher is None:
-            self._fetcher = TranscriptFetcher(self.snippets.video_ids, self.snippets.metadata, http_config=self.http_config, proxy_config=self.proxy_config)
-        return self._fetcher
+        self.fetcher = TranscriptFetcher(self.snippets.video_ids, self.snippets.metadata, http_config=self.http_config, proxy_config=self.proxy_config)
     
     @classmethod
     def from_channel(cls, api_key: str, channel_handle: str, max_results: int = 50, http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None) -> "YTFetcher":
@@ -30,16 +24,13 @@ class YTFetcher:
         """
         Create a fetcher that only fetches from given video ids.
         """
-        return cls(api_key=api_key, http_config=http_config, max_results=len(video_ids), video_ids=video_ids, channel_name=None, proxy_config=proxy_config)
+        return cls(api_key=api_key, http_config=http_config, max_results=len(video_ids), video_ids=video_ids, channel_handle=None, proxy_config=proxy_config)
 
-    async def get_transcripts(self) -> Transcript:
-        return [x.transcript for x in await self._get_fetcher().fetch()]
-
-    async def get_transcripts_with_metadata(self) -> list[FetchAndMetaResponse]:
-        return await self._get_fetcher().fetch()
+    async def get_youtube_data(self) -> list[FetchAndMetaResponse]:
+        return await self.fetcher.fetch()
     
-    def get_channel_data(self) -> ChannelData:
-        return self.snippets
+    #def get_channel_data(self) -> ChannelData:
+        #return self.snippets
     
-    def get_video_ids(self) -> list[str]:
-        return self.snippets.video_ids
+    #def get_video_ids(self) -> list[str]:
+        #return self.snippets.video_ids
