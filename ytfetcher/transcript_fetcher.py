@@ -41,6 +41,7 @@ class TranscriptFetcher:
             yt_api = YouTubeTranscriptApi(http_client=self.httpx_client, proxy_config=self.proxy_config)
             transcript = yt_api.fetch(video_id).to_raw_data()
             logger.info(f'{video_id} fetched.')
+            print(f'{video_id} fetched.')
             return {
                 "video_id": video_id,
                 "transcript": transcript,
@@ -48,7 +49,9 @@ class TranscriptFetcher:
             }
         except (NoTranscriptFound, VideoUnavailable, TranscriptsDisabled) as e:
             logger.warning(e)
+            print("Error", e)
             return None
         except Exception as e:
+            print('er', e)
             logger.warning(f"⚠️ Unexpected error: {e}")
             return None

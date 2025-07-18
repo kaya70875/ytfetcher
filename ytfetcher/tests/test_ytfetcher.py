@@ -83,6 +83,9 @@ async def test_get_youtube_data_from_video_ids(
     
     assert len(results) == 1
     assert isinstance(results[0], FetchAndMetaResponse)
+    assert results[0].snippet.channelId == 'id1'
+    assert results[0].snippet.description == 'description1'
+    assert results[0].transcript[0]['text'] == 'text1'
 
 
 @pytest.mark.asyncio
@@ -102,6 +105,9 @@ async def test_get_youtube_data_from_channel_name(
 
     assert len(results) == 1
     assert isinstance(results[0], FetchAndMetaResponse)
+    assert results[0].snippet.channelId == 'id1'
+    assert results[0].snippet.description == 'description1'
+    assert results[0].transcript[0]['text'] == 'text1'
 
 def test_http_config(patch_fetchers, mock_channel_name, mock_video_ids):
 
