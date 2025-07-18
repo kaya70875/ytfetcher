@@ -1,5 +1,5 @@
 from ytfetcher.youtube_v3 import YoutubeV3
-from ytfetcher.types.channel import ChannelData, FetchAndMetaResponse, Transcript
+from ytfetcher.types.channel import FetchAndMetaResponse
 from ytfetcher.transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
@@ -28,9 +28,3 @@ class YTFetcher:
 
     async def get_youtube_data(self) -> list[FetchAndMetaResponse]:
         return await self.fetcher.fetch()
-    
-    #def get_channel_data(self) -> ChannelData:
-        #return self.snippets
-    
-    #def get_video_ids(self) -> list[str]:
-        #return self.snippets.video_ids
