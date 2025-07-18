@@ -1,6 +1,6 @@
 import pytest
 import httpx
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, create_autospec
 from pytest_mock import MockerFixture
 from ytfetcher.core import YTFetcher
 from ytfetcher.types.channel import (
@@ -10,6 +10,7 @@ from ytfetcher.types.channel import (
     Thumbnail,
 )
 from ytfetcher.config.http_config import HTTPConfig
+from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.youtube_v3 import YoutubeV3
 from ytfetcher.exceptions import *
 from httpx import Timeout
@@ -116,6 +117,20 @@ def test_http_config(patch_fetchers, mock_channel_name, mock_video_ids):
 
     assert fetcher.http_config.headers == config.headers
     assert fetcher.http_config.timeout == config.timeout
+
+def test_proxy_config(patch_fetchers, mock_channel_name, mock_video_ids):
+    proxy_config_mock = create_autospec(ProxyConfig, instance=True)
+
+    fetcher = YTFetcher(
+        api_key="test_api_key",
+        channel_handle=mock_channel_name,
+        max_results=5,
+        video_ids=mock_video_ids,
+        http_config=HTTPConfig(),
+        proxy_config=proxy_config_mock
+    )
+
+    assert fetcher.proxy_config is proxy_config_mock
 
 def test_invalid_api_key_with_403(mocker: MockerFixture):
     mock_response = mocker.Mock(spec=httpx.Response)
