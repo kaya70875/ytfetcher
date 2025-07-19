@@ -1,6 +1,6 @@
 import httpx
 from ytfetcher.types.channel import ChannelData
-from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed
+from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed, NoChannelVideosFound
 
 class YoutubeV3:
     def __init__(self, api_key: str, channel_name: str, video_ids: list[str] = [], max_results: int = 50):
@@ -47,6 +47,10 @@ class YoutubeV3:
 
                     response = client.get(base_url, params=params)
                     res = response.json()
+
+                    if response.status_code == 404:
+                        raise NoChannelVideosFound()
+
                     for item in res['items']:
                         if len(data['video_ids']) >= self.max_results: break
                         video_id = item['snippet']['resourceId']['videoId']

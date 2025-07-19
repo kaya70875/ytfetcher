@@ -33,3 +33,8 @@ class MaxResultsExceed(YoutubeV3Error):
     Raises when max_results bigger than 500 videos.
     """
 
+class NoChannelVideosFound(YoutubeV3Error):
+    """
+    Raises when a channel has no videos to fetch.
+    """
+
