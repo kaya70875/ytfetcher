@@ -2,7 +2,7 @@ import pytest
 import httpx
 from ytfetcher.youtube_v3 import YoutubeV3
 from pytest_mock import MockerFixture
-from ytfetcher.exceptions import InvalidApiKey, InvalidChannel, MaxResultsExceed
+from ytfetcher.exceptions import InvalidApiKey, InvalidChannel, MaxResultsExceed, NoChannelVideosFound
 
 @pytest.fixture
 def youtubev3(mocker: MockerFixture):
@@ -122,3 +122,31 @@ def test_fetch_with_playlist_id_pagination(mocker: MockerFixture, youtubev3):
     assert result.metadata[0].title == "Video 1"
     assert result.metadata[1].title == "Video 2"
     assert mock_get.call_count == 2
+
+def test_fetch_with_playlist_id_404_response(mocker: MockerFixture, youtubev3):
+    youtubev3.video_ids = []
+    youtubev3.max_results = 10
+
+    mock_response = mocker.Mock(spec=httpx.Response)
+    mock_response.status_code = 404
+
+    mocker.patch("httpx.Client.get", return_value=mock_response)
+
+    with pytest.raises(NoChannelVideosFound):
+        youtubev3._fetch_with_playlist_id("playlist_id")
+
+def test_fetch_with_custom_invalid_video_ids(mocker: MockerFixture, youtubev3):
+    youtubev3.video_ids = ['invalid1', 'invalid2']
+
+    mock_response = mocker.Mock(spec=httpx.Response)
+    mock_response.status_code = 200
+    mock_response.json.return_value = {'kind': 'youtube#videoListResponse', 'etag': 'YIUPVpqNjppyCWOZfL-19bLb7uk', 'items': [], 'pageInfo': {'totalResults': 0, 'resultsPerPage': 0}}
+
+    mocker.patch("httpx.Client.get", return_value=mock_response)
+
+    result = youtubev3._fetch_with_custom_video_ids()
+    assert result.metadata == []
+    assert result.video_ids == ['invalid1', 'invalid2']
+
+def test_fetch_with_custom_invalid_and_valid_video_ids(mocker: MockerFixture, youtubev3):
+    pass
