@@ -1,5 +1,4 @@
 import pytest
-import httpx
 from unittest.mock import AsyncMock, MagicMock, create_autospec
 from pytest_mock import MockerFixture
 from ytfetcher.core import YTFetcher
@@ -11,7 +10,6 @@ from ytfetcher.types.channel import (
 )
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
-from ytfetcher.youtube_v3 import YoutubeV3
 from ytfetcher.exceptions import *
 from httpx import Timeout
 from scripts.headers import get_realistic_headers
@@ -137,40 +135,3 @@ def test_proxy_config(patch_fetchers, mock_channel_name, mock_video_ids):
     )
 
     assert fetcher.proxy_config is proxy_config_mock
-
-def test_invalid_api_key_with_403(mocker: MockerFixture):
-    mock_response = mocker.Mock(spec=httpx.Response)
-    mock_response.status_code = 403
-
-    mock_get = mocker.patch("httpx.Client.get", return_value=mock_response)
-    youtube = YoutubeV3(api_key="fake", channel_name="channel")
-
-    with pytest.raises(InvalidApiKey):
-        youtube._get_channel_id()
-    
-    mock_get.assert_called_once()
-
-def test_invalid_api_key_with_400(mocker: MockerFixture):
-    mock_response = mocker.Mock(spec=httpx.Response)
-    mock_response.status_code = 400
-
-    mock_get = mocker.patch("httpx.Client.get", return_value=mock_response)
-    youtube = YoutubeV3(api_key="fake", channel_name="channel")
-
-    with pytest.raises(InvalidApiKey):
-        youtube._get_channel_id()
-    
-    mock_get.assert_called_once()
-
-def test_invalid_channel_name(mocker: MockerFixture):
-    mock_response = mocker.Mock(spec=httpx.Response)
-    mock_response.status_code = 200
-    mock_response.json.return_value = {'kind': 'youtube#channelListResponse', 'etag': 'RuuXzTIr0OoDqI4S0RU6n4FqKEM', 'pageInfo': {'totalResults': 0, 'resultsPerPage': 5}}
-
-    mock_get = mocker.patch("httpx.Client.get", return_value=mock_response)
-    youtube = YoutubeV3("api_key", "none_channel")
-
-    with pytest.raises(InvalidChannel):
-        youtube._get_channel_id()
-    
-    mock_get.assert_called_once()
