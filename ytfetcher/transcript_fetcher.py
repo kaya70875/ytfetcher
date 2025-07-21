@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class TranscriptFetcher:
-    def __init__(self, video_ids: list[str], snippets: list[Snippet], http_config: HTTPConfig, proxy_config: ProxyConfig | None = None):
+    def __init__(self, video_ids: list[str], snippets: list[Snippet], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None):
         self.video_ids = video_ids
         self.snippets = snippets
         self.executor = ThreadPoolExecutor(max_workers=30)
