@@ -1,8 +1,9 @@
 import pytest
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
 from ytfetcher.types.channel import Snippet, Thumbnail, Thumbnails, Transcript, FetchAndMetaResponse
 from ytfetcher.transcript_fetcher import TranscriptFetcher
+from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api._transcripts import FetchedTranscript, FetchedTranscriptSnippet
 
 @pytest.fixture
 def mock_video_ids():
@@ -60,8 +61,15 @@ async def test_fetch_method_returns_correct_data(mocker: MockerFixture, mock_vid
     assert results[0].snippet.description == 'description2'
     assert results[0].snippet.channelId == 'id2'
 
-def test_thread_behavior():
-    pass
+def test_fetch_single_returns_correct_data(mocker: MockerFixture, mock_video_ids, mock_snippets):
+    fetcher = TranscriptFetcher(mock_video_ids, mock_snippets)
 
-def test_fetch_single_returns_correct_data():
-    pass
+    mocker.patch.object(YouTubeTranscriptApi, "fetch", 
+        return_value=FetchedTranscript([FetchedTranscriptSnippet(text="text", start=1, duration=1)], fetcher.video_ids[0], "en", "", True)
+    )
+
+    results = fetcher._fetch_single(fetcher.video_ids[0], fetcher.snippets[0])
+
+    assert results['video_id'] == fetcher.video_ids[0]
+    assert results['transcript'][0] == {'text': 'text', 'start': 1, 'duration': 1}
+    assert results['snippet'] == mock_snippets[0].model_dump()
