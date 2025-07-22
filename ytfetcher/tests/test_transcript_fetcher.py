@@ -1,6 +1,9 @@
 import pytest
+import asyncio
+import time
 from pytest_mock import MockerFixture
-from ytfetcher.types.channel import Snippet, Thumbnail, Thumbnails, Transcript, FetchAndMetaResponse
+from unittest.mock import MagicMock
+from ytfetcher.types.channel import Snippet, Thumbnail, Thumbnails, FetchAndMetaResponse
 from ytfetcher.transcript_fetcher import TranscriptFetcher
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._transcripts import FetchedTranscript, FetchedTranscriptSnippet
@@ -73,3 +76,25 @@ def test_fetch_single_returns_correct_data(mocker: MockerFixture, mock_video_ids
     assert results['video_id'] == fetcher.video_ids[0]
     assert results['transcript'][0] == {'text': 'text', 'start': 1, 'duration': 1}
     assert results['snippet'] == mock_snippets[0].model_dump()
+
+def test_concurrent_fetching(mocker, mock_snippets, mock_video_ids):
+    # Mock the YouTube API to simulate delayed responses
+    mock_fetch = mocker.patch.object(
+        YouTubeTranscriptApi, 
+        "fetch",
+        side_effect=lambda *args, **kwargs: MagicMock(
+            to_raw_data=lambda: [{"text": "test", "start": 0, "duration": 1}]
+        )
+    )
+    
+    # Create a fetcher with 2 video IDs
+    fetcher = TranscriptFetcher(mock_video_ids, mock_snippets)
+    
+    # Time the execution (should be ~1s, not 2s if parallel)
+    start_time = time.time()
+    results = asyncio.run(fetcher.fetch())
+    elapsed = time.time() - start_time
+    
+    assert len(results) == 2
+    assert elapsed < 1.5  # Should complete in ~1s if parallel
+    assert mock_fetch.call_count == 2
