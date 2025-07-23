@@ -1,6 +1,7 @@
 from pathlib import Path
 from ytfetcher.types.channel import FetchAndMetaResponse
 import json
+import csv
 
 class Exporter:
     def __init__(self, channel_data: list[FetchAndMetaResponse], allowed_metadata_list: list = ['title', 'description'], timing: bool = True, filename: str = 'data', output_dir: str = None):
@@ -58,4 +59,27 @@ class Exporter:
             json.dump(export_data, file, indent=2, ensure_ascii=False)
             
     def export_as_csv(self):
-        pass
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = self.output_dir / f"{self.filename}.csv"
+
+        t = ['start', 'duration']
+
+        fieldnames = ['index', 'video_id', *self.allowed_metadata_list, 'text']
+        fieldnames += t if self.timing else []
+        with open(output_path, 'w', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+
+            i = 0
+
+            for data in self.channel_data:
+                for entry in data.transcript:
+                    row = {
+                        'index': i,
+                        'video_id': data.video_id,
+                        **{field: getattr(data.snippet, field) for field in self.allowed_metadata_list},
+                        **({"start": entry["start"], "duration": entry["duration"]} if self.timing else {}),
+                        'text': entry['text']
+                    }
+                    writer.writerow(row)
+                    i += 1
