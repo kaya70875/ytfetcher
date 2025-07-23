@@ -35,8 +35,8 @@ class YoutubeV3:
             base_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
             next_page_token = None
 
-            with httpx.Client() as client:
-                for _ in tqdm(range(self.max_results)):
+            with httpx.Client() as client, tqdm(desc='Fetching videos', unit='video', total=self.max_results) as pbar:
+                while True:
                     params = {
                         'part': 'snippet',
                         'playlistId': uploads_playlist_id,
@@ -59,6 +59,7 @@ class YoutubeV3:
 
                         data['video_ids'].append(video_id)
                         data['metadata'].append(snippet)
+                        pbar.update(1)
 
                     next_page_token = res.get('nextPageToken')
                     if not next_page_token:
