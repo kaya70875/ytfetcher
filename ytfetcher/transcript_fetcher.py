@@ -5,6 +5,7 @@ from ytfetcher.types.channel import Snippet
 from ytfetcher.types.channel import FetchAndMetaResponse
 from ytfetcher.config.http_config import HTTPConfig
 from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm # type: ignore
 import asyncio
 import httpx
 import logging
@@ -25,23 +26,24 @@ class TranscriptFetcher:
             return await asyncio.to_thread(self._fetch_single, vid, snip)
 
         tasks = [run_in_thread(vid, snip) for vid, snip in zip(self.video_ids, self.snippets)]
-        results = await asyncio.gather(*tasks)
-
-        return [
-            FetchAndMetaResponse(
-                video_id=result["video_id"],
-                transcript=result["transcript"],
-                snippet=Snippet(**result["snippet"])
-            )
-            for result in results if result
-        ]
+        
+        results = []
+        for coro in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript'):
+            result = await coro
+            if result:
+                results.append(FetchAndMetaResponse(
+                    video_id=result["video_id"],
+                    transcript=result["transcript"],
+                    snippet=Snippet(**result["snippet"])
+                ))
+        
+        return results
 
     def _fetch_single(self, video_id: str, snippet: Snippet) -> dict | None:
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.httpx_client, proxy_config=self.proxy_config)
             transcript = yt_api.fetch(video_id).to_raw_data()
             logger.info(f'{video_id} fetched.')
-            print(f'{video_id} fetched.')
             return {
                 "video_id": video_id,
                 "transcript": transcript,
@@ -49,9 +51,8 @@ class TranscriptFetcher:
             }
         except (NoTranscriptFound, VideoUnavailable, TranscriptsDisabled) as e:
             logger.warning(e)
-            print("Error", e)
             return None
         except Exception as e:
-            print('er', e)
-            logger.warning(f"⚠️ Unexpected error: {e}")
+            print(f'Error while fetching transcript from video: {video_id} ', e)
+            logger.warning(f'Error while fetching transcript from video: {video_id} ', e)
             return None
