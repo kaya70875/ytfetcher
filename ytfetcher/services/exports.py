@@ -1,5 +1,6 @@
 from pathlib import Path
 from ytfetcher.types.channel import FetchAndMetaResponse
+import json
 
 class Exporter:
     def __init__(self, channel_data: list[FetchAndMetaResponse], allowed_metadata_list: list = ['title', 'description'], timing: bool = True, filename: str = 'data', output_dir: str = None):
@@ -16,9 +17,7 @@ class Exporter:
             raise ValueError("System path cannot found.")
     
     def export_as_txt(self) -> None:
-        # Create output directory if it doesn't exist
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
         output_path = self.output_dir / f"{self.filename}.txt"
         
         with open(output_path, 'w', encoding='utf-8') as file:
@@ -35,7 +34,28 @@ class Exporter:
                 file.write("\n")
         
     def export_as_json(self):
-        pass
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = self.output_dir / f"{self.filename}.json"
 
+        export_data = []
+
+        with open(output_path, 'w', encoding='utf-8') as file:
+            for data in self.channel_data:
+                video_data = {
+                    "video_id": data.video_id,
+                    **{field: getattr(data.snippet, field) for field in self.allowed_metadata_list},
+                    "transcript": [
+                        {   
+                            **({"start": entry["start"], "duration": entry["duration"]} if self.timing else {}),
+                            "text": entry["text"]
+                        }
+                        for entry in data.transcript
+                    ]
+                }
+                export_data.append(video_data)
+
+            # Write json
+            json.dump(export_data, file, indent=2, ensure_ascii=False)
+            
     def export_as_csv(self):
         pass
