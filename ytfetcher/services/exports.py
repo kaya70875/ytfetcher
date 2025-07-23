@@ -26,7 +26,7 @@ class Exporter:
                 file.write(f"Transcript for {data.video_id}:\n")
 
                 for metadata in self.allowed_metadata_list:
-                    file.write(f'{metadata} --> {getattr(data.snippet, metadata)} \n')
+                    file.write(f'{metadata} --> {getattr(data.snippet, metadata)}\n')
                 
                 for entry in data.transcript:
                     if self.timing:
