@@ -1,4 +1,5 @@
 import httpx
+from tqdm import tqdm # type: ignore
 from ytfetcher.types.channel import ChannelData
 from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed, NoChannelVideosFound
 
@@ -35,7 +36,7 @@ class YoutubeV3:
             next_page_token = None
 
             with httpx.Client() as client:
-                while True:
+                for _ in tqdm(range(self.max_results)):
                     params = {
                         'part': 'snippet',
                         'playlistId': uploads_playlist_id,
