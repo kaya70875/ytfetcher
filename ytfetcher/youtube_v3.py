@@ -66,10 +66,8 @@ class YoutubeV3:
             NoChannelVideosFound: If the playlist is not found (HTTP 404).
         """
         try:
-            data = {
-                'video_ids': [],
-                'metadata': []
-            }
+            video_ids = []
+            metadata = []
 
             base_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
             next_page_token = None
@@ -92,19 +90,19 @@ class YoutubeV3:
                         raise NoChannelVideosFound()
 
                     for item in res['items']:
-                        if len(data['video_ids']) >= self.max_results:
+                        if len(video_ids) >= self.max_results:
                             break
                         video_id = item['snippet']['resourceId']['videoId']
                         snippet = item['snippet']
 
-                        data['video_ids'].append(video_id)
-                        data['metadata'].append(snippet)
-                        pbar.update(1)
+                        video_ids.append(video_id)
+                        metadata.append(snippet)
 
+                        pbar.update(1)
                     next_page_token = res.get('nextPageToken')
                     if not next_page_token:
                         break
-            return ChannelData(**data)
+            return ChannelData(video_ids=video_ids, metadata=metadata)
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)
             return ChannelData(video_ids=[], metadata=[])
@@ -119,10 +117,7 @@ class YoutubeV3:
             ChannelData: Contains the original video IDs and their corresponding metadata.
         """
         try:
-            data = {
-                'video_ids': self.video_ids,
-                'metadata': []
-            }
+            metadata = []
 
             base_url = 'https://www.googleapis.com/youtube/v3/videos'
 
@@ -138,9 +133,9 @@ class YoutubeV3:
 
                 for item in res['items']:
                     snippet = item['snippet']
-                    data['metadata'].append(snippet)
+                    metadata.append(snippet)
 
-            return ChannelData(**data)
+            return ChannelData(video_ids=self.video_ids, metadata=metadata)
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)
             return ChannelData(video_ids=[], metadata=[])
