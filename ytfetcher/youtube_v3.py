@@ -12,7 +12,7 @@ class YoutubeV3:
 
         if not(1 <= self.max_results <= 500):
             raise MaxResultsExceed("You can only fetch 500 videos per channel.")
-    
+            
     def fetch_channel_snippets(self) -> ChannelData:
         """
         Get all channel snippets from a YouTube channel using the YouTube Data API v3.
@@ -32,10 +32,11 @@ class YoutubeV3:
                 'video_ids' : [],
                 'metadata' : []
             }
+
             base_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
             next_page_token = None
 
-            with httpx.Client() as client, tqdm(desc='Fetching videos', unit='video', total=self.max_results) as pbar:
+            with httpx.Client() as client, tqdm(desc='Fetching snippets', unit='video', total=self.max_results) as pbar:
                 while True:
                     params = {
                         'part': 'snippet',
@@ -75,6 +76,7 @@ class YoutubeV3:
                 'video_ids' : self.video_ids,
                 'metadata' : []
             }
+
             base_url = 'https://www.googleapis.com/youtube/v3/videos'
 
             with httpx.Client() as client:
@@ -90,7 +92,7 @@ class YoutubeV3:
                 for item in res['items']:
                     snippet = item['snippet']
                     data['metadata'].append(snippet)
-                        
+
             return ChannelData(**data)
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)

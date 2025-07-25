@@ -5,6 +5,7 @@ from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
 
 class YTFetcher:
+    print('Starting...')
     def __init__(self, api_key: str, http_config: HTTPConfig, max_results: int, video_ids: list[str], channel_handle: str | None = None, proxy_config: ProxyConfig | None = None):
         self.v3 = YoutubeV3(api_key=api_key, channel_name=channel_handle, video_ids=video_ids, max_results=max_results)
         self.snippets = self.v3.fetch_channel_snippets()
