@@ -5,6 +5,28 @@ from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
 
 class YTFetcher:
+    """
+    YTFetcher is a high-level interface for fetching YouTube video metadata and transcripts.
+
+    It supports two modes of initialization:
+    - From a channel handle (via `from_channel`)
+    - From a list of specific video IDs (via `from_video_ids`)
+
+    Internally, it uses the YouTube Data API v3 to retrieve video snippets and metadata,
+    and the `youtube_transcript_api` (with optional proxy support) to fetch transcripts.
+
+    Parameters:
+        api_key (str): API key for accessing the YouTube Data API.
+        http_config (HTTPConfig): Configuration for HTTP client behavior.
+        max_results (int): Maximum number of videos to fetch.
+        video_ids (list[str]): List of specific video IDs to fetch.
+        channel_handle (str | None): Optional YouTube channel handle (used when fetching from channel).
+        proxy_config (ProxyConfig | None): Optional proxy settings for transcript fetching.
+
+    Example:
+        fetcher = YTFetcher.from_channel(api_key="YOUR_KEY", channel_handle="@example")
+        data = await fetcher.get_youtube_data()
+    """
     print('Starting...')
     def __init__(self, api_key: str, http_config: HTTPConfig, max_results: int, video_ids: list[str], channel_handle: str | None = None, proxy_config: ProxyConfig | None = None):
         self.v3 = YoutubeV3(api_key=api_key, channel_name=channel_handle, video_ids=video_ids, max_results=max_results)
