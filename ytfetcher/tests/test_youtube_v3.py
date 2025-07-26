@@ -148,5 +148,17 @@ def test_fetch_with_custom_invalid_video_ids(mocker: MockerFixture, youtubev3):
     assert result.metadata == []
     assert result.video_ids == ['invalid1', 'invalid2']
 
+def test_get_channel_id_method(mocker: MockerFixture, youtubev3):
+
+    youtubev3.video_ids = []
+    youtubev3.max_results = 10
+
+    mock_response = mocker.Mock(spec=httpx.Response)
+    mocker.patch('httpx.Client.get', return_value=mock_response)
+
+    mock_response.status_code = 200
+    mock_response.json.return_value = {'kind': 'youtube#channelListResponse', 'etag': 'eyEjTjtQvyjb1u1P9zafwf2xkgg', 'pageInfo': {'totalResults': 1, 'resultsPerPage': 5}, 'items': [{'kind': 'youtube#channel', 'etag': 'w3LqL8EL71QTkSoGxenzQwxJbxQ', 'id': 'UCa90xqK2odw1KV5wHU9WRhg'}]}
+    assert youtubev3._get_channel_id() == 'UCa90xqK2odw1KV5wHU9WRhg'
+
 def test_fetch_with_custom_invalid_and_valid_video_ids(mocker: MockerFixture, youtubev3):
     pass
