@@ -50,16 +50,41 @@ class YTFetcher:
         return cls(api_key=api_key, http_config=http_config, max_results=len(video_ids), video_ids=video_ids, channel_handle=None, proxy_config=proxy_config)
 
     async def get_youtube_data(self) -> list[FetchAndMetaResponse]:
+        """
+        Asynchronously fetches transcript and metadata for all videos retrieved from the channel or video IDs.
+
+        Returns:
+            list[FetchAndMetaResponse]: A list of objects containing transcript text and associated metadata.
+        """
         return await self.fetcher.fetch()
 
     def get_snippets(self) -> ChannelData:
+        """
+        Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
+
+        Returns:
+            ChannelData: An object containing video metadata and IDs.
+        """
         return self.snippets
-    
+
     @property
     def video_ids(self) -> list[str]:
+        """
+        List of video IDs fetched from the YouTube channel or provided directly.
+
+        Returns:
+            list[str]: Video ID strings.
+        """
         return self.snippets.video_ids
-    
+
     @property
     def metadata(self) -> list[Snippet]:
+        """
+        Metadata for each video, such as title, publish date, and description.
+
+        Returns:
+            list[Snippet]: List of Snippet objects containing video metadata.
+        """
         return self.snippets.metadata
+
     
