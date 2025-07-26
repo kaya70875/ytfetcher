@@ -18,7 +18,8 @@ class Exporter:
         output_dir (str | None): Directory to export files into. Defaults to current working directory.
 
     Raises:
-        ValueError: If no data is provided or output path does not exist.
+        NoDataToExport: If no data is provided.
+        SystemPathCannotFound: If specified path cannot found.
     """
 
     def __init__(self, channel_data: list[FetchAndMetaResponse], allowed_metadata_list: list = ['title', 'description'], timing: bool = True, filename: str = 'data', output_dir: str = None):
