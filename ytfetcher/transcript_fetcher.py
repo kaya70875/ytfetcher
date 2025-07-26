@@ -1,8 +1,7 @@
 from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import ProxyConfig
-from ytfetcher.types.channel import Snippet
-from ytfetcher.types.channel import FetchAndMetaResponse
+from ytfetcher.types.channel import Snippet, FetchAndMetaResponse, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm  # type: ignore

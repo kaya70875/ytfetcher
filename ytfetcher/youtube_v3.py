@@ -21,7 +21,7 @@ class YoutubeV3:
         MaxResultsExceed: If max_results is greater than 500 or less than 1.
     """
 
-    def __init__(self, api_key: str, channel_name: str, video_ids: list[str] = [], max_results: int = 50):
+    def __init__(self, api_key: str, channel_name: str | None, video_ids: list[str] = [], max_results: int = 50):
         self.api_key = api_key
         self.channel_name = channel_name
         self.video_ids = video_ids
