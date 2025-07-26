@@ -34,7 +34,6 @@ class TranscriptFetcher:
         self.http_client = requests.Session()
 
         # Initialize client
-        self.http_client.timeout = http_config.timeout
         self.http_client.headers = http_config.headers
 
     async def fetch(self) -> list[FetchAndMetaResponse]:
