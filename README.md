@@ -1,14 +1,16 @@
 # YTFetcher
 
-**YTFetcher** is a Python tool for fetching YouTube video transcripts in bulk, along with rich metadata like titles, publish dates, and thumbnails. Ideal for building NLP datasets, search indexes, or powering content analysis apps.
+**YTFetcher** is a Python tool for fetching YouTube video transcripts in bulk, along with rich metadata like titles, publish dates, and descriptions. Ideal for building NLP datasets, search indexes, or powering content analysis apps.
 
 ---
 
 ## 🚀 Features
 
 - Fetch full transcripts from a YouTube channel.
-- Get video metadata: title, description, thumbnails, published date
-- Async support for high performance
+- Get video metadata: title, description, thumbnails, published date.
+- Async support for high performance.
+- Export fetched data as txt, csv or json.
+- CLI support.
 
 ---
 
@@ -17,7 +19,7 @@
 ```bash
 git clone https://github.com/kaya70875/ytfetcher.git
 cd ytfetcher
-pip install -e .
+poetry install
 ```
 
 ## Basic Usage
