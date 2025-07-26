@@ -1,5 +1,5 @@
 from ytfetcher.youtube_v3 import YoutubeV3
-from ytfetcher.types.channel import FetchAndMetaResponse, ChannelData, Snippet
+from ytfetcher.types.channel import FetchAndMetaResponse, ChannelData, Snippet, Transcript
 from ytfetcher.transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
@@ -33,6 +33,8 @@ class YTFetcher:
         self.http_config = http_config
         self.proxy_config = proxy_config
         self.fetcher = TranscriptFetcher(self.snippets.video_ids, self.snippets.metadata, http_config=self.http_config, proxy_config=self.proxy_config)
+
+        self._youtube_data: list[FetchAndMetaResponse] | None = None
     
     @classmethod
     def from_channel(cls, api_key: str, channel_handle: str, max_results: int = 50, http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None) -> "YTFetcher":
@@ -55,7 +57,21 @@ class YTFetcher:
         Returns:
             list[FetchAndMetaResponse]: A list of objects containing transcript text and associated metadata.
         """
-        return await self.fetcher.fetch()
+
+        if self._youtube_data is None:
+            self._youtube_data = await self.fetcher.fetch()
+        return self._youtube_data
+    
+    async def get_transcripts(self) -> list[Transcript]:
+        """
+        Returns only the transcripts from cached or freshly fetched YouTube data.
+
+        Returns:
+            list[Transcript]: Transcripts only (excluding metadata).
+        """
+        if self._youtube_data is None:
+            self._youtube_data = await self.fetcher.fetch()
+        return [data.transcript for data in self._youtube_data]
 
     def get_snippets(self) -> ChannelData:
         """
