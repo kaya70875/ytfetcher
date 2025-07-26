@@ -1,6 +1,6 @@
 import httpx
 from tqdm import tqdm  # type: ignore
-from ytfetcher.types.channel import ChannelData
+from ytfetcher.types.channel import ChannelData, Snippet
 from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed, NoChannelVideosFound
 
 
@@ -66,8 +66,8 @@ class YoutubeV3:
             NoChannelVideosFound: If the playlist is not found (HTTP 404).
         """
         try:
-            video_ids = []
-            metadata = []
+            video_ids: list[str] = []
+            metadata: list[Snippet] = []
 
             base_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
             next_page_token = None
@@ -117,7 +117,7 @@ class YoutubeV3:
             ChannelData: Contains the original video IDs and their corresponding metadata.
         """
         try:
-            metadata = []
+            metadata: list[Snippet] = []
 
             base_url = 'https://www.googleapis.com/youtube/v3/videos'
 
