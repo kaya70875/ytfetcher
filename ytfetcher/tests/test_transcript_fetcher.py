@@ -1,12 +1,15 @@
 import pytest
 import asyncio
 import time
+import httpx
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 from ytfetcher.types.channel import Snippet, Thumbnail, Thumbnails, FetchAndMetaResponse
 from ytfetcher.transcript_fetcher import TranscriptFetcher
+from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._transcripts import FetchedTranscript, FetchedTranscriptSnippet
+from youtube_transcript_api.proxies import GenericProxyConfig
 
 @pytest.fixture
 def mock_video_ids():
@@ -98,3 +101,15 @@ def test_concurrent_fetching(mocker, mock_snippets, mock_video_ids):
     assert len(results) == 2
     assert elapsed < 1.5  # Should complete in ~1s if parallel
     assert mock_fetch.call_count == 2
+
+def test_custom_ytt_api_client_initialized_correctly():
+    fetcher = TranscriptFetcher(mock_video_ids, mock_snippets, http_config=HTTPConfig(timeout=httpx.Timeout(2.0)), proxy_config=GenericProxyConfig(
+        http_url='http://test:800'
+    ))
+    ytt_api = YouTubeTranscriptApi(http_client=fetcher.http_client, proxy_config=fetcher.proxy_config)
+    
+    print(ytt_api._fetcher._http_client.proxies)
+
+    assert ytt_api._fetcher._http_client.headers.get('User-Agent') is not None
+    assert ytt_api._fetcher._http_client.headers.get("Referer") is not None
+    assert ytt_api._fetcher._http_client.proxies == {'http': 'http://test:800', 'https': 'http://test:800'}
