@@ -1,5 +1,6 @@
 from pathlib import Path
 from ytfetcher.types.channel import FetchAndMetaResponse
+from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
 import json
 import csv
 
@@ -28,10 +29,10 @@ class Exporter:
         self.output_dir = Path(output_dir) if output_dir else Path.cwd()
 
         if not self.channel_data:
-            raise ValueError("No data to export.")
+            raise NoDataToExport("No data to export.")
         
         if not self.output_dir.exists():
-            raise ValueError("System path cannot found.")
+            raise SystemPathCannotFound("System path cannot found.")
 
     def export_as_txt(self) -> None:
         """

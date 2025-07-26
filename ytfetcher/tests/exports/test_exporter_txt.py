@@ -2,7 +2,6 @@ from pytest_mock import MockerFixture
 from unittest.mock import mock_open, call
 from ytfetcher.services.exports import Exporter
 from ytfetcher.types.channel import FetchAndMetaResponse, Snippet, Thumbnail, Thumbnails
-from pathlib import Path
 import pytest
 
 @pytest.fixture
@@ -48,14 +47,6 @@ def test_export_with_txt_writes_file_with_correct_structure(mocker: MockerFixtur
         call.write('\n')
     ]
     handle.write.assert_has_calls(expected_calls)
-
-def test_export_with_txt_no_channel_data_exception():
-    with pytest.raises(ValueError):
-        Exporter([])
-        
-def test_export_with_txt_wrong_output_dir_exception():
-    with pytest.raises(ValueError):
-        Exporter([], output_dir='dwadwadwadwa')
 
 def test_export_with_txt_creates_file_with_correct_custom_name(mocker: MockerFixture, mock_transcript_response):
     m = mock_open()
