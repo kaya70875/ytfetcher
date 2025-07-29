@@ -19,12 +19,17 @@ class ChannelData(BaseModel):
     video_ids: list[str]
     metadata: list[Snippet]
 
-class FetchAndMetaResponse(BaseModel):
-    video_id: str
-    transcript: list[dict]
-    snippet: Snippet
 
 class Transcript(BaseModel):
     text: str
     start: float
     duration: float
+    
+class VideoTranscript(BaseModel):
+    video_id: str
+    transcripts: list[Transcript]
+
+class FetchAndMetaResponse(BaseModel):
+    video_id: str
+    transcript: list[Transcript]
+    snippet: Snippet
