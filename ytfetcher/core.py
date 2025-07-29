@@ -25,7 +25,7 @@ class YTFetcher:
 
     Example:
         fetcher = YTFetcher.from_channel(api_key="YOUR_KEY", channel_handle="@example")
-        data = await fetcher.get_youtube_data()
+        data = await fetcher.fetch_youtube_data()
     """
     def __init__(self, api_key: str, http_config: HTTPConfig, max_results: int, video_ids: list[str], channel_handle: str | None = None, proxy_config: ProxyConfig | None = None):
         self.v3 = YoutubeV3(api_key=api_key, channel_name=channel_handle, video_ids=video_ids, max_results=max_results)
@@ -48,7 +48,7 @@ class YTFetcher:
         """
         return cls(api_key=api_key, http_config=http_config, max_results=len(video_ids), video_ids=video_ids, channel_handle=None, proxy_config=proxy_config)
 
-    async def get_youtube_data(self) -> list[FetchAndMetaResponse]:
+    async def fetch_youtube_data(self) -> list[FetchAndMetaResponse]:
         """
         Asynchronously fetches transcript and metadata for all videos retrieved from the channel or video IDs.
 
@@ -66,7 +66,7 @@ class YTFetcher:
             for transcript, snippet in zip(transcripts, self.snippets.metadata)
         ]
     
-    async def get_transcripts(self) -> list[VideoTranscript]:
+    async def fetch_transcripts(self) -> list[VideoTranscript]:
         """
         Returns only the transcripts from cached or freshly fetched YouTube data.
 
@@ -76,7 +76,7 @@ class YTFetcher:
         
         return await self.fetcher.fetch()
 
-    def get_snippets(self) -> ChannelData:
+    def fetch_snippets(self) -> ChannelData:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 
