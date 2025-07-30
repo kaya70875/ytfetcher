@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open, call
 from ytfetcher.services.exports import Exporter
-from ytfetcher.types.channel import FetchAndMetaResponse, Snippet, Thumbnail, Thumbnails
+from ytfetcher.types.channel import ChannelData, Snippet, Thumbnail, Thumbnails
 import pytest
 
 @pytest.fixture
@@ -19,10 +19,10 @@ def sample_snippet():
 @pytest.fixture
 def mock_transcript_response(sample_snippet):
     return [
-        FetchAndMetaResponse(
+        ChannelData(
             video_id="video1",
-            transcript=[{"text": "text1", "start": 1.11, "duration": 2.22}],
-            snippet=sample_snippet
+            transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
+            metadata=sample_snippet
         )
     ]
 

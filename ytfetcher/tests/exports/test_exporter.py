@@ -1,6 +1,6 @@
 from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
 from ytfetcher.services.exports import Exporter
-from ytfetcher.types.channel import FetchAndMetaResponse, Thumbnail, Thumbnails, Snippet
+from ytfetcher.types.channel import ChannelData, Thumbnail, Thumbnails, Snippet
 import pytest
 
 @pytest.fixture
@@ -18,10 +18,10 @@ def sample_snippet():
 @pytest.fixture
 def mock_transcript_response(sample_snippet):
     return [
-        FetchAndMetaResponse(
+        ChannelData(
             video_id="video1",
-            transcript=[{"text": "text1", "start": 1.11, "duration": 2.22}],
-            snippet=sample_snippet
+            transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
+            metadata=sample_snippet
         )
     ]
 

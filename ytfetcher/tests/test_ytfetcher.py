@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, create_autospec
 from pytest_mock import MockerFixture
 from ytfetcher.core import YTFetcher
 from ytfetcher.types.channel import (
-    FetchAndMetaResponse,
+    ChannelData,
     Snippet,
     Thumbnails,
     Thumbnail,
@@ -42,10 +42,10 @@ def sample_snippet():
 @pytest.fixture
 def mock_transcript_response(sample_snippet):
     return [
-        FetchAndMetaResponse(
+        ChannelData(
             video_id="video1",
-            transcript=[{"text": "text1", "start": 0, "duration": 0}],
-            snippet=sample_snippet
+            transcripts=[{"text": "text1", "start": 0, "duration": 0}],
+            metadata=sample_snippet
         )
     ]
 
@@ -80,7 +80,7 @@ async def test_get_youtube_data_from_video_ids(
     results = await fetcher.get_youtube_data()
     
     assert len(results) == 1
-    assert isinstance(results[0], FetchAndMetaResponse)
+    assert isinstance(results[0], ChannelData)
     assert results[0].snippet.channelId == 'id1'
     assert results[0].snippet.description == 'description1'
     assert results[0].transcript[0]['text'] == 'text1'
@@ -102,7 +102,7 @@ async def test_get_youtube_data_from_channel_name(
     results = await fetcher.get_youtube_data()
 
     assert len(results) == 1
-    assert isinstance(results[0], FetchAndMetaResponse)
+    assert isinstance(results[0], ChannelData)
     assert results[0].snippet.channelId == 'id1'
     assert results[0].snippet.description == 'description1'
     assert results[0].transcript[0]['text'] == 'text1'

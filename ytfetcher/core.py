@@ -1,5 +1,5 @@
 from ytfetcher.youtube_v3 import YoutubeV3
-from ytfetcher.types.channel import FetchAndMetaResponse, ChannelData, Snippet, VideoTranscript
+from ytfetcher.types.channel import ChannelData, Snippet, VideoTranscript, VideoMetadata
 from ytfetcher.transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
@@ -48,22 +48,22 @@ class YTFetcher:
         """
         return cls(api_key=api_key, http_config=http_config, max_results=len(video_ids), video_ids=video_ids, channel_handle=None, proxy_config=proxy_config)
 
-    async def fetch_youtube_data(self) -> list[FetchAndMetaResponse]:
+    async def fetch_youtube_data(self) -> list[ChannelData]:
         """
         Asynchronously fetches transcript and metadata for all videos retrieved from the channel or video IDs.
 
         Returns:
-            list[FetchAndMetaResponse]: A list of objects containing transcript text and associated metadata.
+            list[ChannelData]: A list of objects containing transcript text and associated metadata.
         """
 
         transcripts = await self.fetcher.fetch()
         return [
-            FetchAndMetaResponse(
+            ChannelData(
              video_id=transcript.video_id,
-             transcript=transcript.transcripts,
-             snippet=snippet
+             transcripts=transcript.transcripts,
+             metadata=metadata
              )
-            for transcript, snippet in zip(transcripts, self.snippets.metadata)
+            for transcript, metadata in zip(transcripts, self.snippets.metadata)
         ]
     
     async def fetch_transcripts(self) -> list[VideoTranscript]:
@@ -76,12 +76,12 @@ class YTFetcher:
         
         return await self.fetcher.fetch()
 
-    def fetch_snippets(self) -> ChannelData:
+    def fetch_snippets(self) -> VideoMetadata:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 
         Returns:
-            ChannelData: An object containing video metadata and IDs.
+            VideoMetadata: An object containing video metadata and IDs.
         """
         return self.snippets
 

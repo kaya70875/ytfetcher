@@ -15,10 +15,6 @@ class Snippet(BaseModel):
     channelId: str
     thumbnails: Thumbnails
 
-class ChannelData(BaseModel):
-    video_ids: list[str]
-    metadata: list[Snippet]
-
 
 class Transcript(BaseModel):
     text: str
@@ -29,7 +25,11 @@ class VideoTranscript(BaseModel):
     video_id: str
     transcripts: list[Transcript]
 
-class FetchAndMetaResponse(BaseModel):
+class VideoMetadata(BaseModel):
+    video_ids: list[str]
+    metadata: list[Snippet]
+
+class ChannelData(BaseModel):
     video_id: str
-    transcript: list[Transcript]
-    snippet: Snippet
+    transcripts: list[Transcript]
+    metadata: Snippet

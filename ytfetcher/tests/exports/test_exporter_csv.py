@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open, call
 from ytfetcher.services.exports import Exporter
-from ytfetcher.types.channel import FetchAndMetaResponse, Snippet, Thumbnail, Thumbnails
+from ytfetcher.types.channel import ChannelData, Snippet, Thumbnail, Thumbnails
 import pytest
 import csv
 
@@ -20,10 +20,10 @@ def sample_snippet():
 @pytest.fixture
 def mock_transcript_response(sample_snippet):
     return [
-        FetchAndMetaResponse(
+        ChannelData(
             video_id="video1",
-            transcript=[{"text": "text1", "start": 1.11, "duration": 2.22}],
-            snippet=sample_snippet
+            transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
+            metadata=sample_snippet
         )
     ]
 
@@ -79,10 +79,10 @@ def test_export_with_csv_custom_metadata(mocker: MockerFixture, mock_transcript_
     assert rows[1] == ['0', 'video1', 'channelname1', 'text1']
 
 def test_csv_special_characters(mocker: MockerFixture, sample_snippet):
-    exotic_data = [FetchAndMetaResponse(
+    exotic_data = [ChannelData(
         video_id="vid1",
-        transcript=[{"text": "Tést,Chárs", "start": 0, "duration": 1}],
-        snippet=sample_snippet
+        transcripts=[{"text": "Tést,Chárs", "start": 0, "duration": 1}],
+        metadata=sample_snippet
     )]
     
     m = mock_open()

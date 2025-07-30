@@ -4,7 +4,7 @@ import time
 import httpx
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
-from ytfetcher.types.channel import Snippet, Thumbnail, Thumbnails, FetchAndMetaResponse
+from ytfetcher.types.channel import Snippet, Thumbnail, Thumbnails, ChannelData
 from ytfetcher.transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -61,7 +61,7 @@ async def test_fetch_method_returns_correct_data(mocker: MockerFixture, mock_vid
     
     results = await fetcher.fetch()
 
-    assert isinstance(results[0], FetchAndMetaResponse)
+    assert isinstance(results[0], ChannelData)
     assert results[0].transcript[0]['text'] == 'text1'
     assert results[0].video_id == 'video_id'
     assert results[0].snippet.description == 'description2'

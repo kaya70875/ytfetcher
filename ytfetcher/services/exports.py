@@ -1,5 +1,5 @@
 from pathlib import Path
-from ytfetcher.types.channel import FetchAndMetaResponse
+from ytfetcher.types.channel import ChannelData
 from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
 import json
 import csv
@@ -11,7 +11,7 @@ class Exporter:
     Supports customization of which metadata fields to include and whether to include transcript timing.
 
     Parameters:
-        channel_data (list[FetchAndMetaResponse]): The transcript and metadata to export.
+        channel_data (list[ChannelData]): The transcript and metadata to export.
         allowed_metadata_list (list): Metadata fields to include (e.g., ['title', 'description']).
         timing (bool): Whether to include start/duration timing in exports.
         filename (str): Output filename without extension.
@@ -22,7 +22,7 @@ class Exporter:
         SystemPathCannotFound: If specified path cannot found.
     """
 
-    def __init__(self, channel_data: list[FetchAndMetaResponse], allowed_metadata_list: list = ['title', 'description'], timing: bool = True, filename: str = 'data', output_dir: str = None):
+    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: list = ['title', 'description'], timing: bool = True, filename: str = 'data', output_dir: str = None):
         self.channel_data = channel_data
         self.allowed_metadata_list = allowed_metadata_list
         self.timing = timing
@@ -47,12 +47,12 @@ class Exporter:
                 file.write(f"Transcript for {data.video_id}:\n")
 
                 for metadata in self.allowed_metadata_list:
-                    file.write(f'{metadata} --> {getattr(data.snippet, metadata)}\n')
+                    file.write(f'{metadata} --> {getattr(data.metadata, metadata)}\n')
                 
-                for entry in data.transcript:
+                for transcript in data.transcripts:
                     if self.timing:
-                        file.write(f"{entry['start']} --> {entry['start'] + entry['duration']}\n")
-                    file.write(f"{entry['text']}\n")
+                        file.write(f"{transcript.start} --> {transcript.start + transcript.duration}\n")
+                    file.write(f"{transcript.text}\n")
                 file.write("\n")
 
     def export_as_json(self) -> None:
@@ -68,13 +68,13 @@ class Exporter:
             for data in self.channel_data:
                 video_data = {
                     "video_id": data.video_id,
-                    **{field: getattr(data.snippet, field) for field in self.allowed_metadata_list},
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list},
                     "transcript": [
                         {
-                            **({"start": entry["start"], "duration": entry["duration"]} if self.timing else {}),
-                            "text": entry["text"]
+                            **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                            "text": transcript.text
                         }
-                        for entry in data.transcript
+                        for transcript in data.transcripts
                     ]
                 }
                 export_data.append(video_data)
@@ -98,13 +98,13 @@ class Exporter:
 
             i = 0
             for data in self.channel_data:
-                for entry in data.transcript:
+                for transcript in data.transcripts:
                     row = {
                         'index': i,
                         'video_id': data.video_id,
-                        **{field: getattr(data.snippet, field) for field in self.allowed_metadata_list},
-                        **({"start": entry["start"], "duration": entry["duration"]} if self.timing else {}),
-                        'text': entry['text']
+                        **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list},
+                        **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                        'text': transcript.text
                     }
                     writer.writerow(row)
                     i += 1

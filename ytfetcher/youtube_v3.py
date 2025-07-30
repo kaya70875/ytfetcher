@@ -1,6 +1,6 @@
 import httpx
 from tqdm import tqdm  # type: ignore
-from ytfetcher.types.channel import ChannelData, Snippet
+from ytfetcher.types.channel import Snippet, VideoMetadata
 from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed, NoChannelVideosFound
 
 
@@ -30,7 +30,7 @@ class YoutubeV3:
         if not (1 <= self.max_results <= 500):
             raise MaxResultsExceed("You can only fetch 500 videos per channel.")
 
-    def fetch_channel_snippets(self) -> ChannelData:
+    def fetch_channel_snippets(self) -> VideoMetadata:
         """
         Fetches video snippets and metadata for the given channel or custom video IDs.
 
@@ -39,7 +39,7 @@ class YoutubeV3:
         and pulls video metadata from it.
 
         Returns:
-            ChannelData: An object containing video IDs and their metadata.
+            VideoMetadata: An object containing video IDs and their metadata.
         """
         channel_id = self._get_channel_id()
 
@@ -49,7 +49,7 @@ class YoutubeV3:
         uploads_playlist_id = self._get_upload_playlist_id(channel_id)
         return self._fetch_with_playlist_id(uploads_playlist_id)
 
-    def _fetch_with_playlist_id(self, uploads_playlist_id: str) -> ChannelData:
+    def _fetch_with_playlist_id(self, uploads_playlist_id: str) -> VideoMetadata:
         """
         Fetches video IDs and metadata from a YouTube uploads playlist.
 
@@ -60,7 +60,7 @@ class YoutubeV3:
             uploads_playlist_id (str): The ID of the uploads playlist to fetch from.
 
         Returns:
-            ChannelData: Contains a list of video IDs and their corresponding metadata.
+            VideoMetadata: Contains a list of video IDs and their corresponding metadata.
 
         Raises:
             NoChannelVideosFound: If the playlist is not found (HTTP 404).
@@ -102,19 +102,19 @@ class YoutubeV3:
                     next_page_token = res.get('nextPageToken')
                     if not next_page_token:
                         break
-            return ChannelData(video_ids=video_ids, metadata=metadata)
+            return VideoMetadata(video_ids=video_ids, metadata=metadata)
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)
-            return ChannelData(video_ids=[], metadata=[])
+            return VideoMetadata(video_ids=[], metadata=[])
 
-    def _fetch_with_custom_video_ids(self) -> ChannelData:
+    def _fetch_with_custom_video_ids(self) -> VideoMetadata:
         """
         Fetches video metadata for the list of provided video IDs.
 
         Uses the YouTube Data API to retrieve snippets for each video ID given.
 
         Returns:
-            ChannelData: Contains the original video IDs and their corresponding metadata.
+            VideoMetadata: Contains the original video IDs and their corresponding metadata.
         """
         try:
             metadata: list[Snippet] = []
@@ -135,10 +135,10 @@ class YoutubeV3:
                     snippet = item['snippet']
                     metadata.append(snippet)
 
-            return ChannelData(video_ids=self.video_ids, metadata=metadata)
+            return VideoMetadata(video_ids=self.video_ids, metadata=metadata)
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)
-            return ChannelData(video_ids=[], metadata=[])
+            return VideoMetadata(video_ids=[], metadata=[])
 
     def _get_upload_playlist_id(self, channel_id: str) -> str:
         """
