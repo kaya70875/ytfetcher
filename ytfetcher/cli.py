@@ -18,7 +18,7 @@ async def from_channel(api_key: str, channel_handle: str, output_dir: str, expor
         proxy_config=proxy_config
     )
 
-    channel_data = await fetcher.get_youtube_data()
+    channel_data = await fetcher.fetch_youtube_data()
     exporter = Exporter(channel_data=channel_data, output_dir=output_dir)
 
     export_method = getattr(exporter, f"export_as_{export_format}", None)
@@ -39,7 +39,7 @@ async def from_video_ids(api_key: str, video_ids: list[str], output_dir: str, ex
         proxy_config=proxy_config
     )
 
-    channel_data = await fetcher.get_youtube_data()
+    channel_data = await fetcher.fetch_youtube_data()
     exporter = Exporter(channel_data=channel_data, output_dir=output_dir)
 
     export_method = getattr(exporter, f"export_as_{export_format}", None)
