@@ -49,6 +49,7 @@ Here how you can get transcripts and metadata informations like channel name, de
 
 ```python
 from ytfetcher import YTFetcher
+from ytfetcher import ChannelData # Or ytfetcher.models import ChannelData
 import asyncio
 
 fetcher = YTFetcher.from_channel(
@@ -134,6 +135,47 @@ exporter = Exporter(
 )
 
 exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
+
+```
+
+## Other Methods
+
+You can also fetch only transcript data or metadata with video ID's using `fetch_transcripts` and `fetch_snippets` methods.
+
+### Fetch Transcripts
+
+```python
+from ytfetcher import VideoTranscript
+
+fetcher = YTFetcher.from_channel(
+    api_key='your-youtubev3-api-key', 
+    channel_handle="TheOffice", 
+    max_results=2)
+
+async def get_transcript_data() -> list[VideoTranscript]:
+    transcript_data = await fetcher.fetch_transcripts()
+    print(transcript_data)
+    return transcript_data
+
+if __name__ == '__main__':
+    asyncio.run(get_transcript_data())
+
+```
+
+### Fetch Snippets
+
+```python
+from ytfetcher import VideoMetadata
+
+# Init ytfetcher ...
+
+async def get_metadata() -> VideoMetadata:
+    metadata = await fetcher.fetch_transcripts()
+    print(metadata)
+    return metadata
+
+if __name__ == '__main__':
+    asyncio.run(get_metadata())
 
 ```
 
