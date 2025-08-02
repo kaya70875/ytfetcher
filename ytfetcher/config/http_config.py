@@ -1,5 +1,5 @@
 import httpx
-from scripts.headers import get_realistic_headers
+from ytfetcher.scripts.headers import get_realistic_headers
 from ytfetcher.exceptions import InvalidTimeout, InvalidHeaders
 
 class HTTPConfig:

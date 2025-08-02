@@ -15,7 +15,7 @@ from ytfetcher.youtube_v3 import YoutubeV3
 from ytfetcher.transcript_fetcher import TranscriptFetcher
 from youtube_transcript_api.proxies import ProxyConfig
 from httpx import Timeout
-from scripts.headers import get_realistic_headers
+from ytfetcher.scripts.headers import get_realistic_headers
 from unittest.mock import AsyncMock, MagicMock, create_autospec
 from pytest_mock import MockerFixture
 
