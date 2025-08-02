@@ -48,7 +48,7 @@ Also keep in mind that you have a quota limit for **YoutubeV3 API**, but for bas
 Here how you can get transcripts and metadata informations like channel name, description, publishedDate etc. from a single channel with `from_channel` method:
 
 ```python
-from ytfetcher.core import YTFetcher
+from ytfetcher import YTFetcher
 import asyncio
 
 fetcher = YTFetcher.from_channel(
@@ -106,7 +106,7 @@ ChannelData(
 You can also initialize `ytfetcher` with custom video id's using `from_video_ids` method.
 
 ```python
-from ytfetcher.core import YTFetcher
+from ytfetcher import YTFetcher
 import asyncio
 
 fetcher = YTFetcher.from_video_ids(
@@ -121,7 +121,7 @@ fetcher = YTFetcher.from_video_ids(
 To export data you can use `Exporter` class. Exporter allows you to export `ChannelData` with formats like **csv**, **json** or **txt**.
 
 ```python
-from ytfetcher.services.exports import Exporter
+from ytfetcher.services import Exporter
 
 channel_data = await fetcher.fetch_youtube_data()
 
@@ -144,8 +144,8 @@ exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
 To configure proxies, you can pass a proxy config object from `youtube_transcript_api.proxies` directly to `YTFetcher`:
 
 ```python
-from ytfetcher.core import YTFetcher
-from youtube_transcript_api.proxies import GenericProxyConfig, WebshareProxyConfig
+from ytfetcher import YTFetcher
+from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 
 fetcher = YTFetcher.from_channel(
     api_key="your-api-key",
@@ -160,8 +160,8 @@ fetcher = YTFetcher.from_channel(
 You can pass a custom timeout or headers (e.g., user-agent) to `YTFetcher` using `HTTPConfig`:
 
 ```python
-from ytfetcher.config.http_config import HTTPConfig
-from ytfetcher.core import YTFetcher
+from ytfetcher import YTFetcher
+from ytfetcher.config import HTTPConfig
 import httpx
 
 custom_config = HTTPConfig(
