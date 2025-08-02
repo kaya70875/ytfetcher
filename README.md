@@ -4,7 +4,18 @@
 
 ---
 
-## 🚀 Features
+## 📚 Table of Contents
+
+- [Features](#-features)
+- [Installation](#-installation)
+- [Basic Usage](#basic-usage)
+- [Fetching With Custom Video IDs](#fetching-with-custom-video-ids)
+- [Exporting](#exporting)
+- [Proxy Configuration](#-proxy-configuration)
+- [Advanced HTTP Configuration](#advanced-http-configuration-optional)
+- [CLI](#cli)
+
+## ✨ Features
 
 - Fetch full transcripts from a YouTube channel.
 - Get video metadata: title, description, thumbnails, published date.
@@ -22,7 +33,7 @@ cd ytfetcher
 poetry install
 ```
 
-## Basic Usage
+## 🚀 Basic Usage
 
 Ytfetcher uses **YoutubeV3 API** to get channel details and video id's so you have to create your API key from Google Cloud Console [In here](https://console.cloud.google.com/apis/api/youtube.googleapis.com).
 
@@ -48,7 +59,7 @@ if __name__ == '__main__':
 
 ---
 
-This will return a list of `ChannelData`. Here how it's looks like:
+This will return a list of `ChannelData`. Here's how it's looks like:
 
 ```python
 [
@@ -84,7 +95,7 @@ ChannelData(
 ]
 ```
 
-## Fetching With Custom Video Id's
+## 🎯 Fetching With Custom Video IDs
 
 You can also initialize ytfetcher with custom video id's using `from_video_ids` method.
 
@@ -99,7 +110,7 @@ fetcher = YTFetcher.from_video_ids(
 # Rest is same ...
 ```
 
-## Exporting
+## 💾 Exporting
 
 To export data you can use `Exporter` class. Exporter allows you to export `ChannelData` with formats like **csv**, **json** or **txt**.
 
@@ -138,7 +149,7 @@ fetcher = YTFetcher.from_channel(
 )
 ```
 
-## Advanced HTTP Configuration (Optional)
+## ⚙️ Advanced HTTP Configuration (Optional)
 
 You can pass a custom timeout or headers (e.g., user-agent) to `YTFetcher` using `HTTPConfig`:
 
@@ -160,7 +171,7 @@ fetcher = YTFetcher.from_channel(
 )
 ```
 
-## CLI
+## 🖥️ CLI
 
 ### Basic Usage
 
@@ -172,6 +183,24 @@ Basic usage example:
 
 ```bash
 ytfetcher from_channel your-api-key -c "channelname" -m 20 -f json
+```
+
+### Output Example
+
+```json
+[
+  {
+    "video_id": "abc123",
+    "metadata": {
+      "title": "Video Title",
+      "description": "Video Description"
+      "publishedAt": "2023-07-01T12:00:00Z"
+    },
+    "transcripts": [
+      {"text": "Welcome!", "start": 0.0, "duration": 1.2}
+    ]
+  }
+]
 ```
 
 ### Using Webshare Proxy
