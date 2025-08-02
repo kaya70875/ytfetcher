@@ -17,6 +17,7 @@
 - [Contributing](#contributing)
 - [Running Tests](#running-tests)
 - [Related Projects](#related-projects)
+- [License](#license)
 
 ---
 
@@ -253,3 +254,7 @@ poetry run pytest
 ## Related Projects
 
 - [youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api)
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
