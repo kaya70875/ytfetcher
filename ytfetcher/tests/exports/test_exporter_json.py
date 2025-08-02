@@ -53,6 +53,7 @@ def test_export_with_json_writes_file_with_correct_structure(mocker: MockerFixtu
         "video_id": "video1",
         "title": "channelname1",
         "description": "description1",
+        "publishedAt": "somedate1",
         "transcript": [
             {
                 "start": 1.11,

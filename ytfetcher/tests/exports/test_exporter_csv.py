@@ -50,8 +50,8 @@ def test_export_with_csv_writes_file_with_correct_structure(mocker: MockerFixtur
     reader = csv.reader(content.splitlines())
     rows = list(reader)
 
-    assert rows[0] == ['index', 'video_id', 'title', 'description', 'text', 'start', 'duration']
-    assert rows[1] == ['0', 'video1', 'channelname1', 'description1', 'text1', '1.11', '2.22']
+    assert rows[0] == ['index', 'video_id', 'title', 'description', 'publishedAt', 'text', 'start', 'duration']
+    assert rows[1] == ['0', 'video1', 'channelname1', 'description1', 'somedate1', 'text1', '1.11', '2.22']
 
 def test_export_with_csv_creates_file_with_correct_custom_name(mocker: MockerFixture, mock_transcript_response):
     m = mock_open()
