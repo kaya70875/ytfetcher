@@ -1,10 +1,11 @@
 [project]
 name = "ytfetcher"
-version = "1"
+version = "0.1.0"
 description = "YTFetcher lets you fetch YouTube transcripts in bulk with metadata like titles, publish dates, and thumbnails. Great for ML, NLP, and dataset generation."
 authors = [
     {name = "Ahmet Kaya",email = "kaya70875@gmail.com"}
 ]
+license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 dependencies = [
@@ -21,6 +22,10 @@ dependencies = [
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[project.urls]
+"Homepage" = "https://github.com/kaya70875/ytfetcher"
+"Documentation" = "https://github.com/kaya70875/ytfetcher#readme"
 
 [tool.poetry.scripts]
 ytfetcher = "ytfetcher.cli:main"
