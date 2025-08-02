@@ -1,7 +1,7 @@
 import argparse
 import asyncio
 import httpx
-from ytfetcher.core import YTFetcher
+from ytfetcher._core import YTFetcher
 from ytfetcher.services.exports import Exporter
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig, GenericProxyConfig, WebshareProxyConfig

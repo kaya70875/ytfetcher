@@ -1,6 +1,6 @@
 import pytest
 import httpx
-from ytfetcher.youtube_v3 import YoutubeV3
+from ytfetcher._youtube_v3 import YoutubeV3
 from pytest_mock import MockerFixture
 from ytfetcher.exceptions import InvalidApiKey, InvalidChannel, MaxResultsExceed, NoChannelVideosFound
 

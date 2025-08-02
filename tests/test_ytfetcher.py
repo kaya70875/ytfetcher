@@ -1,5 +1,5 @@
 import pytest
-from ytfetcher.core import YTFetcher
+from ytfetcher._core import YTFetcher
 from ytfetcher.models.channel import (
     ChannelData,
     Snippet,
@@ -11,8 +11,8 @@ from ytfetcher.models.channel import (
 )
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.exceptions import *
-from ytfetcher.youtube_v3 import YoutubeV3
-from ytfetcher.transcript_fetcher import TranscriptFetcher
+from ytfetcher._youtube_v3 import YoutubeV3
+from ytfetcher._transcript_fetcher import TranscriptFetcher
 from youtube_transcript_api.proxies import ProxyConfig
 from httpx import Timeout
 from ytfetcher.utils.headers import get_realistic_headers

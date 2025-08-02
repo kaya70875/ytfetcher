@@ -1,4 +1,4 @@
-from .core import YTFetcher
+from ._core import YTFetcher
 from .models.channel import VideoTranscript, VideoMetadata, ChannelData
 
 __all__ = [

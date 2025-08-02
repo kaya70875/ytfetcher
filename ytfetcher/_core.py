@@ -1,6 +1,6 @@
-from ytfetcher.youtube_v3 import YoutubeV3
+from ytfetcher._youtube_v3 import YoutubeV3
 from ytfetcher.models.channel import ChannelData, Snippet, VideoTranscript, VideoMetadata
-from ytfetcher.transcript_fetcher import TranscriptFetcher
+from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
 
