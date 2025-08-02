@@ -24,22 +24,176 @@ poetry install
 
 ## Basic Usage
 
-Ytfetcher uses YoutubeV3 API to get channel details so you have to create your YoutubeV3 api key from Google Cloud Console [In here](https://console.cloud.google.com/apis/api/youtube.googleapis.com).
-Also keep in mind that you have a quota limit for YoutubeV3 API for getting metadata from a channel, but for basic usage quota isn't generally a concern.
+Ytfetcher uses **YoutubeV3 API** to get channel details and video id's so you have to create your API key from Google Cloud Console [In here](https://console.cloud.google.com/apis/api/youtube.googleapis.com).
 
-Here how you can get transcripts and metadata informations like channel name, description, publishedDate etc. from a single channel with from_channel function:
+Also keep in mind that you have a quota limit for **YoutubeV3 API**, but for basic usage quota isn't generally a concern.
 
----
+Here how you can get transcripts and metadata informations like channel name, description, publishedDate etc. from a single channel with `from_channel` method:
 
 ```python
 from ytfetcher.core import YTFetcher
 import asyncio
 
-fetcher = YTFetcher.from_channel(api_key='your-youtubev3-api-key', channel_handle="TheOffice", max_results=50)
+fetcher = YTFetcher.from_channel(
+    api_key='your-youtubev3-api-key', 
+    channel_handle="TheOffice", 
+    max_results=2)
 
-async def main():
-    metadata = await fetcher.get_youtube_data()
-    print(metadata)
+async def get_channel_data() -> ChannelData:
+    channel_data = await fetcher.fetch_youtube_data()
 
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(get_channel_data())
+```
+
+---
+
+This will return a list of `ChannelData`. Here how it's looks like:
+
+```python
+[
+ChannelData(
+    video_id='video1',
+    transcripts=[
+        Transcript(
+            text="Hey there",
+            start=0.0,
+            duration=1.54
+        ),
+        Transcript(
+            text="Happy coding!",
+            start=1.56,
+            duration=4.46
+        )
+    ]
+    metadata=Snippet(
+        title='VideoTitle',
+        description='VideoDescription',
+        publishedAt='02.04.2025',
+        channelId='id123',
+        thumbnails=Thumbnails(
+            default=Thumbnail(
+                url:'thumbnail_url',
+                width: 124,
+                height: 124
+            )
+        )
+    )
+),
+# Other ChannelData objects...
+]
+```
+
+## Fetching With Custom Video Id's
+
+You can also initialize ytfetcher with custom video id's using `from_video_ids` method.
+
+```python
+from ytfetcher.core import YTFetcher
+import asyncio
+
+fetcher = YTFetcher.from_video_ids(
+    api_key='your-youtubev3-api-key', 
+    video_ids=['video1', 'video2', 'video3']) # Here we initialized ytfetcher with from_video_ids method.
+
+# Rest is same ...
+```
+
+## Exporting
+
+To export data you can use `Exporter` class. Exporter allows you to export `ChannelData` with formats like **csv**, **json** or **txt**.
+
+```python
+from ytfetcher.services.exports import Exporter
+
+channel_data = await fetcher.fetch_youtube_data()
+
+exporter = Exporter(
+    channel_data=channel_data,
+    allowed_metadata_list=['title', 'publishedAt'],   # You can customize this
+    timing=True,                                      # Include transcript start/duration
+    filename='my_export',                             # Base filename
+    output_dir='./exports'                            # Optional export directory
+)
+
+exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
+
+```
+
+## 🌍 Proxy Configuration
+
+`YTFetcher` supports proxy usage for fetching YouTube transcripts by leveraging the built-in proxy configuration support from [youtube-transcript-api](https://pypi.org/project/youtube-transcript-api/).
+
+To configure proxies, you can pass a proxy config object from `youtube_transcript_api.proxies` directly to `YTFetcher`:
+
+```python
+from ytfetcher.core import YTFetcher
+from youtube_transcript_api.proxies import GenericProxyConfig, WebshareProxyConfig
+
+fetcher = YTFetcher.from_channel(
+    api_key="your-api-key",
+    channel_handle="TheOffice",
+    max_results=3,
+    proxy_config=GenericProxyConfig() | WebshareProxyConfig()
+)
+```
+
+## Advanced HTTP Configuration (Optional)
+
+You can pass a custom timeout or headers (e.g., user-agent) to `YTFetcher` using `HTTPConfig`:
+
+```python
+from ytfetcher.config.http_config import HTTPConfig
+from ytfetcher.core import YTFetcher
+import httpx
+
+custom_config = HTTPConfig(
+    timeout=httpx.Timeout(4.0),
+    headers={"User-Agent": "ytfetcher/1.0"} # Doesn't recommended to change this unless you have a custom strong headers.
+)
+
+fetcher = YTFetcher.from_channel(
+    api_key="your-key",
+    channel_handle="TheOffice",
+    max_results=10,
+    http_config=custom_config
+)
+```
+
+## CLI
+
+### Basic Usage
+
+```bash
+ytfetcher from_channel <API_KEY> -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
+```
+
+Basic usage example:
+
+```bash
+ytfetcher from_channel your-api-key -c "channelname" -m 20 -f json
+```
+
+### Using Webshare Proxy
+
+```bash
+ytfetcher from_channel <API_KEY> -c "channel" -f json \
+  --webshare-proxy-username "<USERNAME>" \
+  --webshare-proxy-password "<PASSWORD>"
+
+```
+
+### Using Custom Proxy
+
+```bash
+ytfetcher from_channel <API_KEY> -c "channel" -f json \
+  --http-proxy "http://user:pass@host:port" \
+  --https-proxy "https://user:pass@host:port"
+
+```
+
+### Fetching by Video IDs
+
+```bash
+ytfetcher from_video_ids <API_KEY> -v video_id1 video_id2 ... -f json
 ```
