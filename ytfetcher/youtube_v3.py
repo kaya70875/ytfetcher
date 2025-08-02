@@ -2,6 +2,7 @@ import httpx
 from tqdm import tqdm  # type: ignore
 from ytfetcher.types.channel import Snippet, VideoMetadata
 from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed, NoChannelVideosFound
+from ytfetcher.config.http_config import HTTPConfig
 
 
 class YoutubeV3:
@@ -16,16 +17,18 @@ class YoutubeV3:
         channel_name (str): YouTube channel handle (e.g. '@veritasium').
         video_ids (list[str]): Optional list of video IDs to fetch metadata for.
         max_results (int): Maximum number of videos to fetch (must be between 1 and 500).
+        http_config (HTTPConfig): Custom http config for setting custom timeouts and headers.
 
     Raises:
         MaxResultsExceed: If max_results is greater than 500 or less than 1.
     """
 
-    def __init__(self, api_key: str, channel_name: str | None, video_ids: list[str] = [], max_results: int = 50):
+    def __init__(self, api_key: str, channel_name: str | None, video_ids: list[str] = [], max_results: int = 50, http_config: HTTPConfig = HTTPConfig()):
         self.api_key = api_key
         self.channel_name = channel_name
         self.video_ids = video_ids
         self.max_results = max_results
+        self.http_config = http_config
 
         if not (1 <= self.max_results <= 500):
             raise MaxResultsExceed("You can only fetch 500 videos per channel.")
@@ -72,7 +75,7 @@ class YoutubeV3:
             base_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
             next_page_token = None
 
-            with httpx.Client() as client, tqdm(desc='Fetching snippets', unit='video', total=self.max_results) as pbar:
+            with httpx.Client(timeout=self.http_config.timeout, headers=self.http_config.headers) as client, tqdm(desc='Fetching snippets', unit='video', total=self.max_results) as pbar:
                 while True:
                     params = {
                         'part': 'snippet',
@@ -121,7 +124,7 @@ class YoutubeV3:
 
             base_url = 'https://www.googleapis.com/youtube/v3/videos'
 
-            with httpx.Client() as client:
+            with httpx.Client(timeout=self.http_config.timeout, headers=self.http_config.headers) as client:
                 params = {
                     'part': 'snippet',
                     'id': [*self.video_ids],
@@ -157,7 +160,7 @@ class YoutubeV3:
             'key': self.api_key
         }
 
-        with httpx.Client() as client:
+        with httpx.Client(timeout=self.http_config.timeout, headers=self.http_config.headers) as client:
             response = client.get(url, params=params)
             res = response.json()
             uploads_playlist_id = res['items'][0]['contentDetails']['relatedPlaylists']['uploads']
@@ -174,7 +177,7 @@ class YoutubeV3:
             InvalidApiKey: If the provided API key is invalid.
             InvalidChannel: If the channel handle is not found.
         """
-        with httpx.Client() as client:
+        with httpx.Client(timeout=self.http_config.timeout, headers=self.http_config.headers) as client:
             response = client.get(
                 'https://www.googleapis.com/youtube/v3/channels',
                 params={

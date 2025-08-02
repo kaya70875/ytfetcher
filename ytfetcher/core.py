@@ -27,11 +27,11 @@ class YTFetcher:
         fetcher = YTFetcher.from_channel(api_key="YOUR_KEY", channel_handle="@example")
         data = await fetcher.fetch_youtube_data()
     """
-    def __init__(self, api_key: str, http_config: HTTPConfig, max_results: int, video_ids: list[str], channel_handle: str | None = None, proxy_config: ProxyConfig | None = None):
-        self.v3 = YoutubeV3(api_key=api_key, channel_name=channel_handle, video_ids=video_ids, max_results=max_results)
-        self.snippets = self.v3.fetch_channel_snippets()
+    def __init__(self, api_key: str, max_results: int, video_ids: list[str], channel_handle: str | None = None, proxy_config: ProxyConfig | None = None, http_config: HTTPConfig = HTTPConfig()):
         self.http_config = http_config
         self.proxy_config = proxy_config
+        self.v3 = YoutubeV3(api_key=api_key, channel_name=channel_handle, video_ids=video_ids, max_results=max_results, http_config=self.http_config)
+        self.snippets = self.v3.fetch_channel_snippets()
         self.fetcher = TranscriptFetcher(self.snippets.video_ids, http_config=self.http_config, proxy_config=self.proxy_config)
     
     @classmethod
