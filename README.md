@@ -57,8 +57,10 @@ fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice", 
     max_results=2)
 
-async def get_channel_data() -> ChannelData:
+async def get_channel_data() -> list[ChannelData]:
     channel_data = await fetcher.fetch_youtube_data()
+    print(channel_data)
+    return channel_data
 
 if __name__ == '__main__':
     asyncio.run(get_channel_data())
