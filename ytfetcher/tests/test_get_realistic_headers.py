@@ -1,4 +1,4 @@
-from ytfetcher.scripts.headers import get_realistic_headers
+from ytfetcher.utils.headers import get_realistic_headers
 
 def test_get_realistic_headers_return_type():
     headers = get_realistic_headers()

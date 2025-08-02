@@ -1,6 +1,6 @@
 import httpx
 from tqdm import tqdm  # type: ignore
-from ytfetcher.types.channel import Snippet, VideoMetadata
+from ytfetcher.models.channel import Snippet, VideoMetadata
 from ytfetcher.exceptions import InvalidChannel, InvalidApiKey, MaxResultsExceed, NoChannelVideosFound
 from ytfetcher.config.http_config import HTTPConfig
 

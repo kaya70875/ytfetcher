@@ -1,6 +1,6 @@
 from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
 from ytfetcher.services.exports import Exporter
-from ytfetcher.types.channel import ChannelData, Thumbnail, Thumbnails, Snippet
+from ytfetcher.models.channel import ChannelData, Thumbnail, Thumbnails, Snippet
 import pytest
 
 @pytest.fixture

@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open, call
 from ytfetcher.services.exports import Exporter
-from ytfetcher.types.channel import ChannelData, Snippet, Thumbnail, Thumbnails
+from ytfetcher.models.channel import ChannelData, Snippet, Thumbnail, Thumbnails
 import pytest
 import json
 

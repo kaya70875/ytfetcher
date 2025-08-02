@@ -1,5 +1,5 @@
 from pathlib import Path
-from ytfetcher.types.channel import ChannelData
+from ytfetcher.models.channel import ChannelData
 from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
 from typing import Literal
 import json

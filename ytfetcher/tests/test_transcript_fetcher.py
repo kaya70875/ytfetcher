@@ -4,7 +4,7 @@ import time
 import httpx
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
-from ytfetcher.types.channel import VideoTranscript, Transcript
+from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher.transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api import YouTubeTranscriptApi
