@@ -6,16 +6,21 @@
 
 ## 📚 Table of Contents
 
-- [Features](#-features)
-- [Installation](#-installation)
+- [Features](#features)
+- [Installation](#installation)
 - [Basic Usage](#basic-usage)
 - [Fetching With Custom Video IDs](#fetching-with-custom-video-ids)
 - [Exporting](#exporting)
-- [Proxy Configuration](#-proxy-configuration)
+- [Proxy Configuration](#proxy-configuration)
 - [Advanced HTTP Configuration](#advanced-http-configuration-optional)
 - [CLI](#cli)
+- [Contributing](#contributing)
+- [Running Tests](#running-tests)
+- [Related Projects](#related-projects)
 
-## ✨ Features
+---
+
+## Features
 
 - Fetch full transcripts from a YouTube channel.
 - Get video metadata: title, description, thumbnails, published date.
@@ -25,15 +30,15 @@
 
 ---
 
-## 📦 Installation
+## Installation
+
+It is recommended to install this package by using pip:
 
 ```bash
-git clone https://github.com/kaya70875/ytfetcher.git
-cd ytfetcher
-poetry install
+pip install ytfetcher
 ```
 
-## 🚀 Basic Usage
+## Basic Usage
 
 Ytfetcher uses **YoutubeV3 API** to get channel details and video id's so you have to create your API key from Google Cloud Console [In here](https://console.cloud.google.com/apis/api/youtube.googleapis.com).
 
@@ -95,9 +100,9 @@ ChannelData(
 ]
 ```
 
-## 🎯 Fetching With Custom Video IDs
+## Fetching With Custom Video IDs
 
-You can also initialize ytfetcher with custom video id's using `from_video_ids` method.
+You can also initialize `ytfetcher` with custom video id's using `from_video_ids` method.
 
 ```python
 from ytfetcher.core import YTFetcher
@@ -110,7 +115,7 @@ fetcher = YTFetcher.from_video_ids(
 # Rest is same ...
 ```
 
-## 💾 Exporting
+## Exporting
 
 To export data you can use `Exporter` class. Exporter allows you to export `ChannelData` with formats like **csv**, **json** or **txt**.
 
@@ -131,7 +136,7 @@ exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
 
 ```
 
-## 🌍 Proxy Configuration
+## Proxy Configuration
 
 `YTFetcher` supports proxy usage for fetching YouTube transcripts by leveraging the built-in proxy configuration support from [youtube-transcript-api](https://pypi.org/project/youtube-transcript-api/).
 
@@ -149,7 +154,7 @@ fetcher = YTFetcher.from_channel(
 )
 ```
 
-## ⚙️ Advanced HTTP Configuration (Optional)
+## Advanced HTTP Configuration (Optional)
 
 You can pass a custom timeout or headers (e.g., user-agent) to `YTFetcher` using `HTTPConfig`:
 
@@ -171,7 +176,7 @@ fetcher = YTFetcher.from_channel(
 )
 ```
 
-## 🖥️ CLI
+## CLI
 
 ### Basic Usage
 
@@ -226,3 +231,25 @@ ytfetcher from_channel <API_KEY> -c "channel" -f json \
 ```bash
 ytfetcher from_video_ids <API_KEY> -v video_id1 video_id2 ... -f json
 ```
+
+---
+
+## Contributing
+
+To insall this project locally:
+
+```bash
+git clone https://github.com/kaya70875/ytfetcher.git
+cd ytfetcher
+poetry install
+```
+
+## Running Tests
+
+```bash
+poetry run pytest
+```
+
+## Related Projects
+
+- [youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api)
