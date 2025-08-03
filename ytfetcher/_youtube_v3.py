@@ -141,7 +141,8 @@ class YoutubeV3:
 
                 for item in res['items']:
                     snippet = item['snippet']
-                    video_id = item['snippet']['resourceId']['videoId']
+                    video_id = item['id']
+                    
                     video_metadata_list.append(
                         VideoMetadata(
                             video_id=video_id,
