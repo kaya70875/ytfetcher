@@ -16,7 +16,7 @@ from ytfetcher._transcript_fetcher import TranscriptFetcher
 from youtube_transcript_api.proxies import ProxyConfig
 from httpx import Timeout
 from ytfetcher.utils.headers import get_realistic_headers
-from unittest.mock import AsyncMock, MagicMock, create_autospec
+from unittest.mock import create_autospec
 from pytest_mock import MockerFixture
 
 # --- Fixtures for test setup ---
@@ -63,12 +63,12 @@ def sample_transcripts():
 @pytest.fixture
 def patch_fetchers(mocker: MockerFixture, sample_video_ids, sample_snippet, sample_transcripts):
     mock_youtube_v3 = mocker.patch.object(YoutubeV3, 'fetch_channel_snippets', return_value=
-        VideoMetadata(
-            video_ids=sample_video_ids,
-            metadata=[
-                sample_snippet
-            ]
-        )
+        [
+            VideoMetadata(
+                video_id=sample_video_ids[0],
+                metadata=sample_snippet
+            )
+        ]
     )
     mock_transcript_fetcher = mocker.patch.object(TranscriptFetcher, 'fetch', return_value=[
         VideoTranscript(
@@ -111,7 +111,7 @@ async def test_fetch_youtube_data_from_video_ids(
 ):
     fetcher = initialize_ytfetcher_with_video_ids
     results = await fetcher.fetch_youtube_data()
-    print(results)
+    print('res', results)
     
     assert len(results) == 1
     assert isinstance(results[0], ChannelData)
@@ -151,10 +151,10 @@ def test_fetch_snippets_method_with_channel_name(patch_fetchers, initialize_ytfe
     fetcher = initialize_ytfetcher_with_channel_name
     results = fetcher.fetch_snippets()
 
-    assert isinstance(results, VideoMetadata)
-    assert isinstance(results.metadata[0], Snippet)
-    assert results.video_ids == sample_video_ids
-    assert results.metadata[0].title == 'channelname1'
+    assert isinstance(results[0], VideoMetadata)
+    assert isinstance(results[0].metadata, Snippet)
+    assert results[0].video_id == sample_video_ids[0]
+    assert results[0].metadata.title == 'channelname1'
 
 @pytest.mark.asyncio
 async def test_fetch_transcripts_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids):
@@ -171,10 +171,10 @@ def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetch
     fetcher = initialize_ytfetcher_with_video_ids
     results = fetcher.fetch_snippets()
 
-    assert isinstance(results, VideoMetadata)
-    assert isinstance(results.metadata[0], Snippet)
-    assert results.video_ids == sample_video_ids
-    assert results.metadata[0].title == 'channelname1'
+    assert isinstance(results[0], VideoMetadata)
+    assert isinstance(results[0].metadata, Snippet)
+    assert results[0].video_id == sample_video_ids[0]
+    assert results[0].metadata.title == 'channelname1'
 
 def test_http_config(patch_fetchers, sample_channel_name):
 

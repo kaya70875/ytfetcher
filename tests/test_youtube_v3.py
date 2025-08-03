@@ -116,11 +116,11 @@ def test_fetch_with_playlist_id_pagination(mocker: MockerFixture, youtubev3):
 
     mock_get = mocker.patch("httpx.Client.get", side_effect=[mock_response_1, mock_response_2])
 
-    result = youtubev3._fetch_with_playlist_id("playlist_id")
+    results = youtubev3._fetch_with_playlist_id("playlist_id")
 
-    assert result.video_ids == ["vid1", "vid2"]
-    assert result.metadata[0].title == "Video 1"
-    assert result.metadata[1].title == "Video 2"
+    assert results[0].video_id == "vid1"
+    assert results[0].metadata.title == "Video 1"
+    assert results[1].metadata.title == "Video 2"
     assert mock_get.call_count == 2
 
 def test_fetch_with_playlist_id_404_response(mocker: MockerFixture, youtubev3):
@@ -144,9 +144,8 @@ def test_fetch_with_custom_invalid_video_ids(mocker: MockerFixture, youtubev3):
 
     mocker.patch("httpx.Client.get", return_value=mock_response)
 
-    result = youtubev3._fetch_with_custom_video_ids()
-    assert result.metadata == []
-    assert result.video_ids == ['invalid1', 'invalid2']
+    results = youtubev3._fetch_with_custom_video_ids()
+    assert results == []
 
 def test_get_channel_id_method(mocker: MockerFixture, youtubev3):
 
