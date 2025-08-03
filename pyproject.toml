@@ -7,6 +7,14 @@ authors = [
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
+keywords = ["yt", "transcript", "youtube", "cli", "dataset", "scraping", "python"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+]
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "requests (>=2.32.4,<3.0.0)",
@@ -25,6 +33,7 @@ build-backend = "poetry.core.masonry.api"
 
 [project.urls]
 "Homepage" = "https://github.com/kaya70875/ytfetcher"
+"Repository" = "https://github.com/kaya70875/ytfetcher"
 "Documentation" = "https://github.com/kaya70875/ytfetcher#readme"
 
 [tool.poetry.scripts]
