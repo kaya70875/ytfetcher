@@ -171,7 +171,7 @@ from ytfetcher import VideoMetadata
 
 # Init ytfetcher ...
 
-async def get_metadata() -> VideoMetadata:
+async def get_metadata() -> list[VideoMetadata]:
     metadata = await fetcher.fetch_transcripts()
     print(metadata)
     return metadata
@@ -185,7 +185,7 @@ if __name__ == '__main__':
 
 `YTFetcher` supports proxy usage for fetching YouTube transcripts by leveraging the built-in proxy configuration support from [youtube-transcript-api](https://pypi.org/project/youtube-transcript-api/).
 
-To configure proxies, you can pass a proxy config object from `youtube_transcript_api.proxies` directly to `YTFetcher`:
+To configure proxies, you can pass a proxy config object from `ytfecher.config` directly to `YTFetcher`:
 
 ```python
 from ytfetcher import YTFetcher
@@ -199,6 +199,8 @@ fetcher = YTFetcher.from_channel(
 )
 ```
 
+For more information about proxy configuration please check official `youtube-transcript-api` documents.
+
 ## Advanced HTTP Configuration (Optional)
 
 You can pass a custom timeout or headers (e.g., user-agent) to `YTFetcher` using `HTTPConfig`:
@@ -210,7 +212,7 @@ import httpx
 
 custom_config = HTTPConfig(
     timeout=httpx.Timeout(4.0),
-    headers={"User-Agent": "ytfetcher/1.0"} # Doesn't recommended to change this unless you have a custom strong headers.
+    headers={"User-Agent": "ytfetcher/1.0"} # Doesn't recommended to change this unless you have a strong headers.
 )
 
 fetcher = YTFetcher.from_channel(
@@ -243,7 +245,7 @@ ytfetcher from_channel your-api-key -c "channelname" -m 20 -f json
     "video_id": "abc123",
     "metadata": {
       "title": "Video Title",
-      "description": "Video Description"
+      "description": "Video Description",
       "publishedAt": "2023-07-01T12:00:00Z"
     },
     "transcripts": [
