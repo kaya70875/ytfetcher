@@ -171,13 +171,12 @@ from ytfetcher import VideoMetadata
 
 # Init ytfetcher ...
 
-async def get_metadata() -> list[VideoMetadata]:
-    metadata = await fetcher.fetch_transcripts()
-    print(metadata)
+def get_metadata() -> list[VideoMetadata]:
+    metadata = fetcher.fetch_snippets()
     return metadata
 
 if __name__ == '__main__':
-    asyncio.run(get_metadata())
+    get_metadata()
 
 ```
 
