@@ -29,8 +29,8 @@ class VideoTranscript(BaseModel):
         return self.model_dump()
 
 class VideoMetadata(BaseModel):
-    video_ids: list[str]
-    metadata: list[Snippet]
+    video_id: str
+    metadata: Snippet
 
     def to_dict(self) -> dict:
         return self.model_dump()

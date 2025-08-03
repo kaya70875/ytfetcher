@@ -32,7 +32,7 @@ class YTFetcher:
         self.proxy_config = proxy_config
         self.v3 = YoutubeV3(api_key=api_key, channel_name=channel_handle, video_ids=video_ids, max_results=max_results, http_config=self.http_config)
         self.snippets = self.v3.fetch_channel_snippets()
-        self.fetcher = TranscriptFetcher(self.snippets.video_ids, http_config=self.http_config, proxy_config=self.proxy_config)
+        self.fetcher = TranscriptFetcher(self._get_video_ids(), http_config=self.http_config, proxy_config=self.proxy_config)
     
     @classmethod
     def from_channel(cls, api_key: str, channel_handle: str, max_results: int = 50, http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None) -> "YTFetcher":
@@ -61,9 +61,9 @@ class YTFetcher:
             ChannelData(
              video_id=transcript.video_id,
              transcripts=transcript.transcripts,
-             metadata=metadata
+             metadata=snippet.metadata
              )
-            for transcript, metadata in zip(transcripts, self.snippets.metadata)
+            for transcript, snippet in zip(transcripts, self.snippets)
         ]
     
     async def fetch_transcripts(self) -> list[VideoTranscript]:
@@ -76,12 +76,12 @@ class YTFetcher:
         
         return await self.fetcher.fetch()
 
-    def fetch_snippets(self) -> VideoMetadata:
+    def fetch_snippets(self) -> list[VideoMetadata]:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 
         Returns:
-            VideoMetadata: An object containing video metadata and IDs.
+            list[VideoMetadata]: An object containing video metadata and IDs.
         """
         return self.snippets
 
@@ -104,5 +104,9 @@ class YTFetcher:
             list[Snippet]: List of Snippet objects containing video metadata.
         """
         return self.snippets.metadata
-
     
+    def _get_video_ids(self) -> list[str]:
+        """
+        Returns list of channel video ids.
+        """
+        return [snippet.video_id for snippet in self.snippets]

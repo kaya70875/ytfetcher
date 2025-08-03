@@ -47,7 +47,7 @@ class TranscriptFetcher:
         async def run_in_thread(video_id: str):
             return await asyncio.to_thread(self._fetch_single, video_id)
 
-        tasks = [run_in_thread(vid) for vid in self.video_ids]
+        tasks = [run_in_thread(video_id) for video_id in self.video_ids]
 
         all_video_transcripts: list[VideoTranscript] = []
         

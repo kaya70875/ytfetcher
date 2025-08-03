@@ -33,7 +33,7 @@ class YoutubeV3:
         if not (1 <= self.max_results <= 500):
             raise MaxResultsExceed("You can only fetch 500 videos per channel.")
 
-    def fetch_channel_snippets(self) -> VideoMetadata:
+    def fetch_channel_snippets(self) -> list[VideoMetadata]:
         """
         Fetches video snippets and metadata for the given channel or custom video IDs.
 
@@ -42,7 +42,7 @@ class YoutubeV3:
         and pulls video metadata from it.
 
         Returns:
-            VideoMetadata: An object containing video IDs and their metadata.
+            list[VideoMetadata]: An object containing video IDs and their metadata.
         """
         channel_id = self._get_channel_id()
 
@@ -52,7 +52,7 @@ class YoutubeV3:
         uploads_playlist_id = self._get_upload_playlist_id(channel_id)
         return self._fetch_with_playlist_id(uploads_playlist_id)
 
-    def _fetch_with_playlist_id(self, uploads_playlist_id: str) -> VideoMetadata:
+    def _fetch_with_playlist_id(self, uploads_playlist_id: str) -> list[VideoMetadata]:
         """
         Fetches video IDs and metadata from a YouTube uploads playlist.
 
@@ -63,14 +63,13 @@ class YoutubeV3:
             uploads_playlist_id (str): The ID of the uploads playlist to fetch from.
 
         Returns:
-            VideoMetadata: Contains a list of video IDs and their corresponding metadata.
+            list[VideoMetadata]: Contains a list of video IDs and their corresponding metadata.
 
         Raises:
             NoChannelVideosFound: If the playlist is not found (HTTP 404).
         """
         try:
-            video_ids: list[str] = []
-            metadata: list[Snippet] = []
+            video_metadata_list: list[VideoMetadata] = []
 
             base_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
             next_page_token = None
@@ -93,24 +92,30 @@ class YoutubeV3:
                         raise NoChannelVideosFound()
 
                     for item in res['items']:
-                        if len(video_ids) >= self.max_results:
+                        if len(video_metadata_list) >= self.max_results:
                             break
                         video_id = item['snippet']['resourceId']['videoId']
                         snippet = item['snippet']
 
-                        video_ids.append(video_id)
-                        metadata.append(snippet)
+                        video_metadata_list.append(
+                            VideoMetadata(
+                                video_id=video_id,
+                                metadata=snippet
+                            )
+                        )
 
                         pbar.update(1)
                     next_page_token = res.get('nextPageToken')
                     if not next_page_token:
                         break
-            return VideoMetadata(video_ids=video_ids, metadata=metadata)
+            return video_metadata_list
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)
-            return VideoMetadata(video_ids=[], metadata=[])
+            return [
+                VideoMetadata(video_id=[], metadata=[])
+            ]
 
-    def _fetch_with_custom_video_ids(self) -> VideoMetadata:
+    def _fetch_with_custom_video_ids(self) -> list[VideoMetadata]:
         """
         Fetches video metadata for the list of provided video IDs.
 
@@ -120,7 +125,7 @@ class YoutubeV3:
             VideoMetadata: Contains the original video IDs and their corresponding metadata.
         """
         try:
-            metadata: list[Snippet] = []
+            video_metadata_list: list[VideoMetadata] = []
 
             base_url = 'https://www.googleapis.com/youtube/v3/videos'
 
@@ -136,9 +141,15 @@ class YoutubeV3:
 
                 for item in res['items']:
                     snippet = item['snippet']
-                    metadata.append(snippet)
+                    video_id = item['snippet']['resourceId']['videoId']
+                    video_metadata_list.append(
+                        VideoMetadata(
+                            video_id=video_id,
+                            metadata=snippet
+                        )
+                    )
 
-            return VideoMetadata(video_ids=self.video_ids, metadata=metadata)
+            return video_metadata_list
         except AttributeError as attr_err:
             print('Error fetching video IDs:', attr_err)
             return VideoMetadata(video_ids=[], metadata=[])
