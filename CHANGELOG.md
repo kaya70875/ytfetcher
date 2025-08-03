@@ -23,8 +23,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.1.1] - 2025-08-03
 ### Fixed
-- Fix video ids cannot fetch in cli with `from_video_ids` method.
+- Video ids doesn't work with `from_video_ids` method in CLI.
 
 ### Changed
 - Update docs for `get_metadata` method.
-- Change default httpx.Timeout value to **4.0** to **2.0** which causes `Timeout Error`.
+- Change default httpx.Timeout value to **4.0** to **2.0**.
