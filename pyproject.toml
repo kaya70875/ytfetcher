@@ -28,7 +28,7 @@ build-backend = "poetry.core.masonry.api"
 "Documentation" = "https://github.com/kaya70875/ytfetcher#readme"
 
 [tool.poetry.scripts]
-ytfetcher = "ytfetcher.cli:main"
+ytfetcher = "ytfetcher._cli:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
