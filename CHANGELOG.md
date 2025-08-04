@@ -10,20 +10,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add issue templates for bug reports and feature requests.
 
 ### Changed
-- 
+- Update youtube-transcript-api 1.1.1 to 1.2.1
 
 ### Fixed
 - 
 
 ---
 
+## [0.1.1] - 2025-08-03
+
+### Added
+- Add Custom `http-timeout` and `http-headers` options for CLI.
+
+### Fixed
+- Video ids doesn't work with `from_video_ids` method in CLI.
+
+### Changed
+- HTTPConfig now takes `float` as timeout paramater instead of `httpx.Timeout` which causes unnecessary complexity.
+
 ## [0.1.0] - 2025-08-03
 ### Added
 - Initial release: CLI to fetch and export YouTube transcripts
-
-## [0.1.1] - 2025-08-03
-### Fixed
-- Video ids doesn't work with `from_video_ids` method in CLI.
 
 ### Changed
 - Update docs for `get_metadata` method.
