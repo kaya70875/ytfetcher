@@ -111,7 +111,6 @@ async def test_fetch_youtube_data_from_video_ids(
 ):
     fetcher = initialize_ytfetcher_with_video_ids
     results = await fetcher.fetch_youtube_data()
-    print('res', results)
     
     assert len(results) == 1
     assert isinstance(results[0], ChannelData)
@@ -179,7 +178,7 @@ def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetch
 def test_http_config(patch_fetchers, sample_channel_name):
 
     headers = get_realistic_headers()
-    config = HTTPConfig(timeout=Timeout(2.0), headers=headers)
+    config = HTTPConfig(timeout=2.0, headers=headers)
 
     fetcher = YTFetcher.from_channel(
         api_key="test_api_key",

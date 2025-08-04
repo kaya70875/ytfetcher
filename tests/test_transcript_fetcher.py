@@ -90,7 +90,7 @@ def test_concurrent_fetching(mocker, mock_video_ids):
     assert mock_fetch.call_count == 2
 
 def test_custom_ytt_api_client_initialized_correctly():
-    fetcher = TranscriptFetcher(mock_video_ids, http_config=HTTPConfig(timeout=httpx.Timeout(2.0)), proxy_config=GenericProxyConfig(
+    fetcher = TranscriptFetcher(mock_video_ids, http_config=HTTPConfig(timeout=4.0), proxy_config=GenericProxyConfig(
         http_url='http://test:800'
     ))
     ytt_api = YouTubeTranscriptApi(http_client=fetcher.http_client, proxy_config=fetcher.proxy_config)

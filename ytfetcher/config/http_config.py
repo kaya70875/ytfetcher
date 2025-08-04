@@ -3,11 +3,11 @@ from ytfetcher.utils.headers import get_realistic_headers
 from ytfetcher.exceptions import InvalidTimeout, InvalidHeaders
 
 class HTTPConfig:
-    def __init__(self, timeout: httpx.Timeout | None = None, headers: dict | None = None):
-        self.timeout = timeout or httpx.Timeout(4.0)
+    def __init__(self, timeout: float | None = None, headers: dict | None = None):
+        self.timeout = httpx.Timeout(timeout=timeout) or httpx.Timeout(4.0)
         self.headers = headers or get_realistic_headers()
 
-        if not isinstance(self.timeout, httpx.Timeout):
+        if not isinstance(timeout, float | None):
             raise InvalidTimeout("Invalid timeout, use httpx.Timeout instead.")
-        if not isinstance(self.headers, dict):
+        if not isinstance(headers, dict | None):
             raise InvalidHeaders("Invalid headers.")
