@@ -207,10 +207,9 @@ You can pass a custom timeout or headers (e.g., user-agent) to `YTFetcher` using
 ```python
 from ytfetcher import YTFetcher
 from ytfetcher.config import HTTPConfig
-import httpx
 
 custom_config = HTTPConfig(
-    timeout=httpx.Timeout(4.0),
+    timeout=4.0,
     headers={"User-Agent": "ytfetcher/1.0"} # Doesn't recommended to change this unless you have a strong headers.
 )
 
