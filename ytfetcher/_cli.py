@@ -4,98 +4,91 @@ import ast
 from ytfetcher._core import YTFetcher
 from ytfetcher.services.exports import Exporter
 from ytfetcher.config.http_config import HTTPConfig
-from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig, ProxyConfig
-from youtube_transcript_api.proxies import ProxyConfig
+from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
+from ytfetcher.models import ChannelData
 
-async def from_channel(api_key: str, channel_handle: str, output_dir: str, export_format: str, max_results: int, proxy_config: ProxyConfig, http_config: HTTPConfig = HTTPConfig()):
-    fetcher = YTFetcher.from_channel(
-        api_key=api_key,
-        channel_handle=channel_handle,
-        max_results=max_results,
-        http_config=http_config,
-        proxy_config=proxy_config
-    )
-
-    channel_data = await fetcher.fetch_youtube_data()
-    exporter = Exporter(channel_data=channel_data, output_dir=output_dir)
-
-    export_method = getattr(exporter, f"export_as_{export_format}", None)
-    if not export_method:
-        raise ValueError(f"Unsupported format: {export_format}")
+class YTFetcherCLI:
+    def __init__(self, args: argparse.Namespace):
+        self.args = args
+        self.http_config = self._initialize_http_config()
+        self.proxy_config = self._initialize_proxy_config()
     
-    # Run export method
-    export_method()
+    def _initialize_proxy_config(self):
+        proxy_config = None
 
-async def from_video_ids(api_key: str, video_ids: list[str], output_dir: str, export_format: str, proxy_config: ProxyConfig, http_config: HTTPConfig = HTTPConfig()):
-    fetcher = YTFetcher.from_video_ids(
-        api_key=api_key,
-        video_ids=video_ids,
-        http_config=http_config,
-        proxy_config=proxy_config
-    )
+        if self.args.http_proxy != "" or self.args.https_proxy != "":
+            proxy_config = GenericProxyConfig(
+                http_url=self.args.http_proxy,
+                https_url=self.args.https_proxy,
+            )
 
-    channel_data = await fetcher.fetch_youtube_data()
-    exporter = Exporter(channel_data=channel_data, output_dir=output_dir)
-
-    export_method = getattr(exporter, f"export_as_{export_format}", None)
-    if not export_method:
-        raise ValueError(f"Unsupported format: {export_format}")
-    
-    # Run export method
-    export_method()
-
-def initialize_proxy_config(args: argparse.Namespace):
-    proxy_config = None
-
-    if args.http_proxy != "" or args.https_proxy != "":
-        proxy_config = GenericProxyConfig(
-            http_url=args.http_proxy,
-            https_url=args.https_proxy,
+        if (
+            self.args.webshare_proxy_username is not None
+            or self.args.webshare_proxy_password is not None
+        ):
+            proxy_config = WebshareProxyConfig(
+                proxy_username=self.args.webshare_proxy_username,
+                proxy_password=self.args.webshare_proxy_password,
         )
+            
+        return proxy_config
 
-    if (
-        args.webshare_proxy_username is not None
-        or args.webshare_proxy_password is not None
-    ):
-        proxy_config = WebshareProxyConfig(
-            proxy_username=args.webshare_proxy_username,
-            proxy_password=args.webshare_proxy_password,
-    )
-        
-    return proxy_config
+    def _initialize_http_config(self):
+        http_config = HTTPConfig()
 
-def initialize_http_config(args: argparse.Namespace):
-    http_config = HTTPConfig()
+        if self.args.http_timeout or self.args.http_headers:
+            http_config = HTTPConfig(timeout=self.args.http_timeout, headers=self.args.http_headers)
+            return http_config
 
-    if args.http_timeout or args.http_headers:
-        http_config = HTTPConfig(timeout=args.http_timeout, headers=args.http_headers)
         return http_config
 
-    return http_config
+    async def run_from_channel(self):
+        fetcher = YTFetcher(
+            api_key=self.args.api_key,
+            channel_handle=self.args.channel_handle,
+            max_results=self.args.max_results,
+            video_ids=[],
+            http_config=self.http_config,
+            proxy_config=self.proxy_config
+        )
 
-def decide_fetcher_method(args: argparse.Namespace, http_config: HTTPConfig, proxy_config: GenericProxyConfig | WebshareProxyConfig | None):
-    try:
-        if args.method == 'from_channel':
-            asyncio.run(from_channel(
-                api_key=args.api_key,
-                channel_handle=args.channel_handle,
-                output_dir=args.output_dir,
-                export_format=args.format,
-                max_results=args.max_results,
-                http_config=http_config,
-                proxy_config=proxy_config
-            ))
-        elif args.method == 'from_video_ids':
-            asyncio.run(from_video_ids(
-                api_key=args.api_key,
-                video_ids=args.video_ids,
-                output_dir=args.output_dir,
-                export_format=args.format,
-                http_config=args.http_config,
-                proxy_config=proxy_config
-            ))
-    except Exception as e:
-        print(f"Error: {e}")
+        data = await fetcher.fetch_youtube_data()
+        self._export(data)
+    
+    async def run_from_video_ids(self):
+        fetcher = YTFetcher(
+            api_key=self.args.api_key,
+            channel_handle=self.args.channel_handle,
+            video_ids=self.args.video_ids,
+            http_config=self.http_config,
+            proxy_config=self.proxy_config
+        )
+
+        data = await fetcher.fetch_youtube_data()
+        self._export(data)
+    
+    def _export(self, channel_data: ChannelData):
+        exporter = Exporter(
+            channel_data=channel_data,
+            output_dir=self.args.output_dir
+        )
+
+        method = getattr(exporter, f'export_as_{self.args.format}', None)
+        if not method:
+            raise ValueError(f"Unsupported format: {self.args.format}")
+        
+        method()
+    
+    def run(self):
+        try:
+            if self.args.method == 'from_channel':
+                asyncio.run(self.run_from_channel())
+            elif self.args.method == 'from_video_ids':
+                asyncio.run(self.run_from_video_ids())
+            else:
+                raise ValueError(f"Unknown method: {self.args.method}")
+        except Exception as e:
+            print(f'Error: {e}')
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch YouTube transcripts for a channel")
@@ -114,11 +107,8 @@ def main():
     parser.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
 
     args = parser.parse_args()
-
-    http_config = initialize_http_config(args=args)
-    proxy_config = initialize_proxy_config(args=args)
-
-    decide_fetcher_method(args=args, http_config=http_config, proxy_config=proxy_config)
+    cli = YTFetcherCLI(args=args)
+    cli.run()
 
 if __name__ == "__main__":
     main()
