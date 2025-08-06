@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import ast
+import sys
 from ytfetcher._core import YTFetcher
 from ytfetcher.services.exports import Exporter
 from ytfetcher.config.http_config import HTTPConfig
@@ -43,11 +44,10 @@ class YTFetcherCLI:
         return http_config
 
     async def run_from_channel(self):
-        fetcher = YTFetcher(
+        fetcher = YTFetcher.from_channel(
             api_key=self.args.api_key,
             channel_handle=self.args.channel_handle,
             max_results=self.args.max_results,
-            video_ids=[],
             http_config=self.http_config,
             proxy_config=self.proxy_config
         )
@@ -56,9 +56,8 @@ class YTFetcherCLI:
         self._export(data)
     
     async def run_from_video_ids(self):
-        fetcher = YTFetcher(
+        fetcher = YTFetcher.from_video_ids(
             api_key=self.args.api_key,
-            channel_handle=self.args.channel_handle,
             video_ids=self.args.video_ids,
             http_config=self.http_config,
             proxy_config=self.proxy_config
@@ -79,18 +78,18 @@ class YTFetcherCLI:
         
         method()
     
-    def run(self):
+    async def run(self):
         try:
             if self.args.method == 'from_channel':
-                asyncio.run(self.run_from_channel())
+                await self.run_from_channel()
             elif self.args.method == 'from_video_ids':
-                asyncio.run(self.run_from_video_ids())
+                await self.run_from_video_ids()
             else:
                 raise ValueError(f"Unknown method: {self.args.method}")
         except Exception as e:
             print(f'Error: {e}')
 
-def main():
+def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch YouTube transcripts for a channel")
     parser.add_argument("method", help="The method for fetching custom video ids or directly from channel name")
     parser.add_argument("api_key", help="YouTube Data API Key")
@@ -106,9 +105,16 @@ def main():
     parser.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
     parser.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
 
-    args = parser.parse_args()
+    return parser
+
+def parse_args(argv=None):
+    parser = create_parser()
+    return parser.parse_args(args=argv)
+
+def main():
+    args = parse_args(sys.argv[1:])
     cli = YTFetcherCLI(args=args)
-    cli.run()
+    asyncio.run(cli.run())
 
 if __name__ == "__main__":
     main()
