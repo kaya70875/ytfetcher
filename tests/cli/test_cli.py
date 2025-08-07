@@ -141,3 +141,23 @@ async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, m
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()
+
+@pytest.mark.asyncio
+@patch('ytfetcher._cli.HTTPConfig')
+async def test_initialize_http_config_method(mock_http_config):
+    parser = create_parser()
+    args = parser.parse_args([
+        "from_channel",
+        "fake_api_key",
+        "-c", "TheOffice",
+        "--http-timeout", "4.2",
+        "--http-headers", "{'key': 'value'}"
+    ])
+    
+
+    YTFetcherCLI(args=args)
+
+    mock_http_config.assert_called_once_with(
+        timeout=args.http_timeout,
+        headers=args.http_headers
+    )
