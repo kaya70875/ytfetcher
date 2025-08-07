@@ -59,11 +59,11 @@ fetcher = YTFetcher.from_channel(
 
 async def get_channel_data() -> list[ChannelData]:
     channel_data = await fetcher.fetch_youtube_data()
-    print(channel_data)
     return channel_data
 
 if __name__ == '__main__':
-    asyncio.run(get_channel_data())
+    data = asyncio.run(get_channel_data())
+    print(data)
 ```
 
 ---
@@ -156,11 +156,11 @@ fetcher = YTFetcher.from_channel(
 
 async def get_transcript_data() -> list[VideoTranscript]:
     transcript_data = await fetcher.fetch_transcripts()
-    print(transcript_data)
     return transcript_data
 
 if __name__ == '__main__':
-    asyncio.run(get_transcript_data())
+    data = asyncio.run(get_transcript_data())
+    print(data)
 
 ```
 
@@ -269,6 +269,13 @@ ytfetcher from_channel <API_KEY> -c "channel" -f json \
   --http-proxy "http://user:pass@host:port" \
   --https-proxy "https://user:pass@host:port"
 
+```
+
+### Using Custom HTTP Config
+```bash
+ytfetcher from_channel <API_KEY> -c "channel" \
+  --http-timeout 4.2 \
+  --http-headers "{'key': 'value'}" # Must be exact wrapper with double quotes with following single quotes.
 ```
 
 ### Fetching by Video IDs
