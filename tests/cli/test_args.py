@@ -44,9 +44,6 @@ def test_webshare_proxy_config():
     args = parser.parse_args([
         "from_channel",
         "fake_api_key",
-        "-c", "TheOffice",
-        "--http-timeout", "4.2",
-        "--http-headers", "{'key': 'value'}",
         "--webshare-proxy-username", "username",
         "--webshare-proxy-password", "password"
     ])
