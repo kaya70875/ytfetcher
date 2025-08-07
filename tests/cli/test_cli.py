@@ -1,7 +1,6 @@
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch, AsyncMock
 from ytfetcher._cli import YTFetcherCLI, create_parser
-from ytfetcher.models import ChannelData
 
 @pytest.mark.asyncio
 @patch('ytfetcher._cli.Exporter.export_as_txt')

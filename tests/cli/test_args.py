@@ -1,5 +1,4 @@
 from ytfetcher._cli import create_parser, YTFetcherCLI
-from ytfetcher._core import YTFetcher
 
 def test_initialize_http_and_proxy_config_default():
     parser = create_parser()

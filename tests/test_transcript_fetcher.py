@@ -1,7 +1,6 @@
 import pytest
 import asyncio
 import time
-import httpx
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
 from ytfetcher.models.channel import VideoTranscript, Transcript
