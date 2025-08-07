@@ -35,13 +35,11 @@ class YTFetcherCLI:
         return proxy_config
 
     def _initialize_http_config(self):
-        http_config = HTTPConfig()
-
         if self.args.http_timeout or self.args.http_headers:
             http_config = HTTPConfig(timeout=self.args.http_timeout, headers=self.args.http_headers)
             return http_config
 
-        return http_config
+        return HTTPConfig()
 
     async def run_from_channel(self):
         fetcher = YTFetcher.from_channel(
@@ -99,7 +97,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
     parser.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
     parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
-    parser.add_argument("--http-headers", type=ast.literal_eval, default=HTTPConfig().headers, help="Custom http headers.")
+    parser.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
     parser.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
     parser.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
     parser.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
