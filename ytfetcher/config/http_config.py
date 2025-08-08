@@ -4,7 +4,7 @@ from ytfetcher.exceptions import InvalidTimeout, InvalidHeaders
 
 class HTTPConfig:
     def __init__(self, timeout: float | None = None, headers: dict | None = None):
-        self.timeout = httpx.Timeout(timeout=timeout) or httpx.Timeout(4.0)
+        self.timeout = httpx.Timeout(timeout=timeout) or httpx.Timeout()
         self.headers = headers or get_realistic_headers()
 
         if not isinstance(timeout, float | None):
