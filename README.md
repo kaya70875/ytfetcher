@@ -1,4 +1,6 @@
 # YTFetcher
+[![codecov](https://codecov.io/gh/kaya70875/ytfetcher/branch/main/graph/badge.svg)](https://codecov.io/gh/kaya70875/ytfetcher)
+[![PyPI version](https://img.shields.io/pypi/v/ytfetcher)](https://pypi.org/project/ytfetcher/)
 
 **YTFetcher** is a Python tool for fetching YouTube video transcripts in bulk, along with rich metadata like titles, publish dates, and descriptions. Ideal for building NLP datasets, search indexes, or powering content analysis apps.
 
