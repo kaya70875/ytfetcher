@@ -41,10 +41,12 @@ def test_export_arguments():
         "fake_api_key",
         "-c", "TheOffice",
         "-f", "json",
-        "-o", "C:/Users/user1/Desktop"
+        "-o", "C:/Users/user1/Desktop",
+        "--filename", "testing"
     ])
 
     cli = YTFetcherCLI(args=args)
 
     assert cli.args.format == 'json'
     assert cli.args.output_dir == 'C:/Users/user1/Desktop'
+    assert cli.args.filename == 'testing'

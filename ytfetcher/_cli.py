@@ -67,7 +67,8 @@ class YTFetcherCLI:
     def _export(self, channel_data: ChannelData):
         exporter = Exporter(
             channel_data=channel_data,
-            output_dir=self.args.output_dir
+            output_dir=self.args.output_dir,
+            filename=self.args.filename
         )
 
         method = getattr(exporter, f'export_as_{self.args.format}', None)
@@ -96,6 +97,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
     parser.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
+    parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
     parser.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
     parser.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')

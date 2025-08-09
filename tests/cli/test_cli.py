@@ -100,7 +100,8 @@ async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class,
     args = parser.parse_args([
         "from_video_ids",
         "fake_api_key",
-        "-v", "id1", "id2"
+        "-v", "id1", "id2",
+        "--filename", "testing"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -108,7 +109,8 @@ async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class,
 
     mock_exporter_class.assert_called_once_with(
         channel_data='channeldata',
-        output_dir=args.output_dir
+        output_dir=args.output_dir,
+        filename='testing'
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()
@@ -137,7 +139,8 @@ async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, m
 
     mock_exporter_class.assert_called_once_with(
         channel_data='channeldata',
-        output_dir=args.output_dir
+        output_dir=args.output_dir,
+        filename='data'
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()
