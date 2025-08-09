@@ -16,6 +16,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.3.0] - 2025-08-09
+### Added
+- Add filename support for exporing data in CLI.
+- Add thumbnail details to ChannelData Export.
+
+### Changed
+- Make thumbnail metadata default.
+
 ## [0.2.1] - 2025-08-08
 ### Changed
 - Change default timeout to `null` for HTTPConfig class.
