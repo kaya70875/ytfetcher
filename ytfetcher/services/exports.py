@@ -23,7 +23,7 @@ class Exporter:
         SystemPathCannotFound: If specified path cannot found.
     """
 
-    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Literal['title', 'description', 'publishedAt'] = ['title', 'description', 'publishedAt'], timing: bool = True, filename: str = 'data', output_dir: str = None):
+    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Literal['title', 'description', 'publishedAt', 'thumbnail'] = ['title', 'description', 'publishedAt', 'thumbnail'], timing: bool = True, filename: str = 'data', output_dir: str = None):
         self.channel_data = channel_data
         self.allowed_metadata_list = allowed_metadata_list
         self.timing = timing

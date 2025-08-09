@@ -12,7 +12,7 @@ def sample_snippet():
         description="description1",
         publishedAt="somedate1",
         channelId="id1",
-        thumbnail={'default': {'url': 'url1', 'width': '1', 'height': 1}},
+        thumbnail={'url': 'url1', 'width': 1, 'height': 1},
     )
 
 @pytest.fixture
@@ -52,6 +52,11 @@ def test_export_with_json_writes_file_with_correct_structure(mocker: MockerFixtu
         "title": "channelname1",
         "description": "description1",
         "publishedAt": "somedate1",
+        "thumbnail": {
+            "url": "url1",
+            "width": 1,
+            "height": 1
+        },
         "transcript": [
             {
                 "start": 1.11,
