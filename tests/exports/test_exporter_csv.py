@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open
 from ytfetcher.services.exports import Exporter
-from ytfetcher.models.channel import ChannelData, Snippet, Thumbnail, Thumbnails
+from ytfetcher.models.channel import ChannelData, Snippet
 import pytest
 import csv
 
@@ -12,9 +12,7 @@ def sample_snippet():
         description="description1",
         publishedAt="somedate1",
         channelId="id1",
-        thumbnails=Thumbnails(
-            default=Thumbnail(url="url1", width=1, height=1)
-        ),
+        thumbnail={'default': {'url': 'url1', 'width': 1, 'height': 1}}
     )
 
 @pytest.fixture

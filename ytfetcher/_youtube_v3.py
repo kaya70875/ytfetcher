@@ -100,7 +100,13 @@ class YoutubeV3:
                         video_metadata_list.append(
                             VideoMetadata(
                                 video_id=video_id,
-                                metadata=snippet
+                                metadata=Snippet(
+                                    title=snippet['title'],
+                                    description=snippet['description'],
+                                    publishedAt=snippet['publishedAt'],
+                                    channelId=snippet['channelId'],
+                                    thumbnail=snippet['thumbnails']['default']
+                                )
                             )
                         )
 

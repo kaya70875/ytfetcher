@@ -1,20 +1,11 @@
 from pydantic import BaseModel
 
-class Thumbnail(BaseModel):
-    url: str
-    width: int
-    height: int
-
-class Thumbnails(BaseModel):
-    default: Thumbnail
-
 class Snippet(BaseModel):
     title: str
     description: str
     publishedAt: str
     channelId: str
-    thumbnails: Thumbnails
-
+    thumbnail: dict
 
 class Transcript(BaseModel):
     text: str
