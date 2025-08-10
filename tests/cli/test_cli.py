@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch, AsyncMock
 from ytfetcher._cli import YTFetcherCLI, create_parser
+from ytfetcher.config import HTTPConfig
 
 @pytest.mark.asyncio
 @patch('ytfetcher._cli.Exporter.export_as_txt')
@@ -9,7 +10,7 @@ async def test_run_from_channel_called(mock_run_channel, mock_export_as_txt):
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
-        "fake_api_key"
+        "-a", "fake_api_key"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -24,7 +25,7 @@ async def test_run_from_video_ids_called(mock_run_from_video_ids, mock_export_as
     parser = create_parser()
     args = parser.parse_args([
         "from_video_ids",
-        "fake_api_key"
+        "-a", "fake_api_key"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -33,16 +34,20 @@ async def test_run_from_video_ids_called(mock_run_from_video_ids, mock_export_as
     mock_run_from_video_ids.assert_called_once()
 
 @pytest.mark.asyncio
+@patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.Exporter.export_as_txt')
 @patch('ytfetcher._cli.YTFetcher')
-async def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt):
+async def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
     mock_fetcher = AsyncMock()
     mock_ytfetcher.from_channel.return_value = mock_fetcher
+
+    # Mock HTTP Config
+    mock_initialize_http_config.return_value = HTTPConfig()
 
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
-        "fake_api_key",
+        "-a", "fake_api_key",
         "-c", "Channel"
     ])
 
@@ -53,23 +58,27 @@ async def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytf
         api_key="fake_api_key",
         channel_handle="Channel",
         max_results=5,
-        http_config=cli.http_config,
-        proxy_config=cli.proxy_config,
+        http_config=cli._initialize_http_config(),
+        proxy_config=cli._initialize_proxy_config(),
     )
 
     mock_fetcher.fetch_youtube_data.assert_awaited_once()
 
 @pytest.mark.asyncio
+@patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.Exporter.export_as_txt')
 @patch('ytfetcher._cli.YTFetcher')
-async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt):
+async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
     mock_fetcher = AsyncMock()
     mock_ytfetcher.from_video_ids.return_value = mock_fetcher
+
+    # Mock HTTP Config
+    mock_initialize_http_config.return_value = HTTPConfig()
 
     parser = create_parser()
     args = parser.parse_args([
         "from_video_ids",
-        "fake_api_key",
+        "-a", "fake_api_key",
         "-v", "id1", "id2"
     ])
 
@@ -79,8 +88,8 @@ async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_y
     mock_ytfetcher.from_video_ids.assert_called_once_with(
         api_key="fake_api_key",
         video_ids=['id1', 'id2'],
-        http_config=cli.http_config,
-        proxy_config=cli.proxy_config,
+        http_config=cli._initialize_http_config(),
+        proxy_config=cli._initialize_proxy_config(),
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
@@ -99,7 +108,7 @@ async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class,
     parser = create_parser()
     args = parser.parse_args([
         "from_video_ids",
-        "fake_api_key",
+        "-a", "fake_api_key",
         "-v", "id1", "id2",
         "--filename", "testing"
     ])
@@ -129,7 +138,7 @@ async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, m
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
-        "fake_api_key",
+        "-a", "fake_api_key",
         "-c", "TheOffice"
     ])
     
@@ -146,21 +155,54 @@ async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, m
     mock_exporter_instance.export_as_txt.assert_called_once()
 
 @pytest.mark.asyncio
-@patch('ytfetcher._cli.HTTPConfig')
-async def test_initialize_http_config_method(mock_http_config):
+@patch('ytfetcher._cli.Exporter.export_as_txt')
+@patch('ytfetcher._cli.save_api_key')
+async def test_save_api_config_with_cli(mock_save_api_key, mock_export_as_txt):
     parser = create_parser()
+
+    args = parser.parse_args([
+        "config",
+        "fake_api_key"
+    ])
+
+    cli = YTFetcherCLI(args=args)
+    await cli.run()
+
+    mock_save_api_key.assert_called_once_with('fake_api_key')
+
+@pytest.mark.asyncio
+@patch('ytfetcher._cli.Exporter.export_as_txt')
+@patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
+@patch('ytfetcher._cli.YTFetcher')
+@patch('ytfetcher._cli.load_api_key')
+async def test_load_api_config_with_cli(mock_load_api_key, mock_ytfetcher, mock_initialize_http_config, mock_export_as_txt):
+    # mock ytfetcher
+    mock_fetcher = AsyncMock()
+    mock_ytfetcher.from_channel.return_value = mock_fetcher
+
+    # Mock HTTP Config
+    mock_initialize_http_config.return_value = HTTPConfig()
+
+
+    parser = create_parser()
+
     args = parser.parse_args([
         "from_channel",
-        "fake_api_key",
-        "-c", "TheOffice",
-        "--http-timeout", "4.2",
-        "--http-headers", "{'key': 'value'}"
+        "-c", "channel"
     ])
-    
 
-    YTFetcherCLI(args=args)
+    # mock load_api_key function return_value
+    mock_load_api_key.return_value = 'saved_api_key'
 
-    mock_http_config.assert_called_once_with(
-        timeout=args.http_timeout,
-        headers=args.http_headers
+    cli = YTFetcherCLI(args=args)
+    await cli.run()
+
+    mock_load_api_key.assert_called_once()
+
+    mock_ytfetcher.from_channel.assert_called_once_with(
+        api_key='saved_api_key',
+        channel_handle='channel',
+        max_results=5,
+        http_config=cli._initialize_http_config(),
+        proxy_config=cli._initialize_proxy_config()
     )

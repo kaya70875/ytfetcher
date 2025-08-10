@@ -4,7 +4,7 @@ def test_initialize_http_and_proxy_config():
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
-        "fake_api_key",
+        "-a", "fake_api_key",
         "-c", "TheOffice",
         "--http-timeout", "4.2",
         "--http-headers", "{'key': 'value'}",
@@ -24,7 +24,7 @@ def test_webshare_proxy_config():
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
-        "fake_api_key",
+        "-a", "fake_api_key",
         "--webshare-proxy-username", "username",
         "--webshare-proxy-password", "password"
     ])
@@ -38,7 +38,7 @@ def test_export_arguments():
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
-        "fake_api_key",
+        "-a", "fake_api_key",
         "-c", "TheOffice",
         "-f", "json",
         "-o", "C:/Users/user1/Desktop",
