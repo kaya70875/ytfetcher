@@ -1,6 +1,6 @@
 [project]
 name = "ytfetcher"
-version = "0.3.0"
+version = "0.4.0"
 description = "YTFetcher lets you fetch YouTube transcripts in bulk with metadata like titles, publish dates, and thumbnails. Great for ML, NLP, and dataset generation."
 authors = [
     {name = "Ahmet Kaya",email = "kaya70875@gmail.com"}
