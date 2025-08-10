@@ -249,6 +249,12 @@ Basic usage example:
 ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -m 20 -f json
 ```
 
+### Fetching by Video IDs
+
+```bash
+ytfetcher from_video_ids --api-key <API_KEY> -v video_id1 video_id2 ... -f json
+```
+
 ### Output Example
 
 ```json
@@ -275,7 +281,7 @@ You can save your api key once with `ytfetcher config` command and use it global
 ytfetcher config <YOUR_API_KEY>
 ```
 
-Now you can basically say without passing API key argument.
+Now you can basically run ytfetcher **without passing API key** argument.
 
 ```bash
 ytfetcher from_channel -c <CHANNEL_HANDLE>
@@ -304,12 +310,6 @@ ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json \
 ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> \
   --http-timeout 4.2 \
   --http-headers "{'key': 'value'}" # Must be exact wrapper with double quotes with following single quotes.
-```
-
-### Fetching by Video IDs
-
-```bash
-ytfetcher from_video_ids --api-key <API_KEY> -v video_id1 video_id2 ... -f json
 ```
 
 ---
