@@ -46,6 +46,15 @@ pip install ytfetcher
 
 ## Basic Usage
 
+**Note:** When specifying the channel, you must provide the exact **channel handle** without the `@` symbol, channel URL, or channel display name.  
+For example, use `TheOffice` instead of `@TheOffice` or `https://www.youtube.com/c/TheOffice`.
+
+### How to find the channel handle for a YouTube channel
+
+1. Go to the YouTube channel page.
+2. Look at the URL in your browser's address bar.
+3. The handle is the part that comes right after `https://www.youtube.com/@`  
+
 Ytfetcher uses **YoutubeV3 API** to get channel details and video id's so you have to create your API key from Google Cloud Console [In here](https://console.cloud.google.com/apis/api/youtube.googleapis.com).
 
 Also keep in mind that you have a quota limit for **YoutubeV3 API**, but for basic usage quota isn't generally a concern.
@@ -237,7 +246,7 @@ ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -m <MAX_RESULTS> 
 Basic usage example:
 
 ```bash
-ytfetcher from_channel --api-key <API_KEY> -c "channelname" -m 20 -f json
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -m 20 -f json
 ```
 
 ### Output Example
@@ -269,13 +278,13 @@ ytfetcher config <YOUR_API_KEY>
 Now you can basically say without passing API key argument.
 
 ```bash
-ytfetcher from_channel -c ChannelName
+ytfetcher from_channel -c <CHANNEL_HANDLE>
 ```
 
 ### Using Webshare Proxy
 
 ```bash
-ytfetcher from_channel --api-key <API_KEY> -c "channel" -f json \
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json \
   --webshare-proxy-username "<USERNAME>" \
   --webshare-proxy-password "<PASSWORD>"
 
@@ -284,7 +293,7 @@ ytfetcher from_channel --api-key <API_KEY> -c "channel" -f json \
 ### Using Custom Proxy
 
 ```bash
-ytfetcher from_channel --api-key <API_KEY> -c "channel" -f json \
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json \
   --http-proxy "http://user:pass@host:port" \
   --https-proxy "https://user:pass@host:port"
 
@@ -292,7 +301,7 @@ ytfetcher from_channel --api-key <API_KEY> -c "channel" -f json \
 
 ### Using Custom HTTP Config
 ```bash
-ytfetcher from_channel --api-key <API_KEY> -c "channel" \
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> \
   --http-timeout 4.2 \
   --http-headers "{'key': 'value'}" # Must be exact wrapper with double quotes with following single quotes.
 ```
