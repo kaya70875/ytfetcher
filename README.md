@@ -231,13 +231,13 @@ fetcher = YTFetcher.from_channel(
 ### Basic Usage
 
 ```bash
-ytfetcher from_channel <API_KEY> -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ```
 
 Basic usage example:
 
 ```bash
-ytfetcher from_channel your-api-key -c "channelname" -m 20 -f json
+ytfetcher from_channel --api-key <API_KEY> -c "channelname" -m 20 -f json
 ```
 
 ### Output Example
@@ -258,10 +258,24 @@ ytfetcher from_channel your-api-key -c "channelname" -m 20 -f json
 ]
 ```
 
+### Setting API Key Globally In CLI
+
+You can save your api key once with `ytfetcher config` command and use it globally without needing to write everytime while using CLI.
+
+```bash
+ytfetcher config <YOUR_API_KEY>
+```
+
+Now you can basically say without passing API key argument.
+
+```bash
+ytfetcher from_channel -c ChannelName
+```
+
 ### Using Webshare Proxy
 
 ```bash
-ytfetcher from_channel <API_KEY> -c "channel" -f json \
+ytfetcher from_channel --api-key <API_KEY> -c "channel" -f json \
   --webshare-proxy-username "<USERNAME>" \
   --webshare-proxy-password "<PASSWORD>"
 
@@ -270,7 +284,7 @@ ytfetcher from_channel <API_KEY> -c "channel" -f json \
 ### Using Custom Proxy
 
 ```bash
-ytfetcher from_channel <API_KEY> -c "channel" -f json \
+ytfetcher from_channel --api-key <API_KEY> -c "channel" -f json \
   --http-proxy "http://user:pass@host:port" \
   --https-proxy "https://user:pass@host:port"
 
@@ -278,7 +292,7 @@ ytfetcher from_channel <API_KEY> -c "channel" -f json \
 
 ### Using Custom HTTP Config
 ```bash
-ytfetcher from_channel <API_KEY> -c "channel" \
+ytfetcher from_channel --api-key <API_KEY> -c "channel" \
   --http-timeout 4.2 \
   --http-headers "{'key': 'value'}" # Must be exact wrapper with double quotes with following single quotes.
 ```
@@ -286,7 +300,7 @@ ytfetcher from_channel <API_KEY> -c "channel" \
 ### Fetching by Video IDs
 
 ```bash
-ytfetcher from_video_ids <API_KEY> -v video_id1 video_id2 ... -f json
+ytfetcher from_video_ids --api-key <API_KEY> -v video_id1 video_id2 ... -f json
 ```
 
 ---
