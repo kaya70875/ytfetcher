@@ -7,12 +7,11 @@ from ytfetcher.services.exports import Exporter
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
+from ytfetcher.config.config_manager import load_api_key, save_api_key
 
 class YTFetcherCLI:
     def __init__(self, args: argparse.Namespace):
         self.args = args
-        self.http_config = self._initialize_http_config()
-        self.proxy_config = self._initialize_proxy_config()
     
     def _initialize_proxy_config(self):
         proxy_config = None
@@ -41,24 +40,24 @@ class YTFetcherCLI:
 
         return HTTPConfig()
 
-    async def run_from_channel(self):
+    async def run_from_channel(self, api_key: str):
         fetcher = YTFetcher.from_channel(
-            api_key=self.args.api_key,
+            api_key=api_key,
             channel_handle=self.args.channel_handle,
             max_results=self.args.max_results,
-            http_config=self.http_config,
-            proxy_config=self.proxy_config
+            http_config=self._initialize_http_config(),
+            proxy_config=self._initialize_proxy_config()
         )
 
         data = await fetcher.fetch_youtube_data()
         self._export(data)
     
-    async def run_from_video_ids(self):
+    async def run_from_video_ids(self, api_key: str):
         fetcher = YTFetcher.from_video_ids(
-            api_key=self.args.api_key,
+            api_key=api_key,
             video_ids=self.args.video_ids,
-            http_config=self.http_config,
-            proxy_config=self.proxy_config
+            http_config=self._initialize_http_config(),
+            proxy_config=self._initialize_proxy_config()
         )
 
         data = await fetcher.fetch_youtube_data()
@@ -79,10 +78,20 @@ class YTFetcherCLI:
     
     async def run(self):
         try:
-            if self.args.method == 'from_channel':
-                await self.run_from_channel()
-            elif self.args.method == 'from_video_ids':
-                await self.run_from_video_ids()
+            # Initialize api key first.
+            api_key = self.args.api_key or load_api_key()
+            if not api_key:
+                raise ValueError("No API key provided.")
+
+            if self.args.command == 'from_channel':
+                await self.run_from_channel(api_key=api_key)
+            
+            elif self.args.command == 'from_video_ids':
+                await self.run_from_video_ids(api_key=api_key)
+            
+            elif self.args.command == 'config':
+                save_api_key(self.args.api_key)
+
             else:
                 raise ValueError(f"Unknown method: {self.args.method}")
         except Exception as e:
@@ -90,20 +99,43 @@ class YTFetcherCLI:
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch YouTube transcripts for a channel")
-    parser.add_argument("method", help="The method for fetching custom video ids or directly from channel name")
-    parser.add_argument("api_key", help="YouTube Data API Key")
-    parser.add_argument("-v", "--video_ids", nargs="+", help='Video id list to fetch')
-    parser.add_argument("-c", "--channel_handle", help="YouTube channel handle")
-    parser.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
-    parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
-    parser.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
-    parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
-    parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
-    parser.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
-    parser.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
-    parser.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
-    parser.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
-    parser.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    # Config parsers
+    parser_config = subparsers.add_parser("config", help="Set your YoutubeV3 API key for later usage.")
+    parser_config.add_argument("api_key", type=str, help='Set your YoutubeV3 API key.')
+
+    # From Channel parsers
+    parser_channel = subparsers.add_parser("from_channel", help="Fetch data from channel handle with max_results.")
+
+    parser_channel.add_argument("-a", "--api-key", default=None, help="YouTube Data API Key")
+    parser_channel.add_argument("-c", "--channel_handle", help="YouTube channel handle")
+    parser_channel.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
+    parser_channel.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
+    parser_channel.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
+    parser_channel.add_argument("--filename", default="data", help="Decide filename to be exported.")
+    parser_channel.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
+    parser_channel.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
+    parser_channel.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
+    parser_channel.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
+    parser_channel.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
+    parser_channel.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+
+    # From Video Ids parsers
+    parser_video_ids = subparsers.add_parser("from_video_ids", help="Fetch data from your custom video ids.")
+
+    parser_video_ids.add_argument("-a", "--api-key", default=None, help="YouTube Data API Key")
+    parser_video_ids.add_argument("-v", "--video-ids", nargs="+", help='Video id list to fetch')
+    parser_video_ids.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
+    parser_video_ids.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
+    parser_video_ids.add_argument("--filename", default="data", help="Decide filename to be exported.")
+    parser_video_ids.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
+    parser_video_ids.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
+    parser_video_ids.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
+    parser_video_ids.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
+    parser_video_ids.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
+    parser_video_ids.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
 
     return parser
 
