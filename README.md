@@ -36,6 +36,19 @@
 
 ---
 
+## Quick Start
+
+```bash
+pip install ytfetcher
+```
+
+Fetch 50 videos of transcripts with metadata from a channel and save it as JSON:
+```bash
+ytfetcher from_channel --api-key YOUR_API_KEY -c TheOffice -m 50 -f json
+```
+
+Check [this](https://console.cloud.google.com/apis/api/youtube.googleapis.com) link for getting your API Key.
+
 ## Installation
 
 It is recommended to install this package by using pip:
