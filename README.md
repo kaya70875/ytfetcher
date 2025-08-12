@@ -3,7 +3,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/ytfetcher)](https://pypi.org/project/ytfetcher/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> ⚡ Effortlessly fetch and convert YouTube transcripts for ML, research, or personal use.
+> ⚡ Turn hours of YouTube videos into clean, structured text in minutes.
 
 **YTFetcher** is a Python tool for fetching YouTube video transcripts in bulk, along with rich metadata like titles, publish dates, and descriptions. Ideal for building NLP datasets, search indexes, or powering content analysis apps.
 
