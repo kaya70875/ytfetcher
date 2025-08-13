@@ -6,15 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
--
+- 
 
 ### Changed
--
+- 
 
 ### Fixed
 -
 
 ---
+
+## [0.4.1] - 2025-08-10
+### Added
+- Add instructions to docs for how to find channel_handle and change `channel_name` args with `<CHANNEL_HANDLE>` for better clarity.
+- Add quick usage section in README.
 
 ## [0.4.0] - 2025-08-10
 ### Added
