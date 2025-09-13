@@ -14,7 +14,6 @@ __all__ = [
 ]
 
 klyne_api = os.getenv('KLYNE_API_KEY')
-print(klyne_api)
 
 klyne.init(
     api_key=klyne_api,
