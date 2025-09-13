@@ -17,7 +17,7 @@ class YTFetcher:
     and the `youtube_transcript_api` (with optional proxy support) to fetch transcripts.
 
     Parameters:
-        api_key (str): API key for accessing the YouTube Data API.
+        api_key (str | None): API key for accessing the YouTube Data API. YT-DLP will be used if not provided.
         http_config (HTTPConfig): Configuration for HTTP client behavior.
         max_results (int): Maximum number of videos to fetch.
         video_ids (list[str]): List of specific video IDs to fetch.
@@ -54,7 +54,7 @@ class YTFetcher:
         return cls(api_key=api_key, http_config=http_config, max_results=max_results, video_ids=[], channel_handle=channel_handle, proxy_config=proxy_config)
     
     @classmethod
-    def from_video_ids(cls, api_key: str, video_ids: list[str] = [], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None) -> "YTFetcher":
+    def from_video_ids(cls, api_key: str | None = None, video_ids: list[str] = [], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None) -> "YTFetcher":
         """
         Create a fetcher that only fetches from given video ids.
         """
@@ -98,12 +98,12 @@ class YTFetcher:
         
         return await self.fetcher.fetch()
 
-    def fetch_snippets(self) -> list[VideoMetadata]:
+    def fetch_snippets(self) -> list[VideoMetadata] | None:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 
         Returns:
-            list[VideoMetadata]: An object containing video metadata and IDs.
+            list[VideoMetadata] | None: An object containing video metadata and IDs.
         """
         return self.snippets
 
@@ -121,12 +121,12 @@ class YTFetcher:
         return self.snippets.video_ids
 
     @property
-    def metadata(self) -> list[Snippet]:
+    def metadata(self) -> list[Snippet] | None:
         """
         Metadata for each video, such as title, publish date, and description.
 
         Returns:
-            list[Snippet]: List of Snippet objects containing video metadata.
+            list[Snippet] | None: List of Snippet objects containing video metadata.
         """
         return self.snippets.metadata
     
