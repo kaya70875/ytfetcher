@@ -38,7 +38,7 @@ pip install ytfetcher
 
 ---
 
-## 🚀 Quick CLI Usage
+## Quick CLI Usage
 Fetch 50 video transcripts + metadata from a channel and save as JSON:
 ```bash
 ytfetcher from_channel --api-key YOUR_API_KEY -c TheOffice -m 50 -f json
@@ -47,7 +47,7 @@ ytfetcher from_channel --api-key YOUR_API_KEY -c TheOffice -m 50 -f json
 
 ---
 
-## ✨ Features
+## Features
 - Fetch full transcripts from a YouTube channel.
 - Get video metadata: title, description, thumbnails, published date.
 - Async support for high performance.
