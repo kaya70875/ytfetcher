@@ -373,6 +373,18 @@ files = [
 ]
 
 [[package]]
+name = "klyne"
+version = "0.1.95"
+description = "Lightweight Python package analytics SDK"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "klyne-0.1.95-py3-none-any.whl", hash = "sha256:3b846cf96ca4e9e935463ce4fdacf7eacdd2d4ad545d765f55c844b5f9eb9db9"},
+    {file = "klyne-0.1.95.tar.gz", hash = "sha256:6efa2b3567767d81f5255966c42edbea620728f2ad0fb54f17581137f41b43b4"},
+]
+
+[[package]]
 name = "mypy"
 version = "1.17.1"
 description = "Optional static typing for Python"
@@ -844,7 +856,29 @@ files = [
 defusedxml = ">=0.7.1,<0.8.0"
 requests = "*"
 
+[[package]]
+name = "yt-dlp"
+version = "2025.8.11"
+description = "A feature-rich command-line audio/video downloader"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "yt_dlp-2025.8.11-py3-none-any.whl", hash = "sha256:f115d2246c1ab5737772bd4845be057eebb91c0d95125a7577d92288351df7d0"},
+    {file = "yt_dlp-2025.8.11.tar.gz", hash = "sha256:dc7c120a367fe55e0f711613dc80ea29d3a4e0ed8d66104cebfbe3d36e81fdfc"},
+]
+
+[package.extras]
+build = ["build", "hatchling", "pip", "setuptools (>=71.0.2,<81)", "wheel"]
+curl-cffi = ["curl-cffi (>=0.5.10,<0.6.dev0 || >=0.10.dev0,<0.14) ; implementation_name == \"cpython\""]
+default = ["brotli ; implementation_name == \"cpython\"", "brotlicffi ; implementation_name != \"cpython\"", "certifi", "mutagen", "pycryptodomex", "requests (>=2.32.2,<3)", "urllib3 (>=2.0.2,<3)", "websockets (>=13.0)"]
+dev = ["autopep8 (>=2.0,<3.0)", "pre-commit", "pytest (>=8.1,<9.0)", "pytest-rerunfailures (>=14.0,<15.0)", "ruff (>=0.12.0,<0.13.0)"]
+pyinstaller = ["pyinstaller (>=6.13.0)"]
+secretstorage = ["cffi", "secretstorage"]
+static-analysis = ["autopep8 (>=2.0,<3.0)", "ruff (>=0.12.0,<0.13.0)"]
+test = ["pytest (>=8.1,<9.0)", "pytest-rerunfailures (>=14.0,<15.0)"]
+
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "1e074a58131928b45924acd0a129962ccffb1c1ce73b54e7c39a0fb0c92aa940"
+content-hash = "c002b6a946f71d67079301d86caa794d5f8952b1e23f56b309cd4a2d0bbdb4c2"
