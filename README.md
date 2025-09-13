@@ -1,5 +1,6 @@
 # YTFetcher
 [![codecov](https://codecov.io/gh/kaya70875/ytfetcher/branch/main/graph/badge.svg)](https://codecov.io/gh/kaya70875/ytfetcher)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/ytfetcher?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/ytfetcher)
 [![PyPI version](https://img.shields.io/pypi/v/ytfetcher)](https://pypi.org/project/ytfetcher/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -350,3 +351,7 @@ poetry run pytest
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
+
+---
+
+⭐ If you find this useful, please star the repo or open an issue with feedback!
