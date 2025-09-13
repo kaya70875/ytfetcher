@@ -1,6 +1,12 @@
 import yt_dlp
 
 class YoutubeDL:
+    """
+    Simple wrapper for fetching video IDs from a YouTube channel using yt-dlp.
+
+    Raises:
+        yt_dlp.utils.DownloadError: If the channel cannot be accessed or videos cannot be fetched.
+    """
     def __init__(self, channel_handle: str, max_results: int = 50):
         self.channel_handle = channel_handle
         self.max_results = max_results
