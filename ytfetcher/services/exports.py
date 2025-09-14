@@ -48,7 +48,8 @@ class Exporter:
                 file.write(f"Transcript for {data.video_id}:\n")
 
                 for metadata in self.allowed_metadata_list:
-                    file.write(f'{metadata} --> {getattr(data.metadata, metadata)}\n')
+                    if data.metadata:
+                        file.write(f'{metadata} --> {getattr(data.metadata, metadata)}\n')
                 
                 for transcript in data.transcripts:
                     if self.timing:
@@ -69,7 +70,7 @@ class Exporter:
             for data in self.channel_data:
                 video_data = {
                     "video_id": data.video_id,
-                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list},
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
                     "transcript": [
                         {
                             **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
@@ -90,8 +91,10 @@ class Exporter:
         output_path = self.output_dir / f"{self.filename}.csv"
 
         t = ['start', 'duration']
-        fieldnames = ['index', 'video_id', *self.allowed_metadata_list, 'text']
+        metadata = [*self.allowed_metadata_list]
+        fieldnames = ['index', 'video_id', 'text']
         fieldnames += t if self.timing else []
+        fieldnames += metadata if self.channel_data[0].metadata is not None else []
 
         with open(output_path, 'w', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -103,7 +106,7 @@ class Exporter:
                     row = {
                         'index': i,
                         'video_id': data.video_id,
-                        **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list},
+                        **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
                         **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
                         'text': transcript.text
                     }
