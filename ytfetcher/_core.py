@@ -60,7 +60,7 @@ class YTFetcher:
         """
         return cls(api_key=api_key, http_config=http_config, max_results=len(video_ids), video_ids=video_ids, channel_handle=None, proxy_config=proxy_config)
 
-    async def fetch_youtube_data(self) -> list[ChannelData] | list[VideoTranscript]:
+    async def fetch_youtube_data(self) -> list[ChannelData]:
         """
         Asynchronously fetches transcript and metadata for all videos retrieved from the channel or video IDs.
 
@@ -71,41 +71,40 @@ class YTFetcher:
         transcripts = await self.fetcher.fetch()
 
         if self.youtube_dl:
-            return [
-                VideoTranscript(
-                    video_id=transcript.video_id,
-                    transcripts=transcript.transcripts
-                )
-                for transcript in transcripts
-            ]
+            return transcripts
         
-        return [
-            ChannelData(
-             video_id=transcript.video_id,
-             transcripts=transcript.transcripts,
-             metadata=snippet.metadata
-             )
-            for transcript, snippet in zip(transcripts, self.snippets)
-        ]
+        for transcript, snippet in zip(transcripts, self.snippets):
+            transcript.metadata = snippet
+        
+        return transcripts
     
-    async def fetch_transcripts(self) -> list[VideoTranscript]:
+    async def fetch_transcripts(self) -> list[ChannelData]:
         """
         Returns only the transcripts from cached or freshly fetched YouTube data.
 
         Returns:
-            list[VideoTranscript]: Transcripts only with video_id (excluding metadata).
+            list[ChannelData]: Transcripts only with video_id (excluding metadata).
         """
         
         return await self.fetcher.fetch()
 
-    def fetch_snippets(self) -> list[VideoMetadata] | None:
+    async def fetch_snippets(self) -> list[ChannelData]:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 
         Returns:
-            list[VideoMetadata] | None: An object containing video metadata and IDs.
+            list[ChannelData] | None: An object containing video metadata and IDs.
         """
-        return self.snippets
+
+        transcripts = await self.fetcher.fetch()
+
+        return [
+            ChannelData(
+                video_id=transcript.video_id,
+                metadata=snippet
+            )
+            for transcript, snippet in zip(transcripts, self.snippets)
+        ]
 
     @property
     def video_ids(self) -> list[str]:
@@ -128,7 +127,7 @@ class YTFetcher:
         Returns:
             list[Snippet] | None: List of Snippet objects containing video metadata.
         """
-        return self.snippets.metadata
+        return self.snippets
     
     def _get_video_ids(self) -> list[str]:
         """

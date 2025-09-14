@@ -1,7 +1,7 @@
 from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import ProxyConfig
-from ytfetcher.models.channel import Transcript, VideoTranscript
+from ytfetcher.models.channel import Transcript, ChannelData, VideoTranscript
 from ytfetcher.config.http_config import HTTPConfig
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm  # type: ignore
@@ -33,7 +33,7 @@ class TranscriptFetcher:
         # Initialize client
         self.http_client.headers = http_config.headers
 
-    async def fetch(self) -> list[VideoTranscript]:
+    async def fetch(self) -> list[ChannelData]:
         """
         Asynchronously fetches transcripts for all provided video IDs.
 
@@ -49,14 +49,20 @@ class TranscriptFetcher:
 
         tasks = [run_in_thread(video_id) for video_id in self.video_ids]
 
-        all_video_transcripts: list[VideoTranscript] = []
+        channel_data: list[ChannelData] = []
         
         for coro in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript'):
             result: VideoTranscript = await coro
             if result:
-                all_video_transcripts.append(result)
+                channel_data.append(
+                    ChannelData(
+                        video_id=result.video_id,
+                        transcripts=result.transcripts,
+                        metadata=None
+                    )
+                )
 
-        return all_video_transcripts
+        return channel_data
 
     def _fetch_single(self, video_id: str) -> VideoTranscript | None:
         """

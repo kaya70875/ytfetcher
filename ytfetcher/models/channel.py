@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class Snippet(BaseModel):
     title: str
@@ -20,6 +21,9 @@ class VideoTranscript(BaseModel):
         return self.model_dump()
 
 class VideoMetadata(BaseModel):
+    """
+    Deprecated: use ChannelData instead.
+    """
     video_id: str
     metadata: Snippet
 
@@ -28,8 +32,8 @@ class VideoMetadata(BaseModel):
 
 class ChannelData(BaseModel):
     video_id: str
-    transcripts: list[Transcript]
-    metadata: Snippet
+    transcripts: Optional[list[Transcript]]
+    metadata: Optional[Snippet]
 
     def to_dict(self) -> dict:
         return self.model_dump()
