@@ -32,8 +32,8 @@ class VideoMetadata(BaseModel):
 
 class ChannelData(BaseModel):
     video_id: str
-    transcripts: Optional[list[Transcript]]
-    metadata: Optional[Snippet]
+    transcripts: list[Transcript] | None = None
+    metadata: Snippet | None = None
 
     def to_dict(self) -> dict:
-        return self.model_dump()
+        return self.model_dump(exclude_none=True)
