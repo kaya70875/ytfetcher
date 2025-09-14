@@ -48,8 +48,8 @@ def test_export_with_csv_writes_file_with_correct_structure(mocker: MockerFixtur
     reader = csv.reader(content.splitlines())
     rows = list(reader)
 
-    assert rows[0] == ['index', 'video_id', 'title', 'description', 'publishedAt', 'thumbnail', 'text', 'start', 'duration']
-    assert rows[1] == ['0', 'video1', 'channelname1', 'description1', 'somedate1', "{'url': 'url1', 'width': 1, 'height': 1}", 'text1', '1.11', '2.22']
+    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'publishedAt', 'thumbnail']
+    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'somedate1', "{'url': 'url1', 'width': 1, 'height': 1}"]
 
 def test_export_with_csv_creates_file_with_correct_custom_name(mocker: MockerFixture, mock_transcript_response):
     m = mock_open()
@@ -73,8 +73,8 @@ def test_export_with_csv_custom_metadata(mocker: MockerFixture, mock_transcript_
     reader = csv.reader(content.splitlines())
     rows = list(reader)
 
-    assert rows[0] == ['index', 'video_id', 'title', 'text']
-    assert rows[1] == ['0', 'video1', 'channelname1', 'text1']
+    assert rows[0] == ['index', 'video_id', 'text', 'title']
+    assert rows[1] == ['0', 'video1', 'text1', 'channelname1']
 
 def test_csv_special_characters(mocker: MockerFixture, sample_snippet):
     exotic_data = [ChannelData(
