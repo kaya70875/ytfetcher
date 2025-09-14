@@ -19,7 +19,7 @@ from pytest_mock import MockerFixture
 # --- Fixtures for test setup ---
 @pytest.fixture
 def sample_video_ids():
-    return ["video1", "video2"]
+    return ["video_1", "video_2"]
 
 @pytest.fixture
 def sample_channel_name():
@@ -59,16 +59,18 @@ def sample_transcripts():
 def patch_fetchers(mocker: MockerFixture, sample_video_ids, sample_snippet, sample_transcripts):
     mock_youtube_v3 = mocker.patch.object(YoutubeV3, 'fetch_channel_snippets', return_value=
         [
-            VideoMetadata(
+            ChannelData(
                 video_id=sample_video_ids[0],
+                transcripts=None,
                 metadata=sample_snippet
             )
         ]
     )
     mock_transcript_fetcher = mocker.patch.object(TranscriptFetcher, 'fetch', return_value=[
-        VideoTranscript(
+        ChannelData(
             video_id="video_1",
-            transcripts=sample_transcripts
+            transcripts=sample_transcripts,
+            metadata=None
         )
     ])
 
@@ -136,18 +138,21 @@ async def test_fetch_transcripts_method_with_channel_name(patch_fetchers, initia
     results = await fetcher.fetch_transcripts()
 
     assert len(results) == 1
-    assert isinstance(results[0], VideoTranscript)
+    assert isinstance(results[0], ChannelData)
     assert isinstance(results[0].transcripts[0], Transcript)
     assert results[0].video_id == 'video_1'
     assert results[0].transcripts[0].text == 'text1'
+    assert results[0].metadata == None
 
-def test_fetch_snippets_method_with_channel_name(patch_fetchers, initialize_ytfetcher_with_channel_name, sample_video_ids):
+@pytest.mark.asyncio
+async def test_fetch_snippets_method_with_channel_name(patch_fetchers, initialize_ytfetcher_with_channel_name, sample_video_ids):
     fetcher = initialize_ytfetcher_with_channel_name
-    results = fetcher.fetch_snippets()
+    results = await fetcher.fetch_snippets()
 
-    assert isinstance(results[0], VideoMetadata)
+    assert isinstance(results[0], ChannelData)
     assert isinstance(results[0].metadata, Snippet)
-    assert results[0].video_id == sample_video_ids[0]
+    assert results[0].video_id == 'video_1'
+    assert results[0].transcripts == None
     assert results[0].metadata.title == 'channelname1'
 
 @pytest.mark.asyncio
@@ -156,18 +161,21 @@ async def test_fetch_transcripts_method_with_video_ids(patch_fetchers, initializ
     results = await fetcher.fetch_transcripts()
 
     assert len(results) == 1
-    assert isinstance(results[0], VideoTranscript)
+    assert isinstance(results[0], ChannelData)
     assert isinstance(results[0].transcripts[0], Transcript)
     assert results[0].video_id == 'video_1'
     assert results[0].transcripts[0].text == 'text1'
+    assert results[0].metadata == None
 
-def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids, sample_video_ids):
+@pytest.mark.asyncio
+async def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids, sample_video_ids):
     fetcher = initialize_ytfetcher_with_video_ids
-    results = fetcher.fetch_snippets()
+    results = await fetcher.fetch_snippets()
 
-    assert isinstance(results[0], VideoMetadata)
+    assert isinstance(results[0], ChannelData)
     assert isinstance(results[0].metadata, Snippet)
-    assert results[0].video_id == sample_video_ids[0]
+    assert results[0].video_id == 'video_1'
+    assert results[0].transcripts == None
     assert results[0].metadata.title == 'channelname1'
 
 def test_http_config(patch_fetchers, sample_channel_name):
