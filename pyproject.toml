@@ -7,7 +7,7 @@ authors = [
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
-keywords = ["yt", "transcript", "youtube", "cli", "dataset", "scraping", "python"]
+keywords = ["yt", "transcripts", "youtube", "cli", "dataset", "scraping", "python", "youtube-transcripts"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
