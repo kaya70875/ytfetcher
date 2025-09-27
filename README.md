@@ -41,9 +41,8 @@ pip install ytfetcher
 ## Quick CLI Usage
 Fetch 50 video transcripts + metadata from a channel and save as JSON:
 ```bash
-ytfetcher from_channel --api-key YOUR_API_KEY -c TheOffice -m 50 -f json
+ytfetcher from_channel -c TheOffice -m 50 -f json
 ```
-👉 [Get an API Key here](https://console.cloud.google.com/apis/api/youtube.googleapis.com).
 
 ---
 
@@ -58,30 +57,20 @@ ytfetcher from_channel --api-key YOUR_API_KEY -c TheOffice -m 50 -f json
 
 ## Basic Usage (Python API)
 
-**Note:** When specifying the channel, you must provide the exact **channel handle** without the `@` symbol, channel URL, or channel display name.  
+**Note:** When specifying the channel, you must provide the exact **channel handle** without the `@` symbol, channel URL, or display name.  
 For example, use `TheOffice` instead of `@TheOffice` or `https://www.youtube.com/c/TheOffice`.
 
-### How to find the channel handle for a YouTube channel
-
-1. Go to the YouTube channel page.
-2. Look at the URL in your browser's address bar.
-3. The handle is the part that comes right after `https://www.youtube.com/@`  
-
-Ytfetcher uses **YoutubeV3 API** to get channel details and video id's so you have to create your API key from Google Cloud Console [In here](https://console.cloud.google.com/apis/api/youtube.googleapis.com).
-
-Also keep in mind that you have a quota limit for **YoutubeV3 API**, but for basic usage quota isn't generally a concern.
-
-Here how you can get transcripts and metadata informations like channel name, description, publishedDate etc. from a single channel with `from_channel` method:
+Here’s how you can get transcripts and metadata information like channel name, description, published date, etc. from a single channel with `from_channel` method:
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher import ChannelData # Or ytfetcher.models import ChannelData
+from ytfetcher.models.channel import ChannelData
 import asyncio
 
 fetcher = YTFetcher.from_channel(
-    api_key='your-youtubev3-api-key', 
-    channel_handle="TheOffice", 
-    max_results=2)
+    channel_handle="TheOffice",
+    max_results=2
+)
 
 async def get_channel_data() -> list[ChannelData]:
     channel_data = await fetcher.fetch_youtube_data()
@@ -94,7 +83,7 @@ if __name__ == '__main__':
 
 ---
 
-This will return a list of `ChannelData`. Here's how it's looks like:
+This will return a list of `ChannelData` with metadata in `DLSnippet` objects:
 
 ```python
 [
@@ -112,18 +101,13 @@ ChannelData(
             duration=4.46
         )
     ]
-    metadata=Snippet(
+    metadata=DLSnippet(
         title='VideoTitle',
         description='VideoDescription',
-        publishedAt='02.04.2025',
-        channelId='id123',
-        thumbnails=Thumbnails(
-            default=Thumbnail(
-                url:'thumbnail_url',
-                width: 124,
-                height: 124
-            )
-        )
+        url='https://youtu.be/video1',
+        duration=120,
+        view_count=1000,
+        thumbnails=[{'url': 'thumbnail_url'}]
     )
 ),
 # Other ChannelData objects...
@@ -134,15 +118,15 @@ ChannelData(
 
 ## Fetching With Custom Video IDs
 
-You can also initialize `ytfetcher` with custom video id's using `from_video_ids` method.
+You can also initialize `ytfetcher` with custom video IDs using `from_video_ids` method:
 
 ```python
 from ytfetcher import YTFetcher
 import asyncio
 
 fetcher = YTFetcher.from_video_ids(
-    api_key='your-youtubev3-api-key', 
-    video_ids=['video1', 'video2', 'video3'])
+    video_ids=['video1', 'video2', 'video3']
+)
 
 # Rest is same ...
 ```
@@ -151,19 +135,19 @@ fetcher = YTFetcher.from_video_ids(
 
 ## Exporting
 
-To export data you can use `Exporter` class. Exporter allows you to export `ChannelData` with formats like **csv**, **json** or **txt**.
+Use the `Exporter` class to export `ChannelData` in **csv**, **json**, or **txt**:
 
 ```python
 from ytfetcher.services import Exporter
 
-channel_data = await fetcher.fetch_youtube_data()
+channel_data = asyncio.run(fetcher.fetch_youtube_data())
 
 exporter = Exporter(
     channel_data=channel_data,
-    allowed_metadata_list=['title', 'publishedAt'],   # You can customize this
-    timing=True,                                      # Include transcript start/duration
-    filename='my_export',                             # Base filename
-    output_dir='./exports'                            # Optional export directory
+    allowed_metadata_list=['title'],   # You can customize this
+    timing=True,                       # Include transcript start/duration
+    filename='my_export',              # Base filename
+    output_dir='./exports'             # Optional output directory
 )
 
 exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
@@ -173,67 +157,50 @@ exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
 
 ## Other Methods
 
-You can also fetch only transcript data or metadata with video ID's using `fetch_transcripts` and `fetch_snippets` methods.
+You can also fetch only transcript data or metadata with video IDs using `fetch_transcripts` and `fetch_snippets`.
 
 ### Fetch Transcripts
 
 ```python
-from ytfetcher import VideoTranscript
+fetcher = YTFetcher.from_channel(channel_handle="TheOffice", max_results=2)
 
-fetcher = YTFetcher.from_channel(
-    api_key='your-youtubev3-api-key', 
-    channel_handle="TheOffice", 
-    max_results=2)
+async def get_transcript_data():
+    return await fetcher.fetch_transcripts()
 
-async def get_transcript_data() -> list[VideoTranscript]:
-    transcript_data = await fetcher.fetch_transcripts()
-    return transcript_data
-
-if __name__ == '__main__':
-    data = asyncio.run(get_transcript_data())
-    print(data)
+data = asyncio.run(get_transcript_data())
+print(data)
 ```
 
 ### Fetch Snippets
 
 ```python
-from ytfetcher import VideoMetadata
+async def get_snippets():
+    return await fetcher.fetch_snippets()
 
-# Init ytfetcher ...
-
-def get_metadata() -> list[VideoMetadata]:
-    metadata = fetcher.fetch_snippets()
-    return metadata
-
-if __name__ == '__main__':
-    get_metadata()
+data = asyncio.run(get_snippets())
+print(data)
 ```
 
 ---
 
 ## Proxy Configuration
 
-`YTFetcher` supports proxy usage for fetching YouTube transcripts by leveraging the built-in proxy configuration support from [youtube-transcript-api](https://pypi.org/project/youtube-transcript-api/).
-
-To configure proxies, you can pass a proxy config object from `ytfecher.config` directly to `YTFetcher`:
+`YTFetcher` supports proxy usage for fetching YouTube transcripts:
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
+from ytfetcher.config import GenericProxyConfig
 
 fetcher = YTFetcher.from_channel(
-    api_key="your-api-key",
     channel_handle="TheOffice",
     max_results=3,
-    proxy_config=GenericProxyConfig() | WebshareProxyConfig()
+    proxy_config=GenericProxyConfig()
 )
 ```
 
 ---
 
 ## Advanced HTTP Configuration (Optional)
-
-You can pass a custom timeout or headers (e.g., user-agent) to `YTFetcher` using `HTTPConfig`:
 
 ```python
 from ytfetcher import YTFetcher
@@ -245,7 +212,6 @@ custom_config = HTTPConfig(
 )
 
 fetcher = YTFetcher.from_channel(
-    api_key="your-key",
     channel_handle="TheOffice",
     max_results=10,
     http_config=custom_config
@@ -257,71 +223,18 @@ fetcher = YTFetcher.from_channel(
 ## CLI (Advanced)
 
 ### Basic Usage
-
 ```bash
-ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
-```
-
-Example:
-
-```bash
-ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -m 20 -f json
+ytfetcher from_channel -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ```
 
 ### Fetching by Video IDs
-
 ```bash
-ytfetcher from_video_ids --api-key <API_KEY> -v video_id1 video_id2 ... -f json
-```
-
-### Output Example
-
-```json
-[
-  {
-    "video_id": "abc123",
-    "metadata": {
-      "title": "Video Title",
-      "description": "Video Description",
-      "publishedAt": "2023-07-01T12:00:00Z"
-    },
-    "transcripts": [
-      {"text": "Welcome!", "start": 0.0, "duration": 1.2}
-    ]
-  }
-]
-```
-
-### Setting API Key Globally In CLI
-
-```bash
-ytfetcher config <YOUR_API_KEY>
-ytfetcher from_channel -c <CHANNEL_HANDLE>
-```
-
-### Using Webshare Proxy
-
-```bash
-ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json   --webshare-proxy-username "<USERNAME>"   --webshare-proxy-password "<PASSWORD>"
-```
-
-### Using Custom Proxy
-
-```bash
-ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json   --http-proxy "http://user:pass@host:port"   --https-proxy "https://user:pass@host:port"
-```
-
-### Using Custom HTTP Config
-
-```bash
-ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE>   --http-timeout 4.2   --http-headers "{'key': 'value'}"
+ytfetcher from_video_ids -v video_id1 video_id2 ... -f json
 ```
 
 ---
 
 ## Contributing
-
-To install this project locally:
 
 ```bash
 git clone https://github.com/kaya70875/ytfetcher.git
@@ -352,3 +265,4 @@ This project is licensed under the MIT License — see the [LICENSE](./LICENSE) 
 ---
 
 ⭐ If you find this useful, please star the repo or open an issue with feedback!
+
