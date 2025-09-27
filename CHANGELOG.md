@@ -6,15 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
-- 
 
 ### Changed
-- 
 
 ### Fixed
 -
 
 ---
+
+## [1.0] - 2025-09-27
+### Added
+- Ytfetcher now runs without an api key.
+- Added YoutubeDL for fetching video id's and snippets faster and without requiring an API key.
+
+### Changed
+- Removed YoutubeV3 class since YoutubeDL is simpler and faster.
+- Changed readme accordingly based on last changes.
 
 ## [0.4.1] - 2025-08-10
 ### Added
