@@ -1,12 +1,14 @@
 from pydantic import BaseModel
-from typing import Optional
 
-class Snippet(BaseModel):
+class DLSnippet(BaseModel):
     title: str
     description: str
-    publishedAt: str
-    channelId: str
-    thumbnail: dict
+    url: str
+    video_id: str | None = None
+    duration: float | None = None
+    view_count: int | None = None
+    thumbnails: list[dict] | None = None
+
 
 class Transcript(BaseModel):
     text: str
@@ -20,20 +22,10 @@ class VideoTranscript(BaseModel):
     def to_dict(self) -> dict:
         return self.model_dump()
 
-class VideoMetadata(BaseModel):
-    """
-    Deprecated: use ChannelData instead.
-    """
-    video_id: str
-    metadata: Snippet
-
-    def to_dict(self) -> dict:
-        return self.model_dump()
-
 class ChannelData(BaseModel):
     video_id: str
     transcripts: list[Transcript] | None = None
-    metadata: Snippet | None = None
+    metadata: DLSnippet | None = None
 
     def to_dict(self) -> dict:
         return self.model_dump(exclude_none=True)

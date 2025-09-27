@@ -2,14 +2,13 @@ import klyne
 import os
 from dotenv import load_dotenv
 from ._core import YTFetcher
-from .models.channel import VideoTranscript, VideoMetadata, ChannelData
+from .models.channel import VideoTranscript, ChannelData
 
 load_dotenv()
 
 __all__ = [
     "YTFetcher",
     "VideoTranscript",
-    "VideoMetadata",
     "ChannelData",
 ]
 

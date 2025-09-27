@@ -1,8 +1,7 @@
-from .channel import ChannelData, VideoMetadata, VideoTranscript, Transcript, Snippet
+from .channel import ChannelData, VideoTranscript, Transcript, Snippet
 
 __all__ = [
     "ChannelData",
-    "VideoMetadata",
     "VideoTranscript",
     "Transcript",
     "Snippet",
