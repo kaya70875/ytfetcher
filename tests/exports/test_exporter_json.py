@@ -1,18 +1,18 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open
 from ytfetcher.services.exports import Exporter
-from ytfetcher.models.channel import ChannelData, Snippet
+from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
 import json
 
 @pytest.fixture
 def sample_snippet():
-    return Snippet(
+    return DLSnippet(
         title="channelname1",
         description="description1",
-        publishedAt="somedate1",
-        channelId="id1",
-        thumbnail={'url': 'url1', 'width': 1, 'height': 1},
+        url='https://youtube.com/videoid',
+        duration=25.400,
+        view_count=2000
     )
 
 @pytest.fixture
@@ -51,12 +51,7 @@ def test_export_with_json_writes_file_with_correct_structure(mocker: MockerFixtu
         "video_id": "video1",
         "title": "channelname1",
         "description": "description1",
-        "publishedAt": "somedate1",
-        "thumbnail": {
-            "url": "url1",
-            "width": 1,
-            "height": 1
-        },
+        "url": "https://youtube.com/videoid",
         "transcript": [
             {
                 "start": 1.11,
@@ -79,7 +74,7 @@ def test_export_with_json_custom_metadata(mocker: MockerFixture, mock_transcript
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response, allowed_metadata_list=['title'], timing=False)
+    exporter = Exporter(mock_transcript_response, allowed_metadata_list=['title', 'view_count'], timing=False)
     exporter.export_as_json()
 
     handle = m()
@@ -88,6 +83,7 @@ def test_export_with_json_custom_metadata(mocker: MockerFixture, mock_transcript
     assert written_json == [{
         "video_id": "video1",
         "title": "channelname1",
+        "view_count": 2000,
         "transcript": [
             {
                 "text": "text1"

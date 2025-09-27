@@ -1,17 +1,17 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open, call
 from ytfetcher.services.exports import Exporter
-from ytfetcher.models.channel import ChannelData, Snippet
+from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
 
 @pytest.fixture
 def sample_snippet():
-    return Snippet(
+    return DLSnippet(
         title="channelname1",
         description="description1",
-        publishedAt="somedate1",
-        channelId="id1",
-        thumbnail={'url': 'url1', 'width': 1, 'height': 1},
+        url='https://youtube.com/videoid',
+        duration=25.400,
+        view_count=2000
     )
 
 @pytest.fixture
@@ -40,8 +40,7 @@ def test_export_with_txt_writes_file_with_correct_structure(mocker: MockerFixtur
         call.write('Transcript for video1:\n'),
         call.write('title --> channelname1\n'),
         call.write('description --> description1\n'),
-        call.write('publishedAt --> somedate1\n'),
-        call.write("thumbnail --> {'url': 'url1', 'width': 1, 'height': 1}\n"),
+        call.write('url --> https://youtube.com/videoid\n'),
         call.write('1.11 --> 3.33\n'),
         call.write('text1\n'),
         call.write('\n')

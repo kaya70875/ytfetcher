@@ -1,16 +1,16 @@
 from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
 from ytfetcher.services.exports import Exporter
-from ytfetcher.models.channel import ChannelData, Snippet
+from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
 
 @pytest.fixture
 def sample_snippet():
-    return Snippet(
+    return DLSnippet(
         title="channelname1",
         description="description1",
-        publishedAt="somedate1",
-        channelId="id1",
-        thumbnail={'default': {'url': 'url1', 'width': 1, 'height': 1}},
+        url='https://youtube.com/videoid',
+        duration=25.400,
+        view_count=2000
     )
 
 @pytest.fixture

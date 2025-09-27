@@ -1,18 +1,18 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open
 from ytfetcher.services.exports import Exporter
-from ytfetcher.models.channel import ChannelData, Snippet
+from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
 import csv
 
 @pytest.fixture
 def sample_snippet():
-    return Snippet(
+    return DLSnippet(
         title="channelname1",
         description="description1",
-        publishedAt="somedate1",
-        channelId="id1",
-        thumbnail={'url': 'url1', 'width': 1, 'height': 1}
+        url='https://youtube.com/videoid',
+        duration=25.400,
+        view_count=2000
     )
 
 @pytest.fixture
@@ -48,8 +48,8 @@ def test_export_with_csv_writes_file_with_correct_structure(mocker: MockerFixtur
     reader = csv.reader(content.splitlines())
     rows = list(reader)
 
-    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'publishedAt', 'thumbnail']
-    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'somedate1', "{'url': 'url1', 'width': 1, 'height': 1}"]
+    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url']
+    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid']
 
 def test_export_with_csv_creates_file_with_correct_custom_name(mocker: MockerFixture, mock_transcript_response):
     m = mock_open()
