@@ -1,7 +1,7 @@
 from pathlib import Path
 from ytfetcher.models.channel import ChannelData
 from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
-from typing import Literal
+from typing import Literal, Sequence
 import json
 import csv
 
@@ -23,7 +23,9 @@ class Exporter:
         SystemPathCannotFound: If specified path cannot found.
     """
 
-    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Literal['title', 'description', 'publishedAt', 'thumbnail'] = ['title', 'description', 'publishedAt', 'thumbnail'], timing: bool = True, filename: str = 'data', output_dir: str = None):
+    METEDATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
+
+    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METEDATA_LIST] = ("title", "description", "url"), timing: bool = True, filename: str = 'data', output_dir: str = None):
         self.channel_data = channel_data
         self.allowed_metadata_list = allowed_metadata_list
         self.timing = timing
