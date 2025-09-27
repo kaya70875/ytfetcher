@@ -6,9 +6,7 @@
 
 > ⚡ Turn hours of YouTube videos into clean, structured text in minutes.
 
-**YTFetcher** is a Python tool for fetching YouTube video transcripts in bulk, along with metadata like titles, publish dates, and descriptions.  
-Perfect for **NLP datasets, search indexes, or content analysis apps**.  
-⭐ *If you find this useful, please star the repo!*
+A python tool for fetching thousands of videos fast from a Youtube channel along with structured transcripts and additional metadata. Export data easily as CSV, TXT, or JSON.
 
 ---
 
@@ -47,11 +45,11 @@ ytfetcher from_channel -c TheOffice -m 50 -f json
 ---
 
 ## Features
-- Fetch full transcripts from a YouTube channel.
-- Get video metadata: title, description, thumbnails, published date.
-- Async support for high performance.
-- Export fetched data as txt, csv or json.
-- CLI support.
+- Fetch full **transcripts** from a YouTube channel.
+- Get video **metadata: title, description, thumbnails, published date**.
+- Async support for **high performance**.
+- **Export** fetched data as txt, csv or json.
+- **CLI** support.
 
 ---
 
