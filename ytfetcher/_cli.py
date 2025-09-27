@@ -40,9 +40,8 @@ class YTFetcherCLI:
 
         return HTTPConfig()
 
-    async def run_from_channel(self, api_key: str):
+    async def run_from_channel(self):
         fetcher = YTFetcher.from_channel(
-            api_key=api_key,
             channel_handle=self.args.channel_handle,
             max_results=self.args.max_results,
             http_config=self._initialize_http_config(),
@@ -52,9 +51,8 @@ class YTFetcherCLI:
         data = await fetcher.fetch_youtube_data()
         self._export(data)
     
-    async def run_from_video_ids(self, api_key: str):
+    async def run_from_video_ids(self):
         fetcher = YTFetcher.from_video_ids(
-            api_key=api_key,
             video_ids=self.args.video_ids,
             http_config=self._initialize_http_config(),
             proxy_config=self._initialize_proxy_config()
@@ -78,19 +76,11 @@ class YTFetcherCLI:
     
     async def run(self):
         try:
-            # Initialize api key first.
-            api_key = self.args.api_key or load_api_key()
-            if not api_key:
-                raise ValueError("No API key provided.")
-
             if self.args.command == 'from_channel':
-                await self.run_from_channel(api_key=api_key)
+                await self.run_from_channel()
             
             elif self.args.command == 'from_video_ids':
-                await self.run_from_video_ids(api_key=api_key)
-            
-            elif self.args.command == 'config':
-                save_api_key(self.args.api_key)
+                await self.run_from_video_ids()
 
             else:
                 raise ValueError(f"Unknown method: {self.args.method}")
@@ -102,14 +92,9 @@ def create_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command")
 
-    # Config parsers
-    parser_config = subparsers.add_parser("config", help="Set your YoutubeV3 API key for later usage.")
-    parser_config.add_argument("api_key", type=str, help='Set your YoutubeV3 API key.')
-
     # From Channel parsers
     parser_channel = subparsers.add_parser("from_channel", help="Fetch data from channel handle with max_results.")
 
-    parser_channel.add_argument("-a", "--api-key", default=None, help="YouTube Data API Key")
     parser_channel.add_argument("-c", "--channel_handle", help="YouTube channel handle")
     parser_channel.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser_channel.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
@@ -125,7 +110,6 @@ def create_parser() -> argparse.ArgumentParser:
     # From Video Ids parsers
     parser_video_ids = subparsers.add_parser("from_video_ids", help="Fetch data from your custom video ids.")
 
-    parser_video_ids.add_argument("-a", "--api-key", default=None, help="YouTube Data API Key")
     parser_video_ids.add_argument("-v", "--video-ids", nargs="+", help='Video id list to fetch')
     parser_video_ids.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser_video_ids.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
