@@ -373,18 +373,6 @@ files = [
 ]
 
 [[package]]
-name = "klyne"
-version = "0.1.95"
-description = "Lightweight Python package analytics SDK"
-optional = false
-python-versions = ">=3.7"
-groups = ["main"]
-files = [
-    {file = "klyne-0.1.95-py3-none-any.whl", hash = "sha256:3b846cf96ca4e9e935463ce4fdacf7eacdd2d4ad545d765f55c844b5f9eb9db9"},
-    {file = "klyne-0.1.95.tar.gz", hash = "sha256:6efa2b3567767d81f5255966c42edbea620728f2ad0fb54f17581137f41b43b4"},
-]
-
-[[package]]
 name = "mypy"
 version = "1.17.1"
 description = "Optional static typing for Python"
@@ -896,4 +884,4 @@ test = ["pytest (>=8.1,<9.0)", "pytest-rerunfailures (>=14.0,<15.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.14"
-content-hash = "1296ef4b9e9c6f92b677b884fef518ec4536bf267fa6a9fb15b064475af279e0"
+content-hash = "21fcd874b2d8d46b9dc2a2022d355366ba2ef66add54c41922ec41605e15c493"
