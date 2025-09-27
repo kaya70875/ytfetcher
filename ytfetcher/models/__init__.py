@@ -1,8 +1,8 @@
-from .channel import ChannelData, VideoTranscript, Transcript, Snippet
+from .channel import ChannelData, VideoTranscript, Transcript, DLSnippet
 
 __all__ = [
     "ChannelData",
     "VideoTranscript",
     "Transcript",
-    "Snippet",
+    "DLSnippet"
 ]
