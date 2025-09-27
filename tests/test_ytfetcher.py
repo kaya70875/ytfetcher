@@ -2,14 +2,12 @@ import pytest
 from ytfetcher._core import YTFetcher
 from ytfetcher.models.channel import (
     ChannelData,
-    Snippet,
+    DLSnippet,
     Transcript,
-    VideoTranscript,
-    VideoMetadata
 )
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.exceptions import *
-from ytfetcher._youtube_v3 import YoutubeV3
+from ytfetcher._youtube_dl import YoutubeDL
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.utils.headers import get_realistic_headers
@@ -31,12 +29,13 @@ def mock_http_config():
 
 @pytest.fixture
 def sample_snippet():
-    return Snippet(
+    return DLSnippet(
+        video_id='id1',
         title="channelname1",
         description="description1",
-        publishedAt="somedate1",
-        channelId="id1",
-        thumbnail={'default': {'url': 'url1', 'width': 1, 'height': 1}}
+        url='https://youtube.com/videoid',
+        duration=25.400,
+        view_count=2000
     )
 
 @pytest.fixture
@@ -57,13 +56,9 @@ def sample_transcripts():
 # --- Helper to patch fetchers ---
 @pytest.fixture
 def patch_fetchers(mocker: MockerFixture, sample_video_ids, sample_snippet, sample_transcripts):
-    mock_youtube_v3 = mocker.patch.object(YoutubeV3, 'fetch_channel_snippets', return_value=
+    mock_youtube_dl = mocker.patch.object(YoutubeDL, 'fetch', return_value=
         [
-            ChannelData(
-                video_id=sample_video_ids[0],
-                transcripts=None,
-                metadata=sample_snippet
-            )
+            sample_snippet
         ]
     )
     mock_transcript_fetcher = mocker.patch.object(TranscriptFetcher, 'fetch', return_value=[
@@ -74,12 +69,11 @@ def patch_fetchers(mocker: MockerFixture, sample_video_ids, sample_snippet, samp
         )
     ])
 
-    return mock_youtube_v3, mock_transcript_fetcher
+    return mock_youtube_dl, mock_transcript_fetcher
 
 @pytest.fixture
 def initialize_ytfetcher_with_channel_name(mock_http_config, sample_channel_name):
     fetcher = YTFetcher.from_channel(
-        api_key="test_api_key",
         channel_handle=sample_channel_name,
         max_results=5,
         http_config=mock_http_config
@@ -90,7 +84,6 @@ def initialize_ytfetcher_with_channel_name(mock_http_config, sample_channel_name
 @pytest.fixture
 def initialize_ytfetcher_with_video_ids(mock_http_config, sample_video_ids):
     fetcher = YTFetcher.from_video_ids(
-        api_key="test_api_key",
         video_ids=sample_video_ids,
         http_config=mock_http_config
     )
@@ -111,7 +104,7 @@ async def test_fetch_youtube_data_from_video_ids(
     
     assert len(results) == 1
     assert isinstance(results[0], ChannelData)
-    assert results[0].metadata.channelId == 'id1'
+    assert results[0].metadata.title == 'channelname1'
     assert results[0].metadata.description == 'description1'
     assert results[0].transcripts[0].text == 'text1'
 
@@ -128,7 +121,7 @@ async def test_fetch_youtube_data_from_channel_name(
 
     assert len(results) == 1
     assert isinstance(results[0], ChannelData)
-    assert results[0].metadata.channelId == 'id1'
+    assert results[0].metadata.title == 'channelname1'
     assert results[0].metadata.description == 'description1'
     assert results[0].transcripts[0].text == 'text1'
 
@@ -150,8 +143,8 @@ async def test_fetch_snippets_method_with_channel_name(patch_fetchers, initializ
     results = await fetcher.fetch_snippets()
 
     assert isinstance(results[0], ChannelData)
-    assert isinstance(results[0].metadata, Snippet)
-    assert results[0].video_id == 'video_1'
+    assert isinstance(results[0].metadata, DLSnippet)
+    assert results[0].video_id == 'id1'
     assert results[0].transcripts == None
     assert results[0].metadata.title == 'channelname1'
 
@@ -173,8 +166,8 @@ async def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_y
     results = await fetcher.fetch_snippets()
 
     assert isinstance(results[0], ChannelData)
-    assert isinstance(results[0].metadata, Snippet)
-    assert results[0].video_id == 'video_1'
+    assert isinstance(results[0].metadata, DLSnippet)
+    assert results[0].video_id == 'id1'
     assert results[0].transcripts == None
     assert results[0].metadata.title == 'channelname1'
 
@@ -184,7 +177,6 @@ def test_http_config(patch_fetchers, sample_channel_name):
     config = HTTPConfig(timeout=2.0, headers=headers)
 
     fetcher = YTFetcher.from_channel(
-        api_key="test_api_key",
         channel_handle=sample_channel_name,
         max_results=5,
         http_config=config
@@ -197,7 +189,6 @@ def test_proxy_config(patch_fetchers, sample_channel_name, sample_video_ids):
     proxy_config_mock = create_autospec(ProxyConfig, instance=True)
 
     fetcher = YTFetcher(
-        api_key="test_api_key",
         channel_handle=sample_channel_name,
         max_results=5,
         video_ids=sample_video_ids,
