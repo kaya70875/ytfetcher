@@ -44,6 +44,29 @@ ytfetcher from_channel -c TheOffice -m 50 -f json
 
 ---
 
+## CLI Overview
+YTFetcher comes with a simple CLI so you can fetch data directly from your terminal.
+
+```bash
+ytfetcher -h
+```
+
+```bash
+usage: ytfetcher [-h] {from_channel,from_video_ids} ...
+
+Fetch YouTube transcripts for a channel
+
+positional arguments:
+  {from_channel,from_video_ids}
+    from_channel        Fetch data from channel handle with max_results.
+    from_video_ids      Fetch data from your custom video ids.
+
+options:
+  -h, --help            show this help message and exit
+```
+
+---
+
 ## Features
 - Fetch full **transcripts** from a YouTube channel.
 - Get video **metadata: title, description, thumbnails, published date**.
