@@ -49,6 +49,8 @@ class YTFetcherCLI:
         )
 
         data = await fetcher.fetch_youtube_data()
+        if self.args.print:
+            print(data)
         self._export(data)
     
     async def run_from_video_ids(self):
@@ -59,6 +61,8 @@ class YTFetcherCLI:
         )
 
         data = await fetcher.fetch_youtube_data()
+        if self.args.print:
+            print(data)
         self._export(data)
     
     def _export(self, channel_data: ChannelData):
@@ -99,6 +103,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser_channel.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser_channel.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
     parser_channel.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
+    parser_channel.add_argument("--print", action="store_true", help="Print data to console.")
     parser_channel.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser_channel.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
     parser_channel.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
@@ -113,6 +118,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser_video_ids.add_argument("-v", "--video-ids", nargs="+", help='Video id list to fetch')
     parser_video_ids.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser_video_ids.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
+    parser_video_ids.add_argument("--print", action="store_true", help="Print data to console.")
     parser_video_ids.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser_video_ids.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
     parser_video_ids.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
