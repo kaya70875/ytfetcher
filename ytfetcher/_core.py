@@ -22,12 +22,15 @@ class YTFetcher:
         channel_handle (str | None): Optional YouTube channel handle (used when fetching from channel).
         proxy_config (ProxyConfig | None): Optional proxy settings for transcript fetching.
     """
-    def __init__(self, max_results: int, video_ids: list[str], channel_handle: str | None = None, proxy_config: ProxyConfig | None = None, http_config: HTTPConfig = HTTPConfig()):
+    def __init__(self, max_results: int, video_ids: list[str] | None, channel_handle: str | None = None, proxy_config: ProxyConfig | None = None, http_config: HTTPConfig = HTTPConfig()):
         self.http_config = http_config
         self.proxy_config = proxy_config
 
-        self.youtube_dl = YoutubeDL(channel_handle, max_results=max_results)
-        self.snippets = self.youtube_dl.fetch()
+        self.youtube_dl = YoutubeDL()
+        if video_ids is not None:
+            self.snippets = self.youtube_dl.fetch_with_custom_video_ids(video_ids)
+        else:
+            self.snippets = self.youtube_dl.fetch(channel_handle, max_results)
 
         self.fetcher = TranscriptFetcher(self._get_video_ids(), http_config=self.http_config, proxy_config=self.proxy_config)
     
@@ -36,7 +39,7 @@ class YTFetcher:
         """
         Create a fetcher that pulls up to max_results from the channel.
         """
-        return cls(http_config=http_config, max_results=max_results, video_ids=[], channel_handle=channel_handle, proxy_config=proxy_config)
+        return cls(http_config=http_config, max_results=max_results, video_ids=None, channel_handle=channel_handle, proxy_config=proxy_config)
     
     @classmethod
     def from_video_ids(cls, video_ids: list[str] = [], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None) -> "YTFetcher":
