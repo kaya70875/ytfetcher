@@ -56,11 +56,18 @@ def sample_transcripts():
 # --- Helper to patch fetchers ---
 @pytest.fixture
 def patch_fetchers(mocker: MockerFixture, sample_video_ids, sample_snippet, sample_transcripts):
-    mock_youtube_dl = mocker.patch.object(YoutubeDL, 'fetch', return_value=
+    mock_youtube_dl_fetch = mocker.patch.object(YoutubeDL, 'fetch', return_value=
         [
             sample_snippet
         ]
     )
+
+    mock_youtube_dl_fetch_custom = mocker.patch.object(YoutubeDL, 'fetch_with_custom_video_ids', return_value=
+        [
+            sample_snippet   
+        ]
+    )
+
     mock_transcript_fetcher = mocker.patch.object(TranscriptFetcher, 'fetch', return_value=[
         ChannelData(
             video_id="video_1",
@@ -69,7 +76,7 @@ def patch_fetchers(mocker: MockerFixture, sample_video_ids, sample_snippet, samp
         )
     ])
 
-    return mock_youtube_dl, mock_transcript_fetcher
+    return mock_youtube_dl_fetch, mock_transcript_fetcher, mock_youtube_dl_fetch_custom
 
 @pytest.fixture
 def initialize_ytfetcher_with_channel_name(mock_http_config, sample_channel_name):
