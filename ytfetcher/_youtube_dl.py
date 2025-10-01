@@ -9,21 +9,19 @@ class YoutubeDL:
     Raises:
         yt_dlp.utils.DownloadError: If the channel cannot be accessed or videos cannot be fetched.
     """
-    def __init__(self, channel_handle: str, max_results: int = 50):
-        self.channel_handle = channel_handle
-        self.max_results = max_results
 
-    def fetch(self) -> list[DLSnippet]:
+    @staticmethod
+    def fetch(channel_handle: str, max_results: int = 50) -> list[DLSnippet]:
         try:
             ydl_opts = {
                 'quiet': True,
                 'extract_flat': 'in_playlist',
                 'skip_download': True,
-                'playlistend': self.max_results
+                'playlistend': max_results
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                full_url = f"https://www.youtube.com/@{self.channel_handle}/videos"
+                full_url = f"https://www.youtube.com/@{channel_handle}/videos"
 
                 info = ydl.extract_info(full_url, download=False)
                 entries = [e for e in info['entries'] if e]
@@ -40,6 +38,43 @@ class YoutubeDL:
                     )
                     for entry in entries
                 ]
+        except DownloadError as download_err:
+            raise download_err
+
+        except Exception as exc:
+            raise exc
+    
+    @staticmethod
+    def fetch_with_custom_video_ids(video_ids: list[str]) -> list[DLSnippet]:
+        try:
+            ydl_opts = {
+                "quiet": True,
+                "skip_download": True,
+                "extract_flat": True,
+                "no_warnings": True
+            }
+
+            results: list[DLSnippet] = []
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                for video_id in video_ids:
+                    URL = f'https://www.youtube.com/watch?v={video_id}'
+
+                    info = ydl.extract_info(URL, download=False)
+                    
+                    if info:
+                        results.append(
+                            DLSnippet(
+                                video_id=info.get("id"),
+                                title=info.get("title"),
+                                description=info.get("description"),
+                                url=URL,
+                                duration=info.get("duration"),
+                                view_count=info.get("view_count"),
+                            )
+                        )
+                        
+            return results
         except DownloadError as download_err:
             raise download_err
 
