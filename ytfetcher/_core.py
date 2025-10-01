@@ -12,7 +12,7 @@ class YTFetcher:
     - From a channel handle (via `from_channel`)
     - From a list of specific video IDs (via `from_video_ids`)
 
-    Internally, it uses the YouTube Data API v3 to retrieve video snippets and metadata,
+    Internally, it uses the yt-dlp to retrieve video snippets and metadata,
     and the `youtube_transcript_api` (with optional proxy support) to fetch transcripts.
 
     Parameters:
