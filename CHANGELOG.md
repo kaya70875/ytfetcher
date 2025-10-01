@@ -6,11 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+- (docs) Add cli help output to readme.
 
 ### Changed
+- Updated package dependencies.
 
 ### Fixed
--
+- `from_video_ids` method does not work both in CLI and python API.
 
 ---
 
