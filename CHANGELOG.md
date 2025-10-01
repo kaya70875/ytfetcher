@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Fixed
+
+---
+
+## [1.0.1] - 2025-10-01
+### Added
 - (docs) Add cli help output to readme.
 
 ### Changed
@@ -13,8 +22,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - `from_video_ids` method does not work both in CLI and python API.
-
----
 
 ## [1.0] - 2025-09-27
 ### Added
