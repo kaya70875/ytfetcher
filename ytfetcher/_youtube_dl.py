@@ -1,6 +1,7 @@
 import yt_dlp
 from yt_dlp.utils import DownloadError
 from ytfetcher.models.channel import DLSnippet
+from tqdm import tqdm
 
 class YoutubeDL:
     """
@@ -57,7 +58,7 @@ class YoutubeDL:
             results: list[DLSnippet] = []
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                for video_id in video_ids:
+                for video_id in tqdm(video_ids, desc="Extracting metadata", unit="video"):
                     URL = f'https://www.youtube.com/watch?v={video_id}'
 
                     info = ydl.extract_info(URL, download=False)
