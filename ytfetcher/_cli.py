@@ -39,25 +39,12 @@ class YTFetcherCLI:
             return http_config
 
         return HTTPConfig()
-
-    async def run_from_channel(self):
-        fetcher = YTFetcher.from_channel(
-            channel_handle=self.args.channel_handle,
-            max_results=self.args.max_results,
-            http_config=self._initialize_http_config(),
-            proxy_config=self._initialize_proxy_config()
-        )
-
-        data = await fetcher.fetch_youtube_data()
-        if self.args.print:
-            print(data)
-        self._export(data)
     
-    async def run_from_video_ids(self):
-        fetcher = YTFetcher.from_video_ids(
-            video_ids=self.args.video_ids,
+    async def _run_fetcher(self, factory_method, **kwargs):
+        fetcher = factory_method(
             http_config=self._initialize_http_config(),
-            proxy_config=self._initialize_proxy_config()
+            proxy_config=self._initialize_proxy_config(),
+            **kwargs
         )
 
         data = await fetcher.fetch_youtube_data()
@@ -81,10 +68,17 @@ class YTFetcherCLI:
     async def run(self):
         try:
             if self.args.command == 'from_channel':
-                await self.run_from_channel()
+                await self._run_fetcher(
+                    YTFetcher.from_channel,
+                    channel_handle=self.args.channel_handle,
+                    max_results=self.args.max_results
+                )
             
             elif self.args.command == 'from_video_ids':
-                await self.run_from_video_ids()
+                await self._run_fetcher(
+                    YTFetcher.from_video_ids,
+                    video_ids=self.args.video_ids
+                )
 
             else:
                 raise ValueError(f"Unknown method: {self.args.method}")

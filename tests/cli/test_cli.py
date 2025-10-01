@@ -5,7 +5,7 @@ from ytfetcher.config import HTTPConfig
 
 @pytest.mark.asyncio
 @patch('ytfetcher._cli.Exporter.export_as_txt')
-@patch.object(YTFetcherCLI, 'run_from_channel')
+@patch.object(YTFetcherCLI, '_run_fetcher')
 async def test_run_from_channel_called(mock_run_channel, mock_export_as_txt):
     parser = create_parser()
     args = parser.parse_args([
@@ -19,7 +19,7 @@ async def test_run_from_channel_called(mock_run_channel, mock_export_as_txt):
 
 @pytest.mark.asyncio
 @patch('ytfetcher._cli.Exporter.export_as_txt')
-@patch.object(YTFetcherCLI, 'run_from_video_ids')
+@patch.object(YTFetcherCLI, '_run_fetcher')
 async def test_run_from_video_ids_called(mock_run_from_video_ids, mock_export_as_txt):
     parser = create_parser()
     args = parser.parse_args([
