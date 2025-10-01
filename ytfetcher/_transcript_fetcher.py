@@ -8,6 +8,7 @@ from tqdm import tqdm  # type: ignore
 import asyncio
 import requests
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -80,11 +81,12 @@ class TranscriptFetcher:
         """
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.http_client, proxy_config=self.proxy_config)
-            transcript: list[Transcript] = yt_api.fetch(video_id).to_raw_data()
+            transcript: list[dict] = yt_api.fetch(video_id).to_raw_data()
+            cleaned_transcript = self._clean_transcripts(transcript)
             logger.info(f'{video_id} fetched.')
             return VideoTranscript(
                 video_id=video_id,
-                transcripts=transcript
+                transcripts=cleaned_transcript
             )
         except (NoTranscriptFound, VideoUnavailable, TranscriptsDisabled) as e:
             logger.warning(e)
@@ -93,3 +95,23 @@ class TranscriptFetcher:
             print(f'Error while fetching transcript from video: {video_id} ', e)
             logger.warning(f'Error while fetching transcript from video: {video_id} ', e)
             return None
+    
+    @staticmethod
+    def _clean_transcripts(transcripts: list[dict]) -> list[dict]:
+        """
+        Cleans unnecessary text from transcripts like [Music], [Applause], etc.
+        Returns:
+            list[dict]: list of Transcript objects.
+        """
+        for entry in transcripts:
+
+            # Remove unnecessary text patterns like [Music], [Applause], etc.
+            cleaned_text = re.sub(r'\[.*?\]', '', entry['text'])
+
+            # Remove extra whitespace
+            cleaned_text = ' '.join(cleaned_text.split())
+
+            # Update the transcript text
+            entry['text'] = cleaned_text
+
+        return transcripts

@@ -3,7 +3,7 @@ import asyncio
 import time
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
-from ytfetcher.models.channel import VideoTranscript, Transcript, ChannelData
+from ytfetcher.models.channel import VideoTranscript, Transcript, ChannelData, DLSnippet
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -100,3 +100,30 @@ def test_custom_ytt_api_client_initialized_correctly():
     assert ytt_api._fetcher._http_client.headers.get('User-Agent') is not None
     assert ytt_api._fetcher._http_client.headers.get("Referer") is not None
     assert ytt_api._fetcher._http_client.proxies == {'http': 'http://test:800', 'https': 'http://test:800'}
+
+def test_clean_transcripts():
+
+    test_response = [
+        {
+            "text": "[Music] This is some text",
+            "duration": 1,
+            "start": 1
+        }
+    ]
+
+    cleaned_response = TranscriptFetcher._clean_transcripts(test_response)
+
+    assert cleaned_response[0]['text'] == 'This is some text'
+
+def test_clean_transcripts_with_multiple_text():
+    test_response = [
+        {
+            "text": "[Music][Applause] and that happened!",
+            "duration": 1,
+            "start": 1
+        }
+    ]
+
+    cleaned_response = TranscriptFetcher._clean_transcripts(test_response)
+    
+    assert cleaned_response[0]['text'] == 'and that happened!'
