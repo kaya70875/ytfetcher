@@ -7,7 +7,6 @@ from ytfetcher.services.exports import Exporter
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
-from ytfetcher.config.config_manager import load_api_key, save_api_key
 
 class YTFetcherCLI:
     def __init__(self, args: argparse.Namespace):
