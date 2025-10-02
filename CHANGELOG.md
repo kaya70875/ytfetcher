@@ -13,6 +13,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1] - 2025-10-02
+### Added
+- Add progress bar support to from_video_ids method for YoutubeDL.
+- Add print arg for allow users to print data to console.
+- TranscriptFetcher now cleans transcripts that includes texts like `[Music]`, `[Applause]` etc.
+- Add official documentation website for ytfetcher.
+
 ## [1.0.1] - 2025-10-01
 ### Added
 - (docs) Add cli help output to readme.
