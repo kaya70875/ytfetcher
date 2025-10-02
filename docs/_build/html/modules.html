@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ytfetcher &#8212; ytfetcher  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="ytfetcher">
+<h1>ytfetcher<a class="headerlink" href="#ytfetcher" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ytfetcher.html">ytfetcher package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ytfetcher.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.config.html">ytfetcher.config package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.config.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.config.html#module-ytfetcher.config.http_config">ytfetcher.config.http_config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.config.html#module-ytfetcher.config.logging_config">ytfetcher.config.logging_config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.config.html#module-ytfetcher.config">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.models.html">ytfetcher.models package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.models.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.models.html#module-ytfetcher.models.channel">ytfetcher.models.channel module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.models.html#module-ytfetcher.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.services.html">ytfetcher.services package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.services.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.services.html#module-ytfetcher.services.exports">ytfetcher.services.exports module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.services.html#module-ytfetcher.services">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.utils.html">ytfetcher.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.utils.html#module-ytfetcher.utils.headers">ytfetcher.utils.headers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.utils.html#module-ytfetcher.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ytfetcher.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ytfetcher.html#module-ytfetcher.exceptions">ytfetcher.exceptions module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.exceptions.ExporterError"><code class="docutils literal notranslate"><span class="pre">ExporterError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.exceptions.InvalidHeaders"><code class="docutils literal notranslate"><span class="pre">InvalidHeaders</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.exceptions.InvalidTimeout"><code class="docutils literal notranslate"><span class="pre">InvalidTimeout</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.exceptions.NoDataToExport"><code class="docutils literal notranslate"><span class="pre">NoDataToExport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.exceptions.SystemPathCannotFound"><code class="docutils literal notranslate"><span class="pre">SystemPathCannotFound</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.exceptions.YTFetcherError"><code class="docutils literal notranslate"><span class="pre">YTFetcherError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ytfetcher.html#module-ytfetcher">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.ChannelData"><code class="docutils literal notranslate"><span class="pre">ChannelData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.ChannelData.metadata"><code class="docutils literal notranslate"><span class="pre">ChannelData.metadata</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.ChannelData.model_config"><code class="docutils literal notranslate"><span class="pre">ChannelData.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.ChannelData.to_dict"><code class="docutils literal notranslate"><span class="pre">ChannelData.to_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.ChannelData.transcripts"><code class="docutils literal notranslate"><span class="pre">ChannelData.transcripts</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.ChannelData.video_id"><code class="docutils literal notranslate"><span class="pre">ChannelData.video_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet"><code class="docutils literal notranslate"><span class="pre">DLSnippet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet.description"><code class="docutils literal notranslate"><span class="pre">DLSnippet.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet.duration"><code class="docutils literal notranslate"><span class="pre">DLSnippet.duration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet.model_config"><code class="docutils literal notranslate"><span class="pre">DLSnippet.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet.thumbnails"><code class="docutils literal notranslate"><span class="pre">DLSnippet.thumbnails</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet.title"><code class="docutils literal notranslate"><span class="pre">DLSnippet.title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet.url"><code class="docutils literal notranslate"><span class="pre">DLSnippet.url</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet.video_id"><code class="docutils literal notranslate"><span class="pre">DLSnippet.video_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.DLSnippet.view_count"><code class="docutils literal notranslate"><span class="pre">DLSnippet.view_count</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.VideoTranscript"><code class="docutils literal notranslate"><span class="pre">VideoTranscript</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.VideoTranscript.model_config"><code class="docutils literal notranslate"><span class="pre">VideoTranscript.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.VideoTranscript.to_dict"><code class="docutils literal notranslate"><span class="pre">VideoTranscript.to_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.VideoTranscript.transcripts"><code class="docutils literal notranslate"><span class="pre">VideoTranscript.transcripts</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.VideoTranscript.video_id"><code class="docutils literal notranslate"><span class="pre">VideoTranscript.video_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ytfetcher.html#ytfetcher.YTFetcher"><code class="docutils literal notranslate"><span class="pre">YTFetcher</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.YTFetcher.fetch_snippets"><code class="docutils literal notranslate"><span class="pre">YTFetcher.fetch_snippets()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.YTFetcher.fetch_transcripts"><code class="docutils literal notranslate"><span class="pre">YTFetcher.fetch_transcripts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.YTFetcher.fetch_youtube_data"><code class="docutils literal notranslate"><span class="pre">YTFetcher.fetch_youtube_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.YTFetcher.from_channel"><code class="docutils literal notranslate"><span class="pre">YTFetcher.from_channel()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.YTFetcher.from_video_ids"><code class="docutils literal notranslate"><span class="pre">YTFetcher.from_video_ids()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.YTFetcher.metadata"><code class="docutils literal notranslate"><span class="pre">YTFetcher.metadata</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ytfetcher.html#ytfetcher.YTFetcher.video_ids"><code class="docutils literal notranslate"><span class="pre">YTFetcher.video_ids</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ytfetcher</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, ahmet.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
