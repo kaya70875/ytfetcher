@@ -223,6 +223,7 @@ fetcher = YTFetcher.from_channel(
 ---
 
 ## Advanced HTTP Configuration (Optional)
+`YTfetcher` already uses custom headers for mimic real browser behavior but if want to change it you can use a custom `HTTPConfig` class.
 
 ```python
 from ytfetcher import YTFetcher
