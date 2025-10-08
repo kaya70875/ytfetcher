@@ -155,6 +155,19 @@ fetcher = YTFetcher.from_video_ids(
 
 ---
 
+## Retreive Different Languages
+
+You can use the `languages` param to retrieve your desired language. (Default en)
+
+```python
+fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
+```
+
+Also here's a quick CLI command for `language` param.
+```bash
+ytfetcher from_channel -c TheOffice -m 50 -f csv --print --languages tr en
+```
+
 ## Exporting
 
 Use the `Exporter` class to export `ChannelData` in **csv**, **json**, or **txt**:
@@ -253,6 +266,24 @@ ytfetcher from_channel -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ### Fetching by Video IDs
 ```bash
 ytfetcher from_video_ids -v video_id1 video_id2 ... -f json
+```
+
+### Using Webshare Proxy
+
+```bash
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>" --webshare-proxy-password "<PASSWORD>"
+```
+
+### Using Custom Proxy
+
+```bash
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
+```
+
+### Using Custom HTTP Config
+
+```bash
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> --http-timeout 4.2 --http-headers "{'key': 'value'}"
 ```
 
 ---
