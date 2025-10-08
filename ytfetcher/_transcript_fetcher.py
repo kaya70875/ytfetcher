@@ -1,10 +1,11 @@
 from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import ProxyConfig
-from ytfetcher.models.channel import Transcript, ChannelData, VideoTranscript
+from ytfetcher.models.channel import ChannelData, VideoTranscript
 from ytfetcher.config.http_config import HTTPConfig
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm  # type: ignore
+from typing import Iterable
 import asyncio
 import requests
 import logging
@@ -15,18 +16,32 @@ logger = logging.getLogger(__name__)
 
 class TranscriptFetcher:
     """
-    Asynchronously fetches transcripts for a list of YouTube video IDs using the YouTube Transcript API.
+    Asynchronously fetches transcripts for a list of YouTube video IDs 
+    using the YouTube Transcript API.
 
-    Transcripts are fetched concurrently using threads, while optionally supporting proxy configurations and custom HTTP settings.
+    Transcripts are fetched concurrently using threads, while optionally 
+    supporting proxy configurations and custom HTTP settings.
 
-    Parameters:
-        video_ids (list[str]): List of YouTube video IDs to fetch transcripts for.
-        http_config (HTTPConfig): Optional HTTP configuration (e.g., headers, timeout).
-        proxy_config (ProxyConfig | None): Optional proxy configuration for the YouTube Transcript API.
+    Args:
+        video_ids (list[str]): 
+            List of YouTube video IDs to fetch transcripts for.
+
+        http_config (HTTPConfig): 
+            Optional HTTP configuration (e.g., headers, timeout).
+
+        proxy_config (ProxyConfig | None): 
+            Optional proxy configuration for the YouTube Transcript API.
+
+        languages (Iterable[str]): 
+            A list of language codes in descending priority. 
+            For example, if this is set to ["de", "en"], it will first try 
+            to fetch the German transcript ("de") and then the English one 
+            ("en") if it fails. Defaults to ["en"].
     """
 
-    def __init__(self, video_ids: list[str], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None):
+    def __init__(self, video_ids: list[str], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",)):
         self.video_ids = video_ids
+        self.languages = languages
         self.executor = ThreadPoolExecutor(max_workers=30)
         self.proxy_config = proxy_config
         self.http_client = requests.Session()
@@ -81,7 +96,7 @@ class TranscriptFetcher:
         """
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.http_client, proxy_config=self.proxy_config)
-            transcript: list[dict] = yt_api.fetch(video_id).to_raw_data()
+            transcript: list[dict] = yt_api.fetch(video_id, languages=self.languages).to_raw_data()
             cleaned_transcript = self._clean_transcripts(transcript)
             logger.info(f'{video_id} fetched.')
             return VideoTranscript(

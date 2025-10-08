@@ -56,6 +56,7 @@ async def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytf
         max_results=5,
         http_config=cli._initialize_http_config(),
         proxy_config=cli._initialize_proxy_config(),
+        languages=["en"]
     )
 
     mock_fetcher.fetch_youtube_data.assert_awaited_once()
@@ -74,7 +75,8 @@ async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_y
     parser = create_parser()
     args = parser.parse_args([
         "from_video_ids",
-        "-v", "id1", "id2"
+        "-v", "id1", "id2",
+        "--languages", "en", "de"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -84,6 +86,7 @@ async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_y
         video_ids=['id1', 'id2'],
         http_config=cli._initialize_http_config(),
         proxy_config=cli._initialize_proxy_config(),
+        languages=["en", "de"]
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()

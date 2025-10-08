@@ -70,13 +70,15 @@ class YTFetcherCLI:
                 await self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel_handle,
-                    max_results=self.args.max_results
+                    max_results=self.args.max_results,
+                    languages=self.args.languages
                 )
             
             elif self.args.command == 'from_video_ids':
                 await self._run_fetcher(
                     YTFetcher.from_video_ids,
-                    video_ids=self.args.video_ids
+                    video_ids=self.args.video_ids,
+                    languages=self.args.languages
                 )
 
             else:
@@ -96,6 +98,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser_channel.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser_channel.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
     parser_channel.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
+    parser_channel.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     parser_channel.add_argument("--print", action="store_true", help="Print data to console.")
     parser_channel.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser_channel.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
@@ -111,6 +114,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser_video_ids.add_argument("-v", "--video-ids", nargs="+", help='Video id list to fetch')
     parser_video_ids.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser_video_ids.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
+    parser_video_ids.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     parser_video_ids.add_argument("--print", action="store_true", help="Print data to console.")
     parser_video_ids.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser_video_ids.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
