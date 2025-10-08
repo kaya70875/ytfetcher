@@ -268,6 +268,24 @@ ytfetcher from_channel -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ytfetcher from_video_ids -v video_id1 video_id2 ... -f json
 ```
 
+### Using Webshare Proxy
+
+```bash
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>" --webshare-proxy-password "<PASSWORD>"
+```
+
+### Using Custom Proxy
+
+```bash
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
+```
+
+### Using Custom HTTP Config
+
+```bash
+ytfetcher from_channel --api-key <API_KEY> -c <CHANNEL_HANDLE> --http-timeout 4.2 --http-headers "{'key': 'value'}"
+```
+
 ---
 
 ## Contributing
