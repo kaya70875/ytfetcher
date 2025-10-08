@@ -18,11 +18,6 @@ class NoDataToExport(ExporterError):
     Raises when channel snippets and transcripts are empty.
     """
 
-class InvalidTimeout(YTFetcherError):
-    """
-    Raises when timeout is invalid type.
-    """
-
 class InvalidHeaders(YTFetcherError):
     """
     Raises when headers are invalid.
