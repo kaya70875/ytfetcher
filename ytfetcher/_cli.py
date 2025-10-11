@@ -7,6 +7,7 @@ from ytfetcher.services.exports import Exporter
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
+from ytfetcher.utils.log import log
 
 class YTFetcherCLI:
     def __init__(self, args: argparse.Namespace):
@@ -45,11 +46,12 @@ class YTFetcherCLI:
             proxy_config=self._initialize_proxy_config(),
             **kwargs
         )
-
         data = await fetcher.fetch_youtube_data()
+        log('Fetched all transcripts.', level='DONE')
         if self.args.print:
             print(data)
         self._export(data)
+        log(f"Data exported successfully as {self.args.format}", level='DONE')
     
     def _export(self, channel_data: ChannelData):
         exporter = Exporter(
@@ -67,6 +69,7 @@ class YTFetcherCLI:
     async def run(self):
         try:
             if self.args.command == 'from_channel':
+                log(f'Fetching transcripts from channel: {self.args.channel_handle}')
                 await self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel_handle,
@@ -75,6 +78,7 @@ class YTFetcherCLI:
                 )
             
             elif self.args.command == 'from_video_ids':
+                log(f'Fetching transcripts from video ids: {self.args.video_ids}')
                 await self._run_fetcher(
                     YTFetcher.from_video_ids,
                     video_ids=self.args.video_ids,
@@ -84,7 +88,7 @@ class YTFetcherCLI:
             else:
                 raise ValueError(f"Unknown method: {self.args.method}")
         except Exception as e:
-            print(f'Error: {e}')
+            log(f'Error: {e}', level='ERROR')
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch YouTube transcripts for a channel")
