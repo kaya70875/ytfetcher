@@ -10,8 +10,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 ### Fixed
-
 ---
+
+## [1.2] - 2025-11-10
+### Added
+- Users now can choose desired **language** for transcripts.
+- Added progressive print statements for `CLI`
+- Added more logging statements for better debug and information.
+
+### Changed
+- (docs) Add documentation for choosing primary transcript language.
+
+### Fixed
+- Removed load_env module from `python-dotenv` in `config.__init__` since it removed.
 
 ## [1.1] - 2025-10-02
 ### Added
