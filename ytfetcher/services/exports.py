@@ -4,6 +4,9 @@ from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
 from typing import Literal, Sequence
 import json
 import csv
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Exporter:
     """
@@ -44,6 +47,7 @@ class Exporter:
         """
         self.output_dir.mkdir(parents=True, exist_ok=True)
         output_path = self.output_dir / f"{self.filename}.txt"
+        logger.info(f"Writing as txt file, output path: {output_path}")
         
         with open(output_path, 'w', encoding='utf-8') as file:
             for data in self.channel_data:
@@ -65,6 +69,7 @@ class Exporter:
         """
         self.output_dir.mkdir(parents=True, exist_ok=True)
         output_path = self.output_dir / f"{self.filename}.json"
+        logger.info(f"Writing as json file, output path: {output_path}")
 
         export_data = []
 
@@ -91,6 +96,7 @@ class Exporter:
         """
         self.output_dir.mkdir(parents=True, exist_ok=True)
         output_path = self.output_dir / f"{self.filename}.csv"
+        logger.info(f"Writing as csv file, output path: {output_path}")
 
         t = ['start', 'duration']
         metadata = [*self.allowed_metadata_list]

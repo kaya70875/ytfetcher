@@ -2,6 +2,9 @@ import yt_dlp
 from yt_dlp.utils import DownloadError
 from ytfetcher.models.channel import DLSnippet
 from tqdm import tqdm
+import logging
+
+logger = logging.getLogger(__name__)
 
 class YoutubeDL:
     """
@@ -21,8 +24,12 @@ class YoutubeDL:
                 'playlistend': max_results
             }
 
+            logger.debug(f"Current yt_dlp options: {ydl_opts}")
+            logger.info(f"Fetching from channel handle: {channel_handle} to max: {max_results} videos")
+
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 full_url = f"https://www.youtube.com/@{channel_handle}/videos"
+                logger.info(f"Fetching from url: {full_url}")
 
                 info = ydl.extract_info(full_url, download=False)
                 entries = [e for e in info['entries'] if e]
@@ -55,11 +62,15 @@ class YoutubeDL:
                 "no_warnings": True
             }
 
+            logger.debug(f"Current yt_dlp options: {ydl_opts}")
+            logger.info(f"Fetching from video ids: {video_ids}")
+
             results: list[DLSnippet] = []
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 for video_id in tqdm(video_ids, desc="Extracting metadata", unit="video"):
                     URL = f'https://www.youtube.com/watch?v={video_id}'
+                    logger.info(f"Fetching from url: {URL}")
 
                     info = ydl.extract_info(URL, download=False)
                     

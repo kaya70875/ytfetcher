@@ -107,7 +107,6 @@ class TranscriptFetcher:
             logger.warning(e)
             return None
         except Exception as e:
-            print(f'Error while fetching transcript from video: {video_id} ', e)
             logger.warning(f'Error while fetching transcript from video: {video_id} ', e)
             return None
     
