@@ -84,6 +84,14 @@ class YTFetcherCLI:
                     video_ids=self.args.video_ids,
                     languages=self.args.languages
                 )
+            
+            elif self.args.command == 'from_playlist_id':
+                log(f"Fetching transcripts from playlist id: {self.args.playlist_id}")
+                await self._run_fetcher(
+                    YTFetcher.from_playlist_id,
+                    playlist_id=self.args.playlist_id,
+                    languages=self.args.languages
+                )
 
             else:
                 raise ValueError(f"Unknown method: {self.args.method}")
@@ -127,6 +135,22 @@ def create_parser() -> argparse.ArgumentParser:
     parser_video_ids.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
     parser_video_ids.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
     parser_video_ids.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+
+    # From playlist_id parsers
+    parser_playlist_id = subparsers.add_parser("from_playlist_id", help="Fetch data from a specific playlist id.")
+
+    parser_playlist_id.add_argument("-p", "--playlist-id", type=str, help='Playlist id to be fetch from.')
+    parser_playlist_id.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
+    parser_playlist_id.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
+    parser_playlist_id.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
+    parser_playlist_id.add_argument("--print", action="store_true", help="Print data to console.")
+    parser_playlist_id.add_argument("--filename", default="data", help="Decide filename to be exported.")
+    parser_playlist_id.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
+    parser_playlist_id.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
+    parser_playlist_id.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
+    parser_playlist_id.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
+    parser_playlist_id.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
+    parser_playlist_id.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
 
     return parser
 
