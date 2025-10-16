@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 class DLSnippet(BaseModel):
     title: str
-    description: str
+    description: str | None
     url: str
     video_id: str | None = None
     duration: float | None = None
