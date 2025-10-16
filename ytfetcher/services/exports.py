@@ -8,6 +8,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+METEDATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
+
 class Exporter:
     """
     Handles exporting YouTube transcript and metadata to various formats: TXT, JSON, and CSV.
@@ -26,9 +28,7 @@ class Exporter:
         SystemPathCannotFound: If specified path cannot found.
     """
 
-    METEDATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
-
-    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METEDATA_LIST] = ("title", "description", "url"), timing: bool = True, filename: str = 'data', output_dir: str = None):
+    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METEDATA_LIST] = METEDATA_LIST.__args__, timing: bool = True, filename: str = 'data', output_dir: str = None):
         self.channel_data = channel_data
         self.allowed_metadata_list = allowed_metadata_list
         self.timing = timing
