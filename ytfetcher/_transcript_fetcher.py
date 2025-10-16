@@ -12,8 +12,6 @@ import logging
 import re
 
 logger = logging.getLogger(__name__)
-
-
 class TranscriptFetcher:
     """
     Asynchronously fetches transcripts for a list of YouTube video IDs 
