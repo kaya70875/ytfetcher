@@ -9,6 +9,8 @@ from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
 
+from argparse import ArgumentParser
+
 class YTFetcherCLI:
     def __init__(self, args: argparse.Namespace):
         self.args = args
@@ -107,56 +109,42 @@ def create_parser() -> argparse.ArgumentParser:
     parser_channel = subparsers.add_parser("from_channel", help="Fetch data from channel handle with max_results.")
 
     parser_channel.add_argument("-c", "--channel_handle", help="YouTube channel handle")
-    parser_channel.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
-    parser_channel.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
     parser_channel.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
-    parser_channel.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
-    parser_channel.add_argument("--print", action="store_true", help="Print data to console.")
-    parser_channel.add_argument("--filename", default="data", help="Decide filename to be exported.")
-    parser_channel.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
-    parser_channel.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
-    parser_channel.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
-    parser_channel.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
-    parser_channel.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
-    parser_channel.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+    _create_common_arguments(parser_channel)
 
     # From Video Ids parsers
     parser_video_ids = subparsers.add_parser("from_video_ids", help="Fetch data from your custom video ids.")
 
     parser_video_ids.add_argument("-v", "--video-ids", nargs="+", help='Video id list to fetch')
-    parser_video_ids.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
-    parser_video_ids.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
-    parser_video_ids.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
-    parser_video_ids.add_argument("--print", action="store_true", help="Print data to console.")
-    parser_video_ids.add_argument("--filename", default="data", help="Decide filename to be exported.")
-    parser_video_ids.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
-    parser_video_ids.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
-    parser_video_ids.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
-    parser_video_ids.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
-    parser_video_ids.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
-    parser_video_ids.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+    _create_common_arguments(parser_video_ids)
 
     # From playlist_id parsers
     parser_playlist_id = subparsers.add_parser("from_playlist_id", help="Fetch data from a specific playlist id.")
 
     parser_playlist_id.add_argument("-p", "--playlist-id", type=str, help='Playlist id to be fetch from.')
-    parser_playlist_id.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
-    parser_playlist_id.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
-    parser_playlist_id.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
-    parser_playlist_id.add_argument("--print", action="store_true", help="Print data to console.")
-    parser_playlist_id.add_argument("--filename", default="data", help="Decide filename to be exported.")
-    parser_playlist_id.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
-    parser_playlist_id.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
-    parser_playlist_id.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
-    parser_playlist_id.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
-    parser_playlist_id.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
-    parser_playlist_id.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+    _create_common_arguments(parser_playlist_id)
 
     return parser
 
 def parse_args(argv=None):
     parser = create_parser()
     return parser.parse_args(args=argv)
+
+def _create_common_arguments(parser: ArgumentParser) -> None:
+    """
+    Creates common arguments for parsers.
+    """
+    parser.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
+    parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
+    parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
+    parser.add_argument("--print", action="store_true", help="Print data to console.")
+    parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
+    parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
+    parser.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
+    parser.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
+    parser.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
+    parser.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
+    parser.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
 
 def main():
     args = parse_args(sys.argv[1:])
