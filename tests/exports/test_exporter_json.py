@@ -52,6 +52,9 @@ def test_export_with_json_writes_file_with_correct_structure(mocker: MockerFixtu
         "title": "channelname1",
         "description": "description1",
         "url": "https://youtube.com/videoid",
+        "duration": 25.4,
+        "view_count": 2000,
+        "thumbnails": None,
         "transcript": [
             {
                 "start": 1.11,

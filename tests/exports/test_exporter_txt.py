@@ -41,6 +41,9 @@ def test_export_with_txt_writes_file_with_correct_structure(mocker: MockerFixtur
         call.write('title --> channelname1\n'),
         call.write('description --> description1\n'),
         call.write('url --> https://youtube.com/videoid\n'),
+        call.write('duration --> 25.4\n'),
+        call.write('view_count --> 2000\n'),
+        call.write('thumbnails --> None\n'),
         call.write('1.11 --> 3.33\n'),
         call.write('text1\n'),
         call.write('\n')

@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, AsyncMock
 from ytfetcher._cli import YTFetcherCLI, create_parser
 from ytfetcher.config import HTTPConfig
+from ytfetcher.services.exports import METEDATA_LIST
 
 # --> Basic Call Tests <--
 
@@ -165,7 +166,8 @@ async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class,
     mock_exporter_class.assert_called_once_with(
         channel_data='channeldata',
         output_dir=args.output_dir,
-        filename='testing'
+        filename='testing',
+        allowed_metadata_list=METEDATA_LIST.__args__
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()
@@ -193,7 +195,8 @@ async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, m
     mock_exporter_class.assert_called_once_with(
         channel_data='channeldata',
         output_dir=args.output_dir,
-        filename='data'
+        filename='data',
+        allowed_metadata_list=METEDATA_LIST.__args__
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()
@@ -221,7 +224,8 @@ async def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_clas
     mock_exporter_class.assert_called_once_with(
         channel_data='channeldata',
         output_dir=args.output_dir,
-        filename='data'
+        filename='data',
+        allowed_metadata_list=METEDATA_LIST.__args__
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()

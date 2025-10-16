@@ -39,7 +39,6 @@ def test_export_with_csv_writes_file_with_correct_structure(mocker: MockerFixtur
     exporter = Exporter(mock_transcript_response)
     exporter.export_as_csv()
 
-    # Verify the filename only (ignore full path)
     assert m.call_args[0][0].name == 'data.csv'
 
     handle = m()
@@ -48,8 +47,8 @@ def test_export_with_csv_writes_file_with_correct_structure(mocker: MockerFixtur
     reader = csv.reader(content.splitlines())
     rows = list(reader)
 
-    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url']
-    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid']
+    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
+    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid', '2.22', '2000', '']
 
 def test_export_with_csv_creates_file_with_correct_custom_name(mocker: MockerFixture, mock_transcript_response):
     m = mock_open()
