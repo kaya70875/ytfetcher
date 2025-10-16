@@ -7,7 +7,7 @@ from ytfetcher.models.channel import (
 )
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.exceptions import *
-from ytfetcher._youtube_dl import YoutubeDL
+from ytfetcher._youtube_dl import BaseYoutubeDLFetcher
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.utils.headers import get_realistic_headers
@@ -55,18 +55,11 @@ def sample_transcripts():
 
 # --- Helper to patch fetchers ---
 @pytest.fixture
-def patch_fetchers(mocker: MockerFixture, sample_video_ids, sample_snippet, sample_transcripts):
-    mock_youtube_dl_fetch = mocker.patch.object(YoutubeDL, 'fetch', return_value=
-        [
-            sample_snippet
-        ]
-    )
+def patch_fetchers(mocker: MockerFixture, sample_snippet, sample_transcripts):
+    mock_fetcher_instance = mocker.Mock()
+    mock_fetcher_instance.fetch.return_value = [sample_snippet]
 
-    mock_youtube_dl_fetch_custom = mocker.patch.object(YoutubeDL, 'fetch_with_custom_video_ids', return_value=
-        [
-            sample_snippet   
-        ]
-    )
+    mocker.patch("ytfetcher._core.get_fetcher", return_value=mock_fetcher_instance)
 
     mock_transcript_fetcher = mocker.patch.object(TranscriptFetcher, 'fetch', return_value=[
         ChannelData(
@@ -76,7 +69,7 @@ def patch_fetchers(mocker: MockerFixture, sample_video_ids, sample_snippet, samp
         )
     ])
 
-    return mock_youtube_dl_fetch, mock_transcript_fetcher, mock_youtube_dl_fetch_custom
+    return mock_transcript_fetcher
 
 @pytest.fixture
 def initialize_ytfetcher_with_channel_name(mock_http_config, sample_channel_name):
