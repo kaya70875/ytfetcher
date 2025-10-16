@@ -60,7 +60,8 @@ class YTFetcherCLI:
             channel_data=channel_data,
             output_dir=self.args.output_dir,
             filename=self.args.filename,
-            allowed_metadata_list=self.args.metadata
+            allowed_metadata_list=self.args.metadata,
+            timing=not self.args.no_timing
         )
 
         method = getattr(exporter, f'export_as_{self.args.format}', None)
@@ -138,6 +139,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
     parser.add_argument("--metadata", nargs="+", default=METEDATA_LIST.__args__, choices=METEDATA_LIST.__args__, help="Allowed metadata")
+    parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     parser.add_argument("--print", action="store_true", help="Print data to console.")
     parser.add_argument("--filename", default="data", help="Decide filename to be exported.")

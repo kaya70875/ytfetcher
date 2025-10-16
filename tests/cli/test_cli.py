@@ -157,7 +157,8 @@ async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class,
     args = parser.parse_args([
         "from_video_ids",
         "-v", "id1", "id2",
-        "--filename", "testing"
+        "--filename", "testing",
+        "--no-timing"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -167,7 +168,8 @@ async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class,
         channel_data='channeldata',
         output_dir=args.output_dir,
         filename='testing',
-        allowed_metadata_list=METEDATA_LIST.__args__
+        allowed_metadata_list=METEDATA_LIST.__args__,
+        timing=False #Expect timing to be false, only for this method but same for others too.
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()
@@ -196,7 +198,8 @@ async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, m
         channel_data='channeldata',
         output_dir=args.output_dir,
         filename='data',
-        allowed_metadata_list=METEDATA_LIST.__args__
+        allowed_metadata_list=METEDATA_LIST.__args__,
+        timing=True
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()
@@ -225,7 +228,8 @@ async def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_clas
         channel_data='channeldata',
         output_dir=args.output_dir,
         filename='data',
-        allowed_metadata_list=METEDATA_LIST.__args__
+        allowed_metadata_list=METEDATA_LIST.__args__,
+        timing=True
     )
 
     mock_exporter_instance.export_as_txt.assert_called_once()
