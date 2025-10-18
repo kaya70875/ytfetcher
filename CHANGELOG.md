@@ -18,6 +18,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ---
 
+## [1.3] - 2025-18-10
+### Added
+- Add `PlaylistFetcher` for CLI and Python API.
+- Add metadata choosing option for **CLI**.
+- Add `no-timing` argument for CLI for not choosing transcript timings.
+- Full url support for `PlaylistFetcher` and `ChannelFetcher`.
+
+### Changed
+- Exporter now exports **all available data** as default.
+
 ## [1.2] - 2025-11-10
 ### Added
 - Users now can choose desired **language** for transcripts.
