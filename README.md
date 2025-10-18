@@ -16,7 +16,8 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Quick CLI Usage](#quick-cli-usage)
 - [Features](#features)
 - [Basic Usage (Python API)](#basic-usage-python-api)
-- [Fetching With Custom Video IDs](#fetching-with-custom-video-ids)
+- [Using Different Fetchers](#using-different-fetchers)
+- [Retrieve Different Languages](#retrieve-different-languages)
 - [Exporting](#exporting)
 - [Other Methods](#other-methods)
 - [Proxy Configuration](#proxy-configuration)
@@ -60,6 +61,7 @@ Fetch YouTube transcripts for a channel
 positional arguments:
   {from_channel,from_video_ids}
     from_channel        Fetch data from channel handle with max_results.
+    from_playlist_id    Fetch data from a specific playlist id.
     from_video_ids      Fetch data from your custom video ids.
 
 options:
@@ -79,7 +81,7 @@ options:
 
 ## Basic Usage (Python API)
 
-**Note:** When specifying the channel, you must provide the exact **channel handle** without the `@` symbol, channel URL, or display name.  
+**Note:** When specifying the channel, you should provide the exact **channel handle** without the `@` symbol, channel URL, or display name.  
 For example, use `TheOffice` instead of `@TheOffice` or `https://www.youtube.com/c/TheOffice`.
 
 Here’s how you can get transcripts and metadata information like channel name, description, published date, etc. from a single channel with `from_channel` method:
@@ -138,9 +140,28 @@ ChannelData(
 
 ---
 
-## Fetching With Custom Video IDs
+## Using Different Fetchers
 
-You can also initialize `ytfetcher` with custom video IDs using `from_video_ids` method:
+`Ytfetcher` also supports different fetcher so you can fetch with `channel_handle`, custom `video_ids` or from a `playlist_id`
+
+### Fetching from Playlist ID
+
+Here's how you can fetch bulk transcripts from a specific `playlist_id` using `ytfetcher`.
+
+```python
+from ytfetcher import YTFetcher
+import asyncio
+
+fetcher = YTFetcher.from_playlist_id(
+    playlist_id="playlistid1254"
+)
+
+# Rest is same ...
+```
+
+### Fetching With Custom Video IDs
+
+Initialize `ytfetcher` with custom video IDs using `from_video_ids` method:
 
 ```python
 from ytfetcher import YTFetcher
@@ -191,6 +212,15 @@ exporter = Exporter(
 
 exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
 ```
+
+### Exporting With CLI
+
+You can also specify arguments when exporting which allows you to decide whether to exclude `timings` and choose desired `metadata`.
+```bash
+ytfetcher from_channel -c TheOffice -m 20 -f json --no-timing --metadata title description
+```
+
+This will **exclude** `timings` from transcripts and keep only `title` and `description` as metadata.
 
 ---
 
@@ -270,6 +300,11 @@ ytfetcher from_channel -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ### Fetching by Video IDs
 ```bash
 ytfetcher from_video_ids -v video_id1 video_id2 ... -f json
+```
+
+### Fetching From Playlist Id
+```bash
+ytfetcher from_playlist_id -p playlistid123 -f csv -m 25
 ```
 
 ### Using Webshare Proxy
