@@ -117,3 +117,29 @@ def test_fetch_empty_results(MockYDL):
 
     vlf = VideoListFetcher(video_ids=['id1', 'id2']).fetch()
     assert vlf == []
+
+## --> TEST STATIC METHODS FOR FETCHERS <--
+
+def test_playlist_fetcher_extracts_channel_id():
+    url = "https://www.youtube.com/playlist?list=PLuvRKGApO-zoF2WBPN2kW188YLke0Igv8"
+    extracted = PlaylistFetcher._find_playlist_id_from_url(url=url)
+
+    assert extracted == "PLuvRKGApO-zoF2WBPN2kW188YLke0Igv8"
+
+def test_playlist_fetcher_extracts_channel_id_with_extra_parameters():
+    url = "https://www.youtube.com/playlist?list=PLuvRKGApO-zoF2WBPN2kW188YLke0Igv8&si=abc"
+    extracted = PlaylistFetcher._find_playlist_id_from_url(url=url)
+
+    assert extracted == "PLuvRKGApO-zoF2WBPN2kW188YLke0Igv8"
+
+def test_channel_fetcher_extracts_channel_handle():
+    url = "https://www.youtube.com/@caseoh_"
+    extracted = ChannelFetcher._find_channel_handle_from_url(url=url)
+
+    assert extracted == "caseoh_"
+
+def test_channel_fetcher_extracts_channel_handle_with_extra_lead():
+    url = "https://www.youtube.com/@caseoh_/videos"
+    extracted = ChannelFetcher._find_channel_handle_from_url(url=url)
+
+    assert extracted == "caseoh_"
