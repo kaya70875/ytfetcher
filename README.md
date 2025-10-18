@@ -17,7 +17,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Features](#features)
 - [Basic Usage (Python API)](#basic-usage-python-api)
 - [Using Different Fetchers](#using-different-fetchers)
-- [Retrieve Different Languages](#retrieve-different-languages)
+- [Retreive Different Languages](#retreive-different-languages)
 - [Exporting](#exporting)
 - [Other Methods](#other-methods)
 - [Proxy Configuration](#proxy-configuration)
