@@ -4,5 +4,8 @@ from .logging_config import enable_default_config
 
 __all__ = [
     "HTTPConfig",
-    "enable_default_config"
+    "enable_default_config",
+    "ProxyConfig",
+    "GenericProxyConfig",
+    "WebshareProxyConfig"
 ]
