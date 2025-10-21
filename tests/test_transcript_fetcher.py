@@ -105,7 +105,7 @@ def test_clean_transcripts():
 
     test_response = [
         {
-            "text": "[Music] This is some text",
+            "text": "[Music] >> This is some text",
             "duration": 1,
             "start": 1
         }

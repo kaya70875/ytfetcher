@@ -120,6 +120,9 @@ class TranscriptFetcher:
             # Remove unnecessary text patterns like [Music], [Applause], etc.
             cleaned_text = re.sub(r'\[.*?\]', '', entry['text'])
 
+            # Remove leading '>>' markers (and optional spaces)
+            cleaned_text = re.sub(r'^\s*>>\s*', '', cleaned_text)
+
             # Remove extra whitespace
             cleaned_text = ' '.join(cleaned_text.split())
 
