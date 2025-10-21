@@ -8,18 +8,40 @@ from ytfetcher.utils.log import log
 
 logger = logging.getLogger(__name__)
 
+
 class BaseYoutubeDLFetcher(ABC):
+    """
+    Abstract base class for YouTube data fetching using yt_dlp.
+
+    Provides common setup utilities for subclasses that fetch
+    metadata from channels, playlists, or specific videos.
+
+    Attributes:
+        max_results (int): The maximum number of results to fetch.
+    """
+
     def __init__(self, max_results: int = 50):
         self.max_results = max_results
-    
+
     @abstractmethod
     def fetch(self) -> list[DLSnippet]:
         """
-        Main fetch logic for subclasses.
+        Abstract method to be implemented by subclasses.
+
+        Should contain the logic to fetch data from YouTube.
         """
         pass
-    
+
     def _setup_ydl_opts(self, **extra_opts) -> dict:
+        """
+        Prepare yt_dlp options with safe defaults for metadata extraction.
+
+        Args:
+            **extra_opts: Additional yt_dlp options to override or extend defaults.
+
+        Returns:
+            dict: The complete yt_dlp options dictionary.
+        """
         base_opts = {
             "quiet": True,
             "skip_download": True,
@@ -30,27 +52,47 @@ class BaseYoutubeDLFetcher(ABC):
         return base_opts
 
     def _to_snippets(self, entries: list[dict]) -> list[DLSnippet]:
+        """
+        Convert yt_dlp raw entries into DLSnippet objects.
+
+        Args:
+            entries (list[dict]): List of yt_dlp video entries.
+
+        Returns:
+            list[DLSnippet]: List of structured DLSnippet objects.
+        """
         return [
-                DLSnippet(
-                    video_id=entry['id'],
-                    title=entry['title'],
-                    description=entry['description'],
-                    url=entry['url'] or f"https://youtube.com/watch?v={entry.get('id')}",
-                    duration=entry['duration'],
-                    view_count=entry['view_count'],
-                    thumbnails=entry['thumbnails']
-                )
-                for entry in entries
-            ]
+            DLSnippet(
+                video_id=entry["id"],
+                title=entry["title"],
+                description=entry["description"],
+                url=entry["url"] or f"https://youtube.com/watch?v={entry.get('id')}",
+                duration=entry["duration"],
+                view_count=entry["view_count"],
+                thumbnails=entry["thumbnails"],
+            )
+            for entry in entries
+        ]
+
 
 class ChannelFetcher(BaseYoutubeDLFetcher):
-    def __init__(self, channel_handle: str, max_results = 50):
+    """
+    Fetches recent videos from a YouTube channel.
+
+    Supports both direct channel handles (e.g. "@caseoh_")
+    and full channel URLs.
+    Args:
+        channel_handle (str): The channel handle or URL.
+        max_results (int): Maximum number of videos to fetch.
+    """
+
+    def __init__(self, channel_handle: str, max_results: int = 50):
         super().__init__(max_results)
         self.channel_handle = channel_handle
 
         if "https://" in channel_handle:
             self.channel_handle = self._find_channel_handle_from_url(channel_handle)
-    
+
     def fetch(self) -> list[DLSnippet]:
         ydl_opts = self._setup_ydl_opts(playlistend=self.max_results)
         url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/videos"
@@ -59,44 +101,56 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
             info = ydl.extract_info(url, download=False)
             entries: list[dict] = info.get("entries", [])
             return self._to_snippets(entries)
-    
+
     @staticmethod
     def _find_channel_handle_from_url(url: str) -> str:
         """
         Extract the channel handle from a full YouTube channel URL.
 
-        Handles URLs like:
-        - https://www.youtube.com/@handle
-        - https://www.youtube.com/@handle/
-        - https://www.youtube.com/@handle/featured
-        - https://www.youtube.com/@handle/videos
+        Handles URLs such as:
+            - https://www.youtube.com/@handle
+            - https://www.youtube.com/@handle/
+            - https://www.youtube.com/@handle/featured
+            - https://www.youtube.com/@handle/videos
 
         Args:
-            url (str): The full YouTube channel URL.
+            url (str): Full YouTube channel URL.
 
         Returns:
-            str: Extracted channel handle (e.g. 'handle').
+            str: The extracted channel handle (e.g. "handle").
+
+        Raises:
+            ValueError: If no valid handle can be extracted.
         """
         log("Got full URL, trying to extract channel handle. If it fails, try providing only the handle.", level="WARNING")
 
         parsed = urlparse(url)
         path = parsed.path
 
-        # Find the '@' segment and extract only the handle portion
-        if '@' in path:
-            handle = path.split('@', 1)[1].split('/')[0]
+        if "@" in path:
+            handle = path.split("@", 1)[1].split("/")[0]
             return handle.strip()
 
         raise ValueError(f"Could not extract channel handle from URL: {url}")
 
+
 class PlaylistFetcher(BaseYoutubeDLFetcher):
-    def __init__(self, playlist_id: str, max_results = 50):
+    """
+    Fetches all videos from a given YouTube playlist.
+
+    Supports both playlist IDs and full playlist URLs.
+    Args:
+        playlist_id (str): The playlist ID or full URL.
+        max_results (int): Maximum number of videos to fetch.
+    """
+
+    def __init__(self, playlist_id: str, max_results: int = 50):
         super().__init__(max_results)
         self.playlist_id = playlist_id
 
         if "https://" in playlist_id:
             self.playlist_id = self._find_playlist_id_from_url(url=playlist_id)
-    
+
     def fetch(self) -> list[DLSnippet]:
         ydl_opts = self._setup_ydl_opts(playlistend=self.max_results)
         url = f"https://www.youtube.com/playlist?list={self.playlist_id.strip()}"
@@ -105,25 +159,25 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
             info = ydl.extract_info(url, download=False)
             entries: list[dict] = info.get("entries", [])
             return self._to_snippets(entries)
-        
+
     @staticmethod
     def _find_playlist_id_from_url(url: str) -> str:
         """
-        Extracts a YouTube playlist ID from a full playlist URL.
+        Extract the playlist ID from a YouTube playlist URL.
 
-        Handles URLs like:
-        - https://www.youtube.com/playlist?list=PL12345
-        - https://www.youtube.com/playlist?list=PL12345&si=abcd
-        - https://youtube.com/watch?v=abc123&list=PL12345
+        Handles URLs such as:
+            - https://www.youtube.com/playlist?list=PL12345
+            - https://www.youtube.com/playlist?list=PL12345&si=abcd
+            - https://youtube.com/watch?v=abc123&list=PL12345
 
         Args:
-            url (str): The full YouTube playlist URL.
+            url (str): Full YouTube playlist URL.
 
         Returns:
-            str: The extracted playlist ID (e.g., 'PL12345').
+            str: The extracted playlist ID (e.g. "PL12345").
 
         Raises:
-            ValueError: If the URL does not contain a 'list' parameter.
+            ValueError: If no valid playlist ID can be found.
         """
         log("Got full URL, trying to extract playlist ID. If it fails, try providing only playlist ID.", level="WARNING")
 
@@ -138,11 +192,16 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
 
 
 class VideoListFetcher(BaseYoutubeDLFetcher):
-    def __init__(self, video_ids: list[str], max_results = 50):
-        super().__init__(max_results)
+    """
+    Fetches metadata for one or more specific YouTube videos.
+    Args:
+        video_ids (list[str]): List of YouTube video IDs.
+    """
+
+    def __init__(self, video_ids: list[str]):
         self.video_ids = video_ids
-    
-    def fetch(self):
+
+    def fetch(self) -> list[DLSnippet]:
         ydl_opts = self._setup_ydl_opts()
         results = []
 
@@ -152,9 +211,32 @@ class VideoListFetcher(BaseYoutubeDLFetcher):
                 info = ydl.extract_info(url, download=False)
                 if info:
                     results.append(info)
+
         return self._to_snippets(entries=results)
 
-def get_fetcher(channel_handle: str | None = None, playlist_id: str | None = None, video_ids: list[str] | None = None, max_results: int = 50) -> BaseYoutubeDLFetcher:
+
+def get_fetcher(
+    channel_handle: str | None = None,
+    playlist_id: str | None = None,
+    video_ids: list[str] | None = None,
+    max_results: int = 50,
+) -> BaseYoutubeDLFetcher:
+    """
+    Factory function that returns the correct fetcher
+    based on provided parameters.
+
+    Args:
+        channel_handle (str | None): YouTube channel handle or URL.
+        playlist_id (str | None): YouTube playlist ID or URL.
+        video_ids (list[str] | None): List of specific video IDs.
+        max_results (int): Maximum number of videos to fetch.
+
+    Returns:
+        BaseYoutubeDLFetcher: An appropriate fetcher subclass instance.
+
+    Raises:
+        ValueError: If no valid input was provided.
+    """
     if playlist_id:
         return PlaylistFetcher(playlist_id, max_results)
     elif channel_handle:
