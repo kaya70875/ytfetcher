@@ -3,6 +3,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.models.channel import ChannelData, VideoTranscript
 from ytfetcher.config.http_config import HTTPConfig
+from ytfetcher.utils.log import log
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm  # type: ignore
 from typing import Iterable
@@ -37,9 +38,10 @@ class TranscriptFetcher:
             ("en") if it fails. Defaults to ["en"].
     """
 
-    def __init__(self, video_ids: list[str], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",)):
+    def __init__(self, video_ids: list[str], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",), manually_created: bool = False):
         self.video_ids = video_ids
         self.languages = languages
+        self.manually_created = manually_created
         self.executor = ThreadPoolExecutor(max_workers=30)
         self.proxy_config = proxy_config
         self.http_client = requests.Session()
@@ -75,6 +77,8 @@ class TranscriptFetcher:
                         metadata=None
                     )
                 )
+        
+        if not channel_data and self.manually_created: log("No manually created transcripts found!", level="ERROR")
 
         return channel_data
 
@@ -94,7 +98,10 @@ class TranscriptFetcher:
         """
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.http_client, proxy_config=self.proxy_config)
-            transcript: list[dict] = yt_api.fetch(video_id, languages=self.languages).to_raw_data()
+            transcript: list[dict] | None = self._decide_fetch_way(yt_api, video_id)
+
+            if not transcript: return None
+
             cleaned_transcript = self._clean_transcripts(transcript)
             logger.info(f'{video_id} fetched.')
             return VideoTranscript(
@@ -107,6 +114,26 @@ class TranscriptFetcher:
         except Exception as e:
             logger.warning(f'Error while fetching transcript from video: {video_id} ', e)
             return None
+    
+    def _decide_fetch_way(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[dict] | None:
+        """
+        Decides correct fetch way based on manually created flag.
+        Args:
+            yt_api(YouTubeTranscriptApi): Ytt api instance.
+            video_id(str): Video id for current video.
+        Returns:
+            Optional[list[dict]]:
+                A list of transcript entries as dictionaries if available, 
+                otherwise `None` when no transcript is found.
+        """
+        if self.manually_created:
+            try:
+                return yt_api.list(video_id).find_manually_created_transcript(language_codes=self.languages).fetch().to_raw_data()
+            except NoTranscriptFound:
+                logger.info(f"Couldn't found manually created transcript for {video_id}")
+                return None
+        
+        return yt_api.fetch(video_id, languages=self.languages).to_raw_data()
     
     @staticmethod
     def _clean_transcripts(transcripts: list[dict]) -> list[dict]:
