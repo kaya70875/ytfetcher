@@ -98,7 +98,7 @@ class TranscriptFetcher:
         """
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.http_client, proxy_config=self.proxy_config)
-            transcript: list[dict] | None = self._decide_fetch_way(yt_api, video_id)
+            transcript: list[dict] | None = self._decide_fetch_method(yt_api, video_id)
 
             if not transcript: return None
 
@@ -115,9 +115,9 @@ class TranscriptFetcher:
             logger.warning(f'Error while fetching transcript from video: {video_id} ', e)
             return None
     
-    def _decide_fetch_way(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[dict] | None:
+    def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[dict] | None:
         """
-        Decides correct fetch way based on manually created flag.
+        Decides correct fetch method based on manually created flag.
         Args:
             yt_api(YouTubeTranscriptApi): Ytt api instance.
             video_id(str): Video id for current video.
