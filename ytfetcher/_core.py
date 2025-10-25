@@ -23,36 +23,91 @@ class YTFetcher:
         channel_handle (str | None): Optional YouTube channel handle (used when fetching from channel).
         proxy_config (ProxyConfig | None): Optional proxy settings for transcript fetching.
     """
-    def __init__(self, max_results: int, video_ids: list[str] | None, playlist_id: str | None = None, channel_handle: str | None = None, proxy_config: ProxyConfig | None = None, http_config: HTTPConfig = HTTPConfig(), languages: Iterable[str] = ("en", )):
+    def __init__(
+        self,
+        max_results: int,
+        video_ids: list[str] | None,
+        playlist_id: str | None = None,
+        channel_handle: str | None = None,
+        proxy_config: ProxyConfig | None = None,
+        http_config: HTTPConfig = HTTPConfig(),
+        languages: Iterable[str] = ("en", ),
+        manually_created: bool = False
+        ):
         self.http_config = http_config
         self.proxy_config = proxy_config
-        self.languages = languages
 
         self.youtube_dl = get_fetcher(channel_handle, playlist_id, video_ids, max_results)
         self.snippets = self.youtube_dl.fetch()
 
-        self.fetcher = TranscriptFetcher(self._get_video_ids(), http_config=self.http_config, proxy_config=self.proxy_config, languages=self.languages)
+        self.fetcher = TranscriptFetcher(self._get_video_ids(), http_config=self.http_config, proxy_config=self.proxy_config, languages=languages, manually_created=manually_created)
     
     @classmethod
-    def from_channel(cls, channel_handle: str, max_results: int = 50, http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",)) -> "YTFetcher":
+    def from_channel(
+        cls,
+        channel_handle: str,
+        max_results: int = 50,
+        http_config: HTTPConfig = HTTPConfig(),
+        proxy_config: ProxyConfig | None = None,
+        languages: Iterable[str] = ("en",),
+        manually_created: bool = False
+        ) -> "YTFetcher":
         """
         Create a fetcher that pulls up to max_results from the channel.
         """
-        return cls(http_config=http_config, max_results=max_results, video_ids=None, channel_handle=channel_handle, proxy_config=proxy_config, languages=languages)
+        return cls(
+            http_config=http_config,
+            max_results=max_results,
+            video_ids=None,
+            channel_handle=channel_handle,
+            proxy_config=proxy_config,
+            languages=languages,
+            manually_created=manually_created
+            )
     
     @classmethod
-    def from_video_ids(cls, video_ids: list[str] = [], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",)) -> "YTFetcher":
+    def from_video_ids(
+        cls,
+        video_ids: list[str] = [],
+        http_config: HTTPConfig = HTTPConfig(),
+        proxy_config: ProxyConfig | None = None,
+        languages: Iterable[str] = ("en",),
+        manually_created: bool = False
+        ) -> "YTFetcher":
         """
         Create a fetcher that only fetches from given video ids.
         """
-        return cls(http_config=http_config, max_results=len(video_ids), video_ids=video_ids, channel_handle=None, proxy_config=proxy_config, languages=languages)
+        return cls(
+            http_config=http_config,
+            max_results=len(video_ids),
+            video_ids=video_ids,
+            channel_handle=None,
+            proxy_config=proxy_config,
+            languages=languages,
+            manually_created=manually_created
+            )
     
     @classmethod
-    def from_playlist_id(cls, playlist_id: str, max_results: int = 50, http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",)) -> "YTFetcher":
+    def from_playlist_id(
+        cls,playlist_id: str,
+        max_results: int = 50,
+        http_config: HTTPConfig = HTTPConfig(),
+        proxy_config: ProxyConfig | None = None,
+        languages: Iterable[str] = ("en",),
+        manually_created: bool = False
+        ) -> "YTFetcher":
         """
         Create a fetcher tthat fetches from given playlist id.
         """
-        return cls(http_config=http_config, playlist_id=playlist_id, proxy_config=proxy_config, languages=languages, max_results=max_results, video_ids=None)
+        return cls(
+            http_config=http_config,
+            playlist_id=playlist_id,
+            proxy_config=proxy_config,
+            languages=languages,
+            max_results=max_results,
+            video_ids=None,
+            manually_created=manually_created
+            )
 
     async def fetch_youtube_data(self) -> list[ChannelData]:
         """
@@ -65,7 +120,7 @@ class YTFetcher:
         transcripts = await self.fetcher.fetch()
         
         for transcript, snippet in zip(transcripts, self.snippets):
-            transcript.metadata = snippet
+            transcript.metadata = snippet if transcript.transcripts else None
         
         return transcripts
     
