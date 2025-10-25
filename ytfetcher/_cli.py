@@ -78,7 +78,8 @@ class YTFetcherCLI:
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel_handle,
                     max_results=self.args.max_results,
-                    languages=self.args.languages
+                    languages=self.args.languages,
+                    manually_created=self.args.manually_created
                 )
             
             elif self.args.command == 'from_video_ids':
@@ -86,7 +87,8 @@ class YTFetcherCLI:
                 await self._run_fetcher(
                     YTFetcher.from_video_ids,
                     video_ids=self.args.video_ids,
-                    languages=self.args.languages
+                    languages=self.args.languages,
+                    manually_created=self.args.manually_created
                 )
             
             elif self.args.command == 'from_playlist_id':
@@ -94,7 +96,8 @@ class YTFetcherCLI:
                 await self._run_fetcher(
                     YTFetcher.from_playlist_id,
                     playlist_id=self.args.playlist_id,
-                    languages=self.args.languages
+                    languages=self.args.languages,
+                    manually_created=self.args.manually_created
                 )
 
             else:
@@ -141,6 +144,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument("--metadata", nargs="+", default=METEDATA_LIST.__args__, choices=METEDATA_LIST.__args__, help="Allowed metadata")
     parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
+    parser.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
     parser.add_argument("--print", action="store_true", help="Print data to console.")
     parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
