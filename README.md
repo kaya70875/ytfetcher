@@ -18,6 +18,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Basic Usage (Python API)](#basic-usage-python-api)
 - [Using Different Fetchers](#using-different-fetchers)
 - [Retreive Different Languages](#retreive-different-languages)
+- [Fetching Only Manually Created Transcripts](#fetching-only-manually-created-transcripts)
 - [Exporting](#exporting)
 - [Other Methods](#other-methods)
 - [Proxy Configuration](#proxy-configuration)
@@ -192,6 +193,20 @@ ytfetcher from_channel -c TheOffice -m 50 -f csv --print --languages tr en
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
 
 ---
+
+## Fetching Only Manually Created Transcripts
+
+`ytfethcer` allows you to fetch **only manually created transcripts** from a channel which allows you to get more precise transcripts.
+
+```python
+fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True) # Set manually_created flag to True
+```
+
+You can also easily enable this feature with `--manually-created` argument in CLI.
+
+```bash
+ytfetcher from_channel -c TEDx -f csv --manually-created
+```
 
 ## Exporting
 
