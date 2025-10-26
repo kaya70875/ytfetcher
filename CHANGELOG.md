@@ -6,12 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
-- Added a flag for fetching only manually created transcripts.
+
 ### Changed
 
 ### Fixed
-- Transcript cleaner method does not clean >> signs.
 ---
+
+## [1.4] - 2025-10-26
+### Added
+- Added a flag for fetching **only manually created transcripts**.
+
+### Fixed
+- Transcript cleaner method does not clean `>>` signs.
 
 ## [1.3] - 2025-18-10
 ### Added
