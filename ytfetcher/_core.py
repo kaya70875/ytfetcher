@@ -9,19 +9,23 @@ class YTFetcher:
     """
     YTFetcher is a high-level interface for fetching YouTube video metadata and transcripts.
 
-    It supports two modes of initialization:
+    It supports three modes of initialization:
     - From a channel handle (via `from_channel`)
+    - From a playlist ID (via `from_playlist_id`)
     - From a list of specific video IDs (via `from_video_ids`)
 
     Internally, it uses the yt-dlp to retrieve video snippets and metadata,
     and the `youtube_transcript_api` (with optional proxy support) to fetch transcripts.
 
     Args:
-        http_config (HTTPConfig): Configuration for HTTP client behavior.
         max_results (int): Maximum number of videos to fetch.
         video_ids (list[str]): List of specific video IDs to fetch.
+        playlist_id (str | None) Playlist id to fetch from.
         channel_handle (str | None): Optional YouTube channel handle (used when fetching from channel).
+        http_config (HTTPConfig): Configuration for HTTP client behavior.
         proxy_config (ProxyConfig | None): Optional proxy settings for transcript fetching.
+        languages (Iterable[str]): Preferred languages to fetch first, default to `en`
+        manually_created (bool): Flag for fetching only manually created transcripts. Default to False
     """
     def __init__(
         self,
