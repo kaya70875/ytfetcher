@@ -28,6 +28,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Running Tests](#running-tests)
 - [Related Projects](#related-projects)
 - [License](#license)
+- [Contributors](#contributors)
 
 ---
 
@@ -369,6 +370,12 @@ poetry run pytest
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
+
+## Contributors
+
+Thanks to everyone who has contributed to **ytfetcher** ❤️
+
+[![Contributors](https://contrib.rocks/image?repo=kaya70875/ytfetcher)](https://github.com/kaya70875/ytfetcher/graphs/contributors)
 
 ---
 
