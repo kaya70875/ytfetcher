@@ -66,7 +66,7 @@ class BaseYoutubeDLFetcher(ABC):
                 video_id=entry["id"],
                 title=entry["title"],
                 description=entry["description"],
-                url=entry["url"] or f"https://youtube.com/watch?v={entry.get('id')}",
+                url=entry.get("url") or f"https://youtube.com/watch?v={entry.get('id')}",
                 duration=entry["duration"],
                 view_count=entry["view_count"],
                 thumbnails=entry["thumbnails"],
