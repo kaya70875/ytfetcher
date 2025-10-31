@@ -65,18 +65,7 @@ class TranscriptFetcher:
 
         tasks = [run_in_thread(video_id) for video_id in self.video_ids]
 
-        channel_data: list[ChannelData] = []
-        
-        for coro in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript'):
-            result: VideoTranscript = await coro
-            if result:
-                channel_data.append(
-                    ChannelData(
-                        video_id=result.video_id,
-                        transcripts=result.transcripts,
-                        metadata=None
-                    )
-                )
+        channel_data = await self._build_channel_data(tasks)
         
         if not channel_data and self.manually_created: log("No manually created transcripts found!", level="ERROR")
 
@@ -135,6 +124,29 @@ class TranscriptFetcher:
         
         return yt_api.fetch(video_id, languages=self.languages).to_raw_data()
     
+    @staticmethod
+    async def _build_channel_data(tasks: list) -> list[ChannelData]:
+        """
+        Builds list of `ChannelData` from all tasks from completed thread with progress support.
+        Args:
+            tasks: List of completed tasks.
+        Returns:
+            list[ChannelData]: ChannelData list contains transcripts.
+        """
+        channel_data: list[ChannelData] = []
+
+        for coro in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript'):
+            result: VideoTranscript = await coro
+            if result:
+                channel_data.append(
+                    ChannelData(
+                        video_id=result.video_id,
+                        transcripts=result.transcripts,
+                        metadata=None
+                    )
+                )
+        return channel_data
+
     @staticmethod
     def _clean_transcripts(transcripts: list[dict]) -> list[dict]:
         """
