@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 ### Fixed
+- Fix KeyError for missing 'url' in yt_dlp entry when fetching by video_ids.
+
 ---
 
 ## [1.4] - 2025-10-26
