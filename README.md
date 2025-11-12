@@ -144,7 +144,7 @@ ChannelData(
 
 ## Using Different Fetchers
 
-`Ytfetcher` also supports different fetcher so you can fetch with `channel_handle`, custom `video_ids` or from a `playlist_id`
+`ytfetcher` also supports different fetcher so you can fetch with `channel_handle`, custom `video_ids` or from a `playlist_id`
 
 ### Fetching from Playlist ID
 
@@ -197,7 +197,7 @@ ytfetcher from_channel -c TheOffice -m 50 -f csv --print --languages tr en
 
 ## Fetching Only Manually Created Transcripts
 
-`ytfethcer` allows you to fetch **only manually created transcripts** from a channel which allows you to get more precise transcripts.
+`ytfetcher` allows you to fetch **only manually created transcripts** from a channel which allows you to get more precise transcripts.
 
 ```python
 fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True) # Set manually_created flag to True
