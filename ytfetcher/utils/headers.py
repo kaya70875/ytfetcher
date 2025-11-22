@@ -26,6 +26,10 @@ SEC_FETCH_MODE = ["navigate", "no-cors"]
 SEC_FETCH_SITE = ["none", "same-origin", "cross-site"]
 
 def get_realistic_headers() -> dict:
+    """
+    Creates realistic headers for mimic browser behavior which reduces the changes of getting banned immediatly.\n
+    Uses `fake_useragent` package for creating random user agents.
+    """
     ua = UserAgent(platforms='desktop', os='Windows')
     user_agent = ua.random
     return {

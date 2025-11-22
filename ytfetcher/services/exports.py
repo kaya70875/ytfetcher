@@ -45,9 +45,7 @@ class Exporter:
         """
         Exports the data as a plain text file, including transcript and metadata.
         """
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = self.output_dir / f"{self.filename}.txt"
-        logger.info(f"Writing as txt file, output path: {output_path}")
+        output_path = self._initialize_output_path(export_type='txt')
         
         with open(output_path, 'w', encoding='utf-8') as file:
             for data in self.channel_data:
@@ -67,10 +65,7 @@ class Exporter:
         """
         Exports the data as a structured JSON file.
         """
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = self.output_dir / f"{self.filename}.json"
-        logger.info(f"Writing as json file, output path: {output_path}")
-
+        output_path = self._initialize_output_path('json')
         export_data = []
 
         with open(output_path, 'w', encoding='utf-8') as file:
@@ -94,9 +89,7 @@ class Exporter:
         """
         Exports the data as a flat CSV file, row-per-transcript-entry.
         """
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = self.output_dir / f"{self.filename}.csv"
-        logger.info(f"Writing as csv file, output path: {output_path}")
+        output_path = self._initialize_output_path(export_type='csv')
 
         t = ['start', 'duration']
         metadata = [*self.allowed_metadata_list]
@@ -120,3 +113,11 @@ class Exporter:
                     }
                     writer.writerow(row)
                     i += 1
+
+    def _initialize_output_path(self, export_type: Literal['txt', 'json', 'csv'] = 'txt') -> Path:
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = self.output_dir / f"{self.filename}.{export_type}"
+        
+        logger.info(f"Writing as {export_type} file, output path: {output_path}")
+
+        return output_path
