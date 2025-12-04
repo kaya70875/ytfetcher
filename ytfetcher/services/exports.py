@@ -68,21 +68,21 @@ class Exporter:
         output_path = self._initialize_output_path('json')
         export_data = []
 
-        with open(output_path, 'w', encoding='utf-8') as file:
-            for data in self.channel_data:
-                video_data = {
-                    "video_id": data.video_id,
-                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
-                    "transcript": [
-                        {
-                            **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
-                            "text": transcript.text
-                        }
-                        for transcript in data.transcripts
-                    ]
-                }
-                export_data.append(video_data)
+        for data in self.channel_data:
+            video_data = {
+                "video_id": data.video_id,
+                **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
+                "transcript": [
+                    {
+                        **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                        "text": transcript.text
+                    }
+                    for transcript in data.transcripts
+                ]
+            }
+            export_data.append(video_data)
 
+        with open(output_path, 'w', encoding='utf-8') as file:
             json.dump(export_data, file, indent=2, ensure_ascii=False)
 
     def export_as_csv(self) -> None:
