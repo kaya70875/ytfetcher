@@ -95,7 +95,7 @@ class Exporter:
         metadata = [*self.allowed_metadata_list]
         fieldnames = ['index', 'video_id', 'text']
         fieldnames += t if self.timing else []
-        fieldnames += metadata if self.channel_data[0].metadata is not None else []
+        fieldnames += metadata if any(d.metadata for d in self.channel_data) else []
 
         with open(output_path, 'w', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
