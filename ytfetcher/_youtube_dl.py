@@ -48,23 +48,19 @@ class CommentFetcher:
             }
         }
                 
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts_deep) as ydl:
-                info_dict = ydl.extract_info(video_url, download=False)
-                data = info_dict.get('comments', None)
-                return [
-                    Comment(
-                    id=comment.get('id'),
-                    author=comment.get('author'),
-                    like_count=comment.get('like_count'),
-                    text=comment.get('text'),
-                    time_text=comment.get('_time_text')
-                    )
-                    for comment in data
-                ]
-                    
-        except Exception as e:
-            return f"Failed to fetch comments: {e}"
+        with yt_dlp.YoutubeDL(ydl_opts_deep) as ydl:
+            info_dict = ydl.extract_info(video_url, download=False)
+            data = info_dict.get('comments', None)
+            return [
+                Comment(
+                id=comment.get('id'),
+                author=comment.get('author'),
+                like_count=comment.get('like_count'),
+                text=comment.get('text'),
+                time_text=comment.get('_time_text')
+                )
+                for comment in data
+            ]
 
 class BaseYoutubeDLFetcher(ABC):
     """
