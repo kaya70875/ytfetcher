@@ -129,7 +129,7 @@ class YTFetcher:
         
         return transcripts
     
-    async def fetch_with_comments(self, max_comments: int = 20, max_workers: int = 20) -> list[ChannelData]:
+    async def fetch_with_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
         """
         Fetches comments, addition to transcripts and metadata.
 
