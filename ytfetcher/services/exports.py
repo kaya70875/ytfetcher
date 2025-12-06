@@ -61,6 +61,10 @@ class Exporter:
                     file.write(f"{transcript.text}\n")
                 file.write("\n")
 
+                if data.comments:
+                    for comment in data.comments:
+                        file.write(f"Comments for {data.video_id}\nComment --> {comment.text}\nAuthor --> {comment.author}\nLikes --> {comment.like_count}\nTime Text --> {comment.time_text}")
+
     def export_as_json(self) -> None:
         """
         Exports the data as a structured JSON file.
@@ -68,19 +72,33 @@ class Exporter:
         output_path = self._initialize_output_path('json')
         export_data = []
 
-        for data in self.channel_data:
-            video_data = {
-                "video_id": data.video_id,
-                **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
-                "transcript": [
-                    {
-                        **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
-                        "text": transcript.text
-                    }
-                    for transcript in data.transcripts
-                ]
-            }
-            export_data.append(video_data)
+        with open(output_path, 'w', encoding='utf-8') as file:
+            for data in self.channel_data:
+                video_data = {
+                    "video_id": data.video_id,
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
+                    
+                    "transcript": [
+                        {
+                            **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                            "text": transcript.text
+                        }
+                        for transcript in data.transcripts
+                    ]
+                }
+
+                if data.comments:
+                    video_data['comments'] = [
+                        {
+                            "comment": comment.text,
+                            "author": comment.author,
+                            "time_text": comment.time_text,
+                            "like_count": comment.like_count
+                        }
+                        for comment in data.comments
+                    ]
+
+                export_data.append(video_data)
 
         with open(output_path, 'w', encoding='utf-8') as file:
             json.dump(export_data, file, indent=2, ensure_ascii=False)
@@ -92,10 +110,12 @@ class Exporter:
         output_path = self._initialize_output_path(export_type='csv')
 
         t = ['start', 'duration']
+        comments = ['comment', 'comment_author', 'comment_like_count', 'comment_time_text']
         metadata = [*self.allowed_metadata_list]
         fieldnames = ['index', 'video_id', 'text']
         fieldnames += t if self.timing else []
         fieldnames += metadata if self.channel_data[0].metadata is not None else []
+        fieldnames += comments if self.channel_data[0].comments is not None else []
 
         with open(output_path, 'w', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -103,17 +123,36 @@ class Exporter:
 
             i = 0
             for data in self.channel_data:
+
+                base_info = {
+                    'index': i,
+                    'video_id': data.video_id,
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
+                }
+
+                if data.comments:
+                    for transcript, comment in zip(data.transcripts, data.comments):
+                        row = {
+                            **base_info,
+                            **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                            'comment': comment.text,
+                            'comment_author': comment.author,
+                            'comment_like_count': comment.like_count,
+                            'comment_time_text': comment.time_text
+                        }
+
+                        writer.writerow(row)
+                        i += 1
+
                 for transcript in data.transcripts:
                     row = {
-                        'index': i,
-                        'video_id': data.video_id,
-                        **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
+                        **base_info,
                         **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
-                        'text': transcript.text
                     }
+
                     writer.writerow(row)
                     i += 1
-
+                
     def _initialize_output_path(self, export_type: Literal['txt', 'json', 'csv'] = 'txt') -> Path:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         output_path = self.output_dir / f"{self.filename}.{export_type}"
