@@ -42,13 +42,26 @@ class YTFetcherCLI:
 
         return HTTPConfig()
     
-    async def _run_fetcher(self, factory_method, **kwargs):
-        fetcher = factory_method(
+    async def _run_fetcher(self, factory_method: YTFetcher, **kwargs):
+        fetcher: YTFetcher = factory_method(
             http_config=self._initialize_http_config(),
             proxy_config=self._initialize_proxy_config(),
             **kwargs
         )
-        data = await fetcher.fetch_youtube_data()
+
+        async def get_data(comments: int):
+            """
+            Decides correct method and returns data based on `comments` argument.
+            
+            :param comments: Whether comments arg is None or not.
+            :type comments: bool
+            """
+            if comments > 0:
+                return await fetcher.fetch_with_comments(max_comments=self.args.comments)
+
+            return await fetcher.fetch_youtube_data()
+
+        data = await get_data(comments=self.args.comments)
         log('Fetched all transcripts.', level='DONE')
         if self.args.print:
             print(data)
@@ -79,7 +92,7 @@ class YTFetcherCLI:
                     channel_handle=self.args.channel_handle,
                     max_results=self.args.max_results,
                     languages=self.args.languages,
-                    manually_created=self.args.manually_created
+                    manually_created=self.args.manually_created,
                 )
             
             elif self.args.command == 'from_video_ids':
@@ -145,6 +158,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     parser.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
+    parser.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata.")
     parser.add_argument("--print", action="store_true", help="Print data to console.")
     parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
