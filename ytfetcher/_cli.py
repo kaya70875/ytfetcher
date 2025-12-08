@@ -13,6 +13,12 @@ from ytfetcher.utils.log import log
 from argparse import ArgumentParser
 
 class YTFetcherCLI:
+    """
+    YTFetcherCLI
+    A command-line interface for fetching and exporting YouTube transcripts.
+    This class handles the orchestration of transcript fetching operations from various YouTube sources
+    (channels, videos, or playlists) and manages the export of fetched data in multiple formats.
+    """
     def __init__(self, args: argparse.Namespace):
         self.args = args
     
