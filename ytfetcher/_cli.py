@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import ast
 import sys
+from typing import Union
 from ytfetcher._core import YTFetcher
 from ytfetcher.services.exports import Exporter, METEDATA_LIST
 from ytfetcher.config.http_config import HTTPConfig
@@ -15,7 +16,7 @@ class YTFetcherCLI:
     def __init__(self, args: argparse.Namespace):
         self.args = args
     
-    def _initialize_proxy_config(self):
+    def _initialize_proxy_config(self) -> Union[WebshareProxyConfig, GenericProxyConfig, None]:
         proxy_config = None
 
         if self.args.http_proxy != "" or self.args.https_proxy != "":
@@ -35,14 +36,14 @@ class YTFetcherCLI:
             
         return proxy_config
 
-    def _initialize_http_config(self):
+    def _initialize_http_config(self) -> HTTPConfig:
         if self.args.http_timeout or self.args.http_headers:
             http_config = HTTPConfig(timeout=self.args.http_timeout, headers=self.args.http_headers)
             return http_config
 
         return HTTPConfig()
     
-    async def _run_fetcher(self, factory_method, **kwargs):
+    async def _run_fetcher(self, factory_method, **kwargs) -> None:
         fetcher = factory_method(
             http_config=self._initialize_http_config(),
             proxy_config=self._initialize_proxy_config(),
@@ -55,7 +56,7 @@ class YTFetcherCLI:
         self._export(data)
         log(f"Data exported successfully as {self.args.format}", level='DONE')
     
-    def _export(self, channel_data: ChannelData):
+    def _export(self, channel_data: ChannelData) -> None:
         exporter = Exporter(
             channel_data=channel_data,
             output_dir=self.args.output_dir,
