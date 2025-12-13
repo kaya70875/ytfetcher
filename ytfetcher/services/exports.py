@@ -148,6 +148,7 @@ class Exporter:
                     row = {
                         **base_info,
                         **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                        'text': transcript.text
                     }
 
                     writer.writerow(row)
