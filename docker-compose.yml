@@ -1,0 +1,17 @@
+services:
+  # This is the name of your service (you'll use this name in commands)
+  ytfetcher:
+    # Tells Docker Compose to use the Dockerfile in the current directory to build the image
+    build: .
+
+    # Maps the project directory on your computer (host) to the working directory (/app) inside the container.
+    # This is CRUCIAL for development: changes you make on your computer instantly update in the container.
+    volumes:
+      - .:/app
+
+    # If you need network access outside of the container (to the internet for fetching data)
+    # This is typically required for any web-scraping or fetching tool.
+    network_mode: "host"
+    # Optional: If you want to run a specific command or keep the container running
+    # entrypoint: ["poetry", "run"]
+    # command: ["python", "main.py"]
