@@ -14,6 +14,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 ## 📚 Table of Contents
 - [Installation](#installation)
 - [Quick CLI Usage](#quick-cli-usage)
+- [Docker Quick Start](#docker-quick-start)
 - [Features](#features)
 - [Basic Usage (Python API)](#basic-usage-python-api)
 - [Using Different Fetchers](#using-different-fetchers)
@@ -44,6 +45,20 @@ pip install ytfetcher
 Fetch 50 video transcripts + metadata from a channel and save as JSON:
 ```bash
 ytfetcher from_channel -c TheOffice -m 50 -f json
+```
+
+---
+
+## Docker Quick Start
+The recommended way to run or develop YTFetcher is using Docker to ensure a clean, stable environment without needing local Python or dependency management.
+
+```bash
+docker-compose build
+```
+
+Use `docker-compose run` to execute your desired command inside the container.
+```bash
+docker-compose run ytfetcher poetry run ytfetcher from_channel -c TheOffice -m 20 -f json
 ```
 
 ---
