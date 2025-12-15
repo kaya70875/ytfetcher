@@ -78,39 +78,36 @@ class YTFetcherCLI:
         method()
     
     async def run(self):
-        try:
-            if self.args.command == 'from_channel':
-                log(f'Fetching transcripts from channel: {self.args.channel_handle}')
-                await self._run_fetcher(
-                    YTFetcher.from_channel,
-                    channel_handle=self.args.channel_handle,
-                    max_results=self.args.max_results,
-                    languages=self.args.languages,
-                    manually_created=self.args.manually_created
-                )
-            
-            elif self.args.command == 'from_video_ids':
-                log(f'Fetching transcripts from video ids: {self.args.video_ids}')
-                await self._run_fetcher(
-                    YTFetcher.from_video_ids,
-                    video_ids=self.args.video_ids,
-                    languages=self.args.languages,
-                    manually_created=self.args.manually_created
-                )
-            
-            elif self.args.command == 'from_playlist_id':
-                log(f"Fetching transcripts from playlist id: {self.args.playlist_id}")
-                await self._run_fetcher(
-                    YTFetcher.from_playlist_id,
-                    playlist_id=self.args.playlist_id,
-                    languages=self.args.languages,
-                    manually_created=self.args.manually_created
-                )
+        if self.args.command == 'from_channel':
+            log(f'Fetching transcripts from channel: {self.args.channel_handle}')
+            await self._run_fetcher(
+                YTFetcher.from_channel,
+                channel_handle=self.args.channel_handle,
+                max_results=self.args.max_results,
+                languages=self.args.languages,
+                manually_created=self.args.manually_created
+            )
+        
+        elif self.args.command == 'from_video_ids':
+            log(f'Fetching transcripts from video ids: {self.args.video_ids}')
+            await self._run_fetcher(
+                YTFetcher.from_video_ids,
+                video_ids=self.args.video_ids,
+                languages=self.args.languages,
+                manually_created=self.args.manually_created
+            )
+        
+        elif self.args.command == 'from_playlist_id':
+            log(f"Fetching transcripts from playlist id: {self.args.playlist_id}")
+            await self._run_fetcher(
+                YTFetcher.from_playlist_id,
+                playlist_id=self.args.playlist_id,
+                languages=self.args.languages,
+                manually_created=self.args.manually_created
+            )
 
-            else:
-                raise ValueError(f"Unknown method: {self.args.method}")
-        except Exception as e:
-            log(f'Error: {e}', level='ERROR')
+        else:
+            raise ValueError(f"Unknown method: {self.args.method}")
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch YouTube transcripts for a channel")
