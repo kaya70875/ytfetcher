@@ -1,7 +1,7 @@
 from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import ProxyConfig
-from ytfetcher.models.channel import ChannelData, VideoTranscript
+from ytfetcher.models.channel import ChannelData, VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.utils.log import log
 from concurrent.futures import ThreadPoolExecutor
@@ -87,7 +87,7 @@ class TranscriptFetcher:
         """
         try:
             yt_api = YouTubeTranscriptApi(http_client=self.http_client, proxy_config=self.proxy_config)
-            transcript: list[dict] | None = self._decide_fetch_method(yt_api, video_id)
+            transcript: list[Transcript] | None = self._decide_fetch_method(yt_api, video_id)
 
             if not transcript: return None
 
@@ -104,25 +104,27 @@ class TranscriptFetcher:
             logger.warning(f'Error while fetching transcript from video: {video_id} ', e)
             return None
     
-    def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[dict] | None:
+    def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
         """
         Decides correct fetch method based on manually created flag.
         Args:
             yt_api(YouTubeTranscriptApi): Ytt api instance.
             video_id(str): Video id for current video.
         Returns:
-            Optional[list[dict]]:
+            Optional[list[Transcript]]:
                 A list of transcript entries as dictionaries if available, 
                 otherwise `None` when no transcript is found.
         """
         if self.manually_created:
             try:
-                return yt_api.list(video_id).find_manually_created_transcript(language_codes=self.languages).fetch().to_raw_data()
+                raw_transcripts = yt_api.list(video_id).find_manually_created_transcript(language_codes=self.languages).fetch().to_raw_data()
+                return self._convert_to_transcript_object(raw_transcripts)
             except NoTranscriptFound:
                 logger.info(f"Couldn't found manually created transcript for {video_id}")
                 return None
         
-        return yt_api.fetch(video_id, languages=self.languages).to_raw_data()
+        raw_transcripts = yt_api.fetch(video_id, languages=self.languages).to_raw_data()
+        return self._convert_to_transcript_object(raw_transcripts)
     
     @staticmethod
     async def _build_channel_data(tasks: list) -> list[ChannelData]:
@@ -148,16 +150,16 @@ class TranscriptFetcher:
         return channel_data
 
     @staticmethod
-    def _clean_transcripts(transcripts: list[dict]) -> list[dict]:
+    def _clean_transcripts(transcripts: list[Transcript]) -> list[Transcript]:
         """
         Cleans unnecessary text from transcripts like [Music], [Applause], etc.
         Returns:
-            list[dict]: list of Transcript objects.
+            list[Transcript]: list of Transcript objects.
         """
         for entry in transcripts:
 
             # Remove unnecessary text patterns like [Music], [Applause], etc.
-            cleaned_text = re.sub(r'\[.*?\]', '', entry['text'])
+            cleaned_text = re.sub(r'\[.*?\]', '', entry.text)
 
             # Remove leading '>>' markers (and optional spaces)
             cleaned_text = re.sub(r'^\s*>>\s*', '', cleaned_text)
@@ -166,6 +168,18 @@ class TranscriptFetcher:
             cleaned_text = ' '.join(cleaned_text.split())
 
             # Update the transcript text
-            entry['text'] = cleaned_text
+            entry.text = cleaned_text
 
         return transcripts
+    
+    @staticmethod
+    def _convert_to_transcript_object(transcript_dict: list[dict]) -> list[Transcript]:
+        return [
+            Transcript(
+            text=transcript['text'],
+            start=transcript['start'],
+            duration=transcript['duration']
+            )
+        for transcript in transcript_dict
+        ]
+
