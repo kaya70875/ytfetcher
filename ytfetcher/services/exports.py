@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from ytfetcher.models.channel import ChannelData
-from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
+from ytfetcher.exceptions import NoDataToExport, OutputDirectoryNotFoundError
 from typing import Literal, Sequence
 import json
 import csv
@@ -39,7 +39,7 @@ class BaseExporter(ABC):
             raise NoDataToExport("No data to export.")
         
         if not self.output_dir.exists():
-            raise SystemPathCannotFound("System path cannot found.")
+            raise OutputDirectoryNotFoundError("System path could not found.")
 
     @abstractmethod
     def write(self) -> None:
