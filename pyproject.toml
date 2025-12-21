@@ -38,6 +38,9 @@ build-backend = "poetry.core.masonry.api"
 "Repository" = "https://github.com/kaya70875/ytfetcher"
 "Documentation" = "https://github.com/kaya70875/ytfetcher#readme"
 
+[tool.poetry]
+include = ["ytfetcher/py.typed"]
+
 [tool.poetry.scripts]
 ytfetcher = "ytfetcher._cli:main"
 
