@@ -16,6 +16,17 @@ class Exporter:
     """
     DEPRECATED: Use TXTExporter, JSONExporter, or CSVExporter instead.\n
     This class is kept for backward compatibility and will be removed in a future versions.
+
+    Parameters:
+        channel_data (list[ChannelData]): The transcript and metadata to export.
+        allowed_metadata_list (list): Metadata fields to include (e.g., ['title', 'description']).
+        timing (bool): Whether to include start/duration timing in exports.
+        filename (str): Output filename without extension.
+        output_dir (str | None): Directory to export files into. Defaults to current working directory.
+
+    Raises:
+        NoDataToExport: If no data is provided.
+        OutputDirectoryNotFoundError: If specified path cannot found.
     """
     def __init__(self, *args, **kwargs):
         warnings.warn(
