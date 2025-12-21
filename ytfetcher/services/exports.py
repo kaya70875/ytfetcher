@@ -6,10 +6,32 @@ from typing import Literal, Sequence
 import json
 import csv
 import logging
+import warnings
 
 logger = logging.getLogger(__name__)
 
 METEDATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
+
+class Exporter:
+    """
+    DEPRECATED: Use TXTExporter, JSONExporter, or CSVExporter instead.\n
+    This class is kept for backward compatibility and will be removed in a future versions.
+    """
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "The 'Exporter' class is deprecated and will be removed in future versions. Use TXTExporter, JSONExporter, or CSVExporter instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        self.args = args
+        self.kwargs = kwargs
+
+    def export_as_txt(self) -> None:
+        return TXTExporter(*self.args, **self.kwargs).write()
+    def export_as_json(self) -> None:
+        return JSONExporter(*self.args, **self.kwargs).write()
+    def export_as_csv(self) -> None:
+        return CSVExporter(*self.args, **self.kwargs).write()
 
 class BaseExporter(ABC):
     """
