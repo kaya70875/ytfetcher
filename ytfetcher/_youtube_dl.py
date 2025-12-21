@@ -5,6 +5,7 @@ from tqdm import tqdm
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse, parse_qs
 from ytfetcher.utils.log import log
+from typing import Any, cast
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +52,7 @@ class BaseYoutubeDLFetcher(ABC):
         base_opts.update(extra_opts)
         return base_opts
 
-    def _to_snippets(self, entries: list[dict]) -> list[DLSnippet]:
+    def _to_snippets(self, entries: list[dict[str, Any]]) -> list[DLSnippet]:
         """
         Convert yt_dlp raw entries into DLSnippet objects.
 
@@ -97,9 +98,9 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts(playlistend=self.max_results)
         url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/videos"
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
-            entries: list[dict] = info.get("entries", [])
+            entries = cast(list[dict[str, Any]], info.get("entries", []))
             return self._to_snippets(entries)
 
     @staticmethod
@@ -155,9 +156,9 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts(playlistend=self.max_results)
         url = f"https://www.youtube.com/playlist?list={self.playlist_id.strip()}"
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
-            entries: list[dict] = info.get("entries", [])
+            entries = cast(list[dict[str, Any]], info.get("entries", []))
             return self._to_snippets(entries)
 
     @staticmethod
@@ -203,12 +204,12 @@ class VideoListFetcher(BaseYoutubeDLFetcher):
 
     def fetch(self) -> list[DLSnippet]:
         ydl_opts = self._setup_ydl_opts()
-        results = []
+        results: list[dict[str, Any]] = []
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
             for video_id in tqdm(self.video_ids, desc="Extracting metadata", unit="video"):
                 url = f"https://www.youtube.com/watch?v={video_id}"
-                info = ydl.extract_info(url, download=False)
+                info = cast(dict[str, Any], ydl.extract_info(url, download=False))
                 if info:
                     results.append(info)
 
