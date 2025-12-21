@@ -226,14 +226,14 @@ ytfetcher from_channel -c TEDx -f csv --manually-created
 
 ## Exporting
 
-Use the `Exporter` class to export `ChannelData` in **csv**, **json**, or **txt**:
+Use the `BaseExporter` class to export `ChannelData` in **csv**, **json**, or **txt**:
 
 ```python
-from ytfetcher.services import Exporter
+from ytfetcher.services import JSONExporter #OR you can import other exporters: TXTExporter, CSVExporter
 
 channel_data = asyncio.run(fetcher.fetch_youtube_data())
 
-exporter = Exporter(
+exporter = JSONExporter(
     channel_data=channel_data,
     allowed_metadata_list=['title'],   # You can customize this
     timing=True,                       # Include transcript start/duration
@@ -241,7 +241,7 @@ exporter = Exporter(
     output_dir='./exports'             # Optional output directory
 )
 
-exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
+exporter.write()
 ```
 
 ### Exporting With CLI
