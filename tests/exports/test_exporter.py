@@ -1,4 +1,4 @@
-from ytfetcher.exceptions import NoDataToExport, SystemPathCannotFound
+from ytfetcher.exceptions import NoDataToExport, OutputDirectoryNotFoundError
 from ytfetcher.services.exports import TXTExporter
 from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
@@ -28,5 +28,5 @@ def test_export_with_txt_no_channel_data_exception():
         TXTExporter([])
         
 def test_export_with_txt_wrong_output_dir_exception(mock_transcript_response):
-    with pytest.raises(SystemPathCannotFound):
+    with pytest.raises(OutputDirectoryNotFoundError):
         TXTExporter(mock_transcript_response, output_dir='dwadwadwadwa')

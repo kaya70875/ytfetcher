@@ -26,7 +26,7 @@ class BaseExporter(ABC):
 
     Raises:
         NoDataToExport: If no data is provided.
-        SystemPathCannotFound: If specified path cannot found.
+        OutputDirectoryNotFoundError: If specified path cannot found.
     """
     def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METEDATA_LIST] = METEDATA_LIST.__args__, timing: bool = True, filename: str = 'data', output_dir: str = None):
         self.channel_data = channel_data
