@@ -4,7 +4,7 @@ import ast
 import sys
 from typing import Union
 from ytfetcher._core import YTFetcher
-from ytfetcher.services.exports import Exporter, METEDATA_LIST
+from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, METEDATA_LIST
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
@@ -62,8 +62,25 @@ class YTFetcherCLI:
         self._export(data)
         log(f"Data exported successfully as {self.args.format}", level='DONE')
     
+    def _get_exporter(self, format_type: str) -> Union[TXTExporter, JSONExporter, CSVExporter]:
+        """
+        Factory to return the correct Exporter class based on string.
+        """
+        registry = {
+            "txt": TXTExporter,
+            "json": JSONExporter,
+            'csv': CSVExporter 
+        }
+
+        exporter_class = registry.get(format_type.lower())
+        if not exporter_class:
+            raise ValueError(f'Unsupported format {format_type}')
+        
+        return exporter_class
+
     def _export(self, channel_data: ChannelData) -> None:
-        exporter = Exporter(
+        exporter_class = self._get_exporter(self.args.format)
+        exporter = exporter_class(
             channel_data=channel_data,
             output_dir=self.args.output_dir,
             filename=self.args.filename,
@@ -71,11 +88,7 @@ class YTFetcherCLI:
             timing=not self.args.no_timing
         )
 
-        method = getattr(exporter, f'export_as_{self.args.format}', None)
-        if not method:
-            raise ValueError(f"Unsupported format: {self.args.format}")
-        
-        method()
+        exporter.write()
     
     async def run(self):
         match self.args.command:
