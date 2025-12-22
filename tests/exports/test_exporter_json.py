@@ -1,6 +1,6 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open
-from ytfetcher.services.exports import Exporter
+from ytfetcher.services.exports import JSONExporter
 from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
 import json
@@ -36,8 +36,8 @@ def test_export_with_json_writes_file_with_correct_structure(mocker: MockerFixtu
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response)
-    exporter.export_as_json()
+    exporter = JSONExporter(mock_transcript_response)
+    exporter.write()
 
     # Verify the filename only (ignore full path)
     assert m.call_args[0][0].name == 'data.json'
@@ -68,8 +68,8 @@ def test_export_with_json_creates_file_with_correct_custom_name(mocker: MockerFi
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response, filename='testfile')
-    exporter.export_as_json()
+    exporter = JSONExporter(mock_transcript_response, filename='testfile')
+    exporter.write()
 
     assert m.call_args[0][0].name == 'testfile.json'
 
@@ -77,8 +77,8 @@ def test_export_with_json_custom_metadata(mocker: MockerFixture, mock_transcript
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response, allowed_metadata_list=['title', 'view_count'], timing=False)
-    exporter.export_as_json()
+    exporter = JSONExporter(mock_transcript_response, allowed_metadata_list=['title', 'view_count'], timing=False)
+    exporter.write()
 
     handle = m()
     written_json = get_written_json_content(handle)
@@ -97,6 +97,6 @@ def test_export_with_json_custom_metadata(mocker: MockerFixture, mock_transcript
 # -- Integration Tests --
 
 def test_creates_real_file(tmp_path, mock_transcript_response):
-    exporter = Exporter(mock_transcript_response, output_dir=tmp_path)
-    exporter.export_as_json()
+    exporter = JSONExporter(mock_transcript_response, output_dir=tmp_path)
+    exporter.write()
     assert (tmp_path / 'data.json').exists()

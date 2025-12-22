@@ -8,9 +8,9 @@ class ExporterError(Exception):
     Base exception for all Exporter errors.
     """
 
-class SystemPathCannotFound(ExporterError):
+class OutputDirectoryNotFoundError(ExporterError):
     """
-    Raises when specified path cannot found.
+    Raised when the specified output directory does not exist.
     """
 
 class NoDataToExport(ExporterError):
