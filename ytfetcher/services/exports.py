@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from ytfetcher.models.channel import ChannelData
 from ytfetcher.exceptions import NoDataToExport, OutputDirectoryNotFoundError
-from typing import Literal, Sequence
+from typing import Literal, Sequence, get_args
 import json
 import csv
 import logging
@@ -11,6 +11,8 @@ import warnings
 logger = logging.getLogger(__name__)
 
 METEDATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
+
+DEFAULT_METADATA = get_args(METEDATA_LIST)
 
 class Exporter:
     """
@@ -61,7 +63,7 @@ class BaseExporter(ABC):
         NoDataToExport: If no data is provided.
         OutputDirectoryNotFoundError: If specified path cannot found.
     """
-    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METEDATA_LIST] = METEDATA_LIST.__args__, timing: bool = True, filename: str = 'data', output_dir: str = None):
+    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METEDATA_LIST] = DEFAULT_METADATA, timing: bool = True, filename: str = 'data', output_dir: str | None = None):
         self.channel_data = channel_data
         self.allowed_metadata_list = allowed_metadata_list
         self.timing = timing
@@ -90,7 +92,7 @@ class TXTExporter(BaseExporter):
     """
     Exports the data as a plain text file, including transcript and metadata.
     """
-    def __init__(self, channel_data, allowed_metadata_list = METEDATA_LIST.__args__, timing = True, filename = 'data', output_dir = None):
+    def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
     
     def write(self):
@@ -113,7 +115,7 @@ class JSONExporter(BaseExporter):
     """
     Exports the data as a structured JSON file.
     """
-    def __init__(self, channel_data, allowed_metadata_list = METEDATA_LIST.__args__, timing = True, filename = 'data', output_dir = None):
+    def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
     
     def write(self):
@@ -141,7 +143,7 @@ class CSVExporter(BaseExporter):
     """
     Exports the data as a flat CSV file, row-per-transcript-entry.
     """
-    def __init__(self, channel_data, allowed_metadata_list = METEDATA_LIST.__args__, timing = True, filename = 'data', output_dir = None):
+    def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
     
     def write(self):
