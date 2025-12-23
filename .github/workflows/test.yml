@@ -23,7 +23,10 @@ jobs:
 
       - name: Install dependencies
         run: poetry install
-
+        
+      - name: Install type stubs
+        run: poetry run mypy --install-types
+        
       - name: Run Mypy
         run: poetry run mypy ytfetcher
 
