@@ -1,28 +1,33 @@
 name: CI
-on: push
+
+on: 
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
-  ci:
+  quality-and-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Python
-        uses: actions/setup-python@v4
 
       - name: Install poetry
-        uses: abatilo/actions-poetry@v4
-      - name: Setup a local virtual environment (if no poetry.toml file)
-        run: |
-          poetry config virtualenvs.create true --local
-          poetry config virtualenvs.in-project true --local
-      - uses: actions/cache@v3
-        name: Define a cache for the virtual environment based on the dependencies lock file
+        run: pipx install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          path: ./.venv
-          key: venv-${{ hashFiles('poetry.lock') }}
-      - name: Install the project dependencies
+          python-version: '3.11'
+          cache: 'poetry'
+
+      - name: Install dependencies
         run: poetry install
-      - name: Run the automated tests (for example)
+
+      - name: Run Mypy
+        run: poetry run mypy ytfetcher
+
+      - name: Run Tests
         run: poetry run pytest --cov --cov-branch --cov-report=xml
 
       - name: Upload coverage reports to Codecov
