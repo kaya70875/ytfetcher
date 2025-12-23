@@ -7,6 +7,7 @@ import pytest
 @pytest.fixture
 def sample_snippet():
     return DLSnippet(
+        video_id='videoid1',
         title="channelname1",
         description="description1",
         url='https://youtube.com/videoid',
