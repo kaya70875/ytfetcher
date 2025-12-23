@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+      - name: Run Mypy
+        run: poetry run mypy ytfetcher
+
       - name: Run Tests
         run: poetry run pytest --cov --cov-branch --cov-report=xml
 
