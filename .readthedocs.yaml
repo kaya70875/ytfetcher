@@ -1,21 +1,17 @@
-# .readthedocs.yaml
 version: 2
 
-# Build configuration for Read the Docs
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.11"   # Match your project’s Python version
+    python: "3.11"
 
 sphinx:
-  configuration: docs/conf.py   # Path to your Sphinx conf.py
+  configuration: docs/conf.py
 
-# Optionally build PDF & ePub
 formats:
   - pdf
   - epub
 
-# Install your package and dependencies
 python:
   install:
     - method: pip
