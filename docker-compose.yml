@@ -1,0 +1,6 @@
+services:
+  ytfetcher:
+    build: .
+    volumes:
+      - .:/app
+    network_mode: "host"

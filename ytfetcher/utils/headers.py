@@ -42,7 +42,6 @@ def get_realistic_headers() -> dict:
         "Upgrade-Insecure-Requests": "1",
         "Accept-Encoding": "gzip, deflate",
 
-        # Optional but can help mimic modern Chrome/Firefox more
         "Sec-Fetch-Dest": random.choice(SEC_FETCH_DEST),
         "Sec-Fetch-Mode": random.choice(SEC_FETCH_MODE),
         "Sec-Fetch-Site": random.choice(SEC_FETCH_SITE),

@@ -11,7 +11,7 @@ class DLSnippet(BaseModel):
     title: str
     description: str | None
     url: str
-    video_id: str | None = None
+    video_id: str
     duration: float | None = None
     view_count: int | None = None
     thumbnails: list[dict] | None = None

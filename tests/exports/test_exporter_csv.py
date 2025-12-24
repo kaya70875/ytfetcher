@@ -1,6 +1,6 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open
-from ytfetcher.services.exports import Exporter
+from ytfetcher.services.exports import CSVExporter
 from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
 import csv
@@ -8,6 +8,7 @@ import csv
 @pytest.fixture
 def sample_snippet():
     return DLSnippet(
+        video_id='videoid1',
         title="channelname1",
         description="description1",
         url='https://youtube.com/videoid',
@@ -36,8 +37,8 @@ def test_export_with_csv_writes_file_with_correct_structure(mocker: MockerFixtur
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response)
-    exporter.export_as_csv()
+    exporter = CSVExporter(mock_transcript_response)
+    exporter.write()
 
     assert m.call_args[0][0].name == 'data.csv'
 
@@ -54,8 +55,8 @@ def test_export_with_csv_creates_file_with_correct_custom_name(mocker: MockerFix
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response, filename='testfile')
-    exporter.export_as_csv()
+    exporter = CSVExporter(mock_transcript_response, filename='testfile')
+    exporter.write()
 
     assert m.call_args[0][0].name == 'testfile.csv'
 
@@ -63,8 +64,8 @@ def test_export_with_csv_custom_metadata(mocker: MockerFixture, mock_transcript_
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response, allowed_metadata_list=['title'], timing=False)
-    exporter.export_as_csv()
+    exporter = CSVExporter(mock_transcript_response, allowed_metadata_list=['title'], timing=False)
+    exporter.write()
 
     handle = m()
     content = get_written_csv_content(handle)
@@ -85,7 +86,7 @@ def test_csv_special_characters(mocker: MockerFixture, sample_snippet):
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
     
-    Exporter(exotic_data).export_as_csv()
+    CSVExporter(exotic_data).write()
     
     content = ''.join(call[1][0] for call in m().write.mock_calls)
     assert '"Tést,Chárs"' in content  # Should be properly quoted
@@ -93,6 +94,6 @@ def test_csv_special_characters(mocker: MockerFixture, sample_snippet):
 # -- Integration Tests --
 
 def test_creates_real_file(tmp_path, mock_transcript_response):
-    exporter = Exporter(mock_transcript_response, output_dir=tmp_path)
-    exporter.export_as_csv()
+    exporter = CSVExporter(mock_transcript_response, output_dir=tmp_path)
+    exporter.write()
     assert (tmp_path / 'data.csv').exists()

@@ -2,8 +2,9 @@ import argparse
 import asyncio
 import ast
 import sys
+from typing import Union
 from ytfetcher._core import YTFetcher
-from ytfetcher.services.exports import Exporter, METEDATA_LIST
+from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
@@ -12,10 +13,16 @@ from ytfetcher.utils.log import log
 from argparse import ArgumentParser
 
 class YTFetcherCLI:
+    """
+    YTFetcherCLI
+    A command-line interface for fetching and exporting YouTube transcripts.
+    This class handles the orchestration of transcript fetching operations from various YouTube sources
+    (channels, videos, or playlists) and manages the export of fetched data in multiple formats.
+    """
     def __init__(self, args: argparse.Namespace):
         self.args = args
     
-    def _initialize_proxy_config(self):
+    def _initialize_proxy_config(self) -> Union[WebshareProxyConfig, GenericProxyConfig, None]:
         proxy_config = None
 
         if self.args.http_proxy != "" or self.args.https_proxy != "":
@@ -35,15 +42,15 @@ class YTFetcherCLI:
             
         return proxy_config
 
-    def _initialize_http_config(self):
+    def _initialize_http_config(self) -> HTTPConfig:
         if self.args.http_timeout or self.args.http_headers:
             http_config = HTTPConfig(timeout=self.args.http_timeout, headers=self.args.http_headers)
             return http_config
 
         return HTTPConfig()
     
-    async def _run_fetcher(self, factory_method: YTFetcher, **kwargs):
-        fetcher: YTFetcher = factory_method(
+    async def _run_fetcher(self, factory_method: type[YTFetcher], **kwargs) -> None:
+        fetcher = factory_method(
             http_config=self._initialize_http_config(),
             proxy_config=self._initialize_proxy_config(),
             **kwargs
@@ -68,8 +75,26 @@ class YTFetcherCLI:
         self._export(data)
         log(f"Data exported successfully as {self.args.format}", level='DONE')
     
-    def _export(self, channel_data: ChannelData):
-        exporter = Exporter(
+    @staticmethod
+    def _get_exporter(format_type: str) -> type[BaseExporter]:
+        """
+        Factory to return the correct Exporter class based on string.
+        """
+        registry: dict[str, type[BaseExporter]] = {
+            "txt": TXTExporter,
+            "json": JSONExporter,
+            'csv': CSVExporter 
+        }
+
+        exporter_class = registry.get(format_type.lower())
+        if not exporter_class:
+            raise ValueError(f'Unsupported format {format_type}')
+        
+        return exporter_class
+
+    def _export(self, channel_data: list[ChannelData]) -> None:
+        exporter_class = self._get_exporter(self.args.format)
+        exporter = exporter_class(
             channel_data=channel_data,
             output_dir=self.args.output_dir,
             filename=self.args.filename,
@@ -77,15 +102,11 @@ class YTFetcherCLI:
             timing=not self.args.no_timing
         )
 
-        method = getattr(exporter, f'export_as_{self.args.format}', None)
-        if not method:
-            raise ValueError(f"Unsupported format: {self.args.format}")
-        
-        method()
+        exporter.write()
     
     async def run(self):
-        try:
-            if self.args.command == 'from_channel':
+        match self.args.command:
+            case 'from_channel':
                 log(f'Fetching transcripts from channel: {self.args.channel_handle}')
                 await self._run_fetcher(
                     YTFetcher.from_channel,
@@ -95,7 +116,7 @@ class YTFetcherCLI:
                     manually_created=self.args.manually_created,
                 )
             
-            elif self.args.command == 'from_video_ids':
+            case 'from_video_ids':
                 log(f'Fetching transcripts from video ids: {self.args.video_ids}')
                 await self._run_fetcher(
                     YTFetcher.from_video_ids,
@@ -104,7 +125,7 @@ class YTFetcherCLI:
                     manually_created=self.args.manually_created
                 )
             
-            elif self.args.command == 'from_playlist_id':
+            case 'from_playlist_id':
                 log(f"Fetching transcripts from playlist id: {self.args.playlist_id}")
                 await self._run_fetcher(
                     YTFetcher.from_playlist_id,
@@ -113,10 +134,8 @@ class YTFetcherCLI:
                     manually_created=self.args.manually_created
                 )
 
-            else:
-                raise ValueError(f"Unknown method: {self.args.method}")
-        except Exception as e:
-            log(f'Error: {e}', level='ERROR')
+            case _:
+                raise ValueError(f"Unknown method: {self.args.command}")
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch YouTube transcripts for a channel")
@@ -154,7 +173,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     """
     parser.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
-    parser.add_argument("--metadata", nargs="+", default=METEDATA_LIST.__args__, choices=METEDATA_LIST.__args__, help="Allowed metadata")
+    parser.add_argument("--metadata", nargs="+", default=DEFAULT_METADATA, choices=DEFAULT_METADATA, help="Allowed metadata")
     parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     parser.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")

@@ -38,6 +38,13 @@ build-backend = "poetry.core.masonry.api"
 "Repository" = "https://github.com/kaya70875/ytfetcher"
 "Documentation" = "https://github.com/kaya70875/ytfetcher#readme"
 
+[tool.poetry]
+include = ["ytfetcher/py.typed"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+
 [tool.poetry.scripts]
 ytfetcher = "ytfetcher._cli:main"
 
@@ -47,4 +54,6 @@ pytest-mock = "^3.14.1"
 pytest-asyncio = "^1.1.0"
 mypy = "^1.17.0"
 pytest-cov = "^6.2.1"
+types-colorama = "^0.4.15.20250801"
+types-tqdm = "^4.67.0.20250809"
 

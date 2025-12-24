@@ -14,6 +14,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 ## 📚 Table of Contents
 - [Installation](#installation)
 - [Quick CLI Usage](#quick-cli-usage)
+- [Docker Quick Start](#docker-quick-start)
 - [Features](#features)
 - [Basic Usage (Python API)](#basic-usage-python-api)
 - [Using Different Fetchers](#using-different-fetchers)
@@ -44,6 +45,20 @@ pip install ytfetcher
 Fetch 50 video transcripts + metadata from a channel and save as JSON:
 ```bash
 ytfetcher from_channel -c TheOffice -m 50 -f json
+```
+
+---
+
+## Docker Quick Start
+The recommended way to run or develop YTFetcher is using Docker to ensure a clean, stable environment without needing local Python or dependency management.
+
+```bash
+docker-compose build
+```
+
+Use `docker-compose run` to execute your desired command inside the container.
+```bash
+docker-compose run ytfetcher poetry run ytfetcher from_channel -c TheOffice -m 20 -f json
 ```
 
 ---
@@ -128,6 +143,7 @@ ChannelData(
         )
     ]
     metadata=DLSnippet(
+        video_id='video1',
         title='VideoTitle',
         description='VideoDescription',
         url='https://youtu.be/video1',
@@ -211,14 +227,14 @@ ytfetcher from_channel -c TEDx -f csv --manually-created
 
 ## Exporting
 
-Use the `Exporter` class to export `ChannelData` in **csv**, **json**, or **txt**:
+Use the `BaseExporter` class to export `ChannelData` in **csv**, **json**, or **txt**:
 
 ```python
-from ytfetcher.services import Exporter
+from ytfetcher.services import JSONExporter #OR you can import other exporters: TXTExporter, CSVExporter
 
 channel_data = asyncio.run(fetcher.fetch_youtube_data())
 
-exporter = Exporter(
+exporter = JSONExporter(
     channel_data=channel_data,
     allowed_metadata_list=['title'],   # You can customize this
     timing=True,                       # Include transcript start/duration
@@ -226,7 +242,7 @@ exporter = Exporter(
     output_dir='./exports'             # Optional output directory
 )
 
-exporter.export_as_json()  # or .export_as_txt(), .export_as_csv()
+exporter.write()
 ```
 
 ### Exporting With CLI
@@ -236,7 +252,7 @@ You can also specify arguments when exporting which allows you to decide whether
 ytfetcher from_channel -c TheOffice -m 20 -f json --no-timing --metadata title description
 ```
 
-This will **exclude** `timings` from transcripts and keep only `title` and `description` as metadata.
+This command will **exclude** `timings` from transcripts and keep only `title` and `description` as metadata.
 
 ---
 
@@ -274,19 +290,19 @@ print(data)
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import GenericProxyConfig
+from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=3,
-    proxy_config=GenericProxyConfig()
+    proxy_config=GenericProxyConfig() | WebshareProxyConfig()
 )
 ```
 
 ---
 
 ## Advanced HTTP Configuration (Optional)
-`YTfetcher` already uses custom headers for mimic real browser behavior but if want to change it you can use a custom `HTTPConfig` class.
+`YTfetcher` already uses custom headers for mimic real browser behavior but if you want to change it, you can use a custom `HTTPConfig` class.
 
 ```python
 from ytfetcher import YTFetcher
@@ -357,6 +373,15 @@ poetry install
 
 ```bash
 poetry run pytest
+```
+
+---
+
+## Running Type Check
+You should be passing all type checks to contribute `ytfetcher`.
+
+```bash
+poetry run mypy ytfetcher
 ```
 
 ---

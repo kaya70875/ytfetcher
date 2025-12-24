@@ -1,12 +1,13 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open, call
-from ytfetcher.services.exports import Exporter
+from ytfetcher.services.exports import TXTExporter
 from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
 
 @pytest.fixture
 def sample_snippet():
     return DLSnippet(
+        video_id='videoid1',
         title="channelname1",
         description="description1",
         url='https://youtube.com/videoid',
@@ -28,8 +29,8 @@ def test_export_with_txt_writes_file_with_correct_structure(mocker: MockerFixtur
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response)
-    exporter.export_as_txt()
+    exporter = TXTExporter(mock_transcript_response)
+    exporter.write()
 
     # Verify the filename only (ignore full path)
     assert m.call_args[0][0].name == 'data.txt'
@@ -54,8 +55,8 @@ def test_export_with_txt_creates_file_with_correct_custom_name(mocker: MockerFix
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response, filename='testfile')
-    exporter.export_as_txt()
+    exporter = TXTExporter(mock_transcript_response, filename='testfile')
+    exporter.write()
 
     assert m.call_args[0][0].name == 'testfile.txt'
 
@@ -63,8 +64,8 @@ def test_export_with_txt_custom_metadata(mocker: MockerFixture, mock_transcript_
     m = mock_open()
     mocker.patch('ytfetcher.services.exports.open', m)
 
-    exporter = Exporter(mock_transcript_response, allowed_metadata_list=['title'], timing=False)
-    exporter.export_as_txt()
+    exporter = TXTExporter(mock_transcript_response, allowed_metadata_list=['title'], timing=False)
+    exporter.write()
 
     expected_calls = [
         call.write('Transcript for video1:\n'),
@@ -79,6 +80,6 @@ def test_export_with_txt_custom_metadata(mocker: MockerFixture, mock_transcript_
 # -- Integration Tests --
 
 def test_creates_real_file(tmp_path, mock_transcript_response):
-    exporter = Exporter(mock_transcript_response, output_dir=tmp_path)
-    exporter.export_as_txt()
+    exporter = TXTExporter(mock_transcript_response, output_dir=tmp_path)
+    exporter.write()
     assert (tmp_path / 'data.txt').exists()
