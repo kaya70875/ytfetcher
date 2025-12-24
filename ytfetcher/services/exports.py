@@ -114,6 +114,7 @@ class TXTExporter(BaseExporter):
                 if data.comments:
                     for comment in data.comments:
                         file.write(f"Comments for {data.video_id}\nComment --> {comment.text}\nAuthor --> {comment.author}\nLikes --> {comment.like_count}\nTime Text --> {comment.time_text}")
+                    file.write("\n")
 
 class JSONExporter(BaseExporter):
     """
