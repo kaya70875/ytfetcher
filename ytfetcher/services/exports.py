@@ -173,7 +173,7 @@ class CSVExporter(BaseExporter):
         fieldnames = ['index', 'video_id', 'text']
         fieldnames += t if self.timing else []
         fieldnames += metadata if any(d.metadata for d in self.channel_data) else []
-        fieldnames += comments if self.channel_data[0].comments is not None else []
+        fieldnames += comments if any(d.comments for d in self.channel_data) else []
 
         with open(output_path, 'w', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
