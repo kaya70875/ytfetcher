@@ -143,6 +143,7 @@ ChannelData(
         )
     ]
     metadata=DLSnippet(
+        video_id='video1',
         title='VideoTitle',
         description='VideoDescription',
         url='https://youtu.be/video1',
@@ -251,7 +252,7 @@ You can also specify arguments when exporting which allows you to decide whether
 ytfetcher from_channel -c TheOffice -m 20 -f json --no-timing --metadata title description
 ```
 
-This will **exclude** `timings` from transcripts and keep only `title` and `description` as metadata.
+This command will **exclude** `timings` from transcripts and keep only `title` and `description` as metadata.
 
 ---
 
@@ -289,19 +290,19 @@ print(data)
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import GenericProxyConfig
+from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=3,
-    proxy_config=GenericProxyConfig()
+    proxy_config=GenericProxyConfig() | WebshareProxyConfig()
 )
 ```
 
 ---
 
 ## Advanced HTTP Configuration (Optional)
-`YTfetcher` already uses custom headers for mimic real browser behavior but if want to change it you can use a custom `HTTPConfig` class.
+`YTfetcher` already uses custom headers for mimic real browser behavior but if you want to change it, you can use a custom `HTTPConfig` class.
 
 ```python
 from ytfetcher import YTFetcher
@@ -372,6 +373,15 @@ poetry install
 
 ```bash
 poetry run pytest
+```
+
+---
+
+## Running Type Check
+You should be passing all type checks to contribute `ytfetcher`.
+
+```bash
+poetry run mypy ytfetcher
 ```
 
 ---
