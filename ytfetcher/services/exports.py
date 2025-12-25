@@ -194,6 +194,7 @@ class CSVExporter(BaseExporter):
                         row = {
                             **base_info,
                             **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                            'text': transcript.text,
                             'comment': comment.text,
                             'comment_author': comment.author,
                             'comment_like_count': comment.like_count,
