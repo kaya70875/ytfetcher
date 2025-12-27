@@ -105,11 +105,12 @@ class TXTExporter(BaseExporter):
                     if data.metadata:
                         file.write(f'{metadata} --> {getattr(data.metadata, metadata)}\n')
                 
-                for transcript in data.transcripts:
-                    if self.timing:
-                        file.write(f"{transcript.start} --> {transcript.start + transcript.duration}\n")
-                    file.write(f"{transcript.text}\n")
-                file.write("\n")
+                if data.transcripts:
+                    for transcript in data.transcripts:
+                        if self.timing:
+                            file.write(f"{transcript.start} --> {transcript.start + transcript.duration}\n")
+                        file.write(f"{transcript.text}\n")
+                    file.write("\n")
 
                 if data.comments:
                     for comment in data.comments:
@@ -131,16 +132,17 @@ class JSONExporter(BaseExporter):
             for data in self.channel_data:
                 video_data = {
                     "video_id": data.video_id,
-                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
-                    
-                    "transcript": [
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
+                }
+
+                if data.transcripts:
+                    video_data['transcript'] = [
                         {
                             **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
                             "text": transcript.text
                         }
                         for transcript in data.transcripts
                     ]
-                }
 
                 if data.comments:
                     video_data['comments'] = [
@@ -186,33 +188,38 @@ class CSVExporter(BaseExporter):
                 base_info = {
                     'index': i,
                     'video_id': data.video_id,
-                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
                 }
 
                 if data.comments:
-                    for transcript, comment in zip(data.transcripts, data.comments):
+                    for comment in data.comments:
                         row = {
                             **base_info,
-                            **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
-                            'text': transcript.text,
                             'comment': comment.text,
                             'comment_author': comment.author,
                             'comment_like_count': comment.like_count,
                             'comment_time_text': comment.time_text
                         }
 
+                        if data.transcripts:
+                            for transcript in data.transcripts:
+                                row.update({
+                                    **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                                    'text': transcript.text,
+                                })  
+
                         writer.writerow(row)
                         i += 1
+                if data.transcripts:
+                    for transcript in data.transcripts:
+                        row = {
+                            **base_info,
+                            **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                            'text': transcript.text
+                        }
 
-                for transcript in data.transcripts:
-                    row = {
-                        **base_info,
-                        **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
-                        'text': transcript.text
-                    }
-
-                    writer.writerow(row)
-                    i += 1
+                        writer.writerow(row)
+                        i += 1
                 
     def _initialize_output_path(self, export_type: Literal['txt', 'json', 'csv'] = 'txt') -> Path:
         self.output_dir.mkdir(parents=True, exist_ok=True)
