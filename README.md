@@ -5,7 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/ytfetcher/badge/?version=latest)](https://ytfetcher.readthedocs.io/en/latest/?badge=latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> ⚡ Turn hours of YouTube videos into clean, structured text in minutes.
+> ⚡ Build structured YouTube datasets for NLP, ML, sentiment analysis & RAG in minutes.
 
 A python tool for fetching thousands of videos fast from a Youtube channel along with structured transcripts and additional metadata. Export data easily as CSV, TXT, or JSON.
 
