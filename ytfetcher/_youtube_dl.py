@@ -49,19 +49,10 @@ class CommentFetcher:
             }
         }
                 
-        with yt_dlp.YoutubeDL(ydl_opts_deep) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts_deep) as ydl: #type: ignore[arg-type]
             info_dict = ydl.extract_info(video_url, download=False)
-            data = info_dict.get('comments', None) or []
-            return [
-                Comment(
-                id=comment.get('id'),
-                author=comment.get('author'),
-                like_count=comment.get('like_count'),
-                text=comment.get('text'),
-                time_text=comment.get('_time_text')
-                )
-                for comment in data
-            ]
+            data = cast(list[dict[str, Any]], info_dict.get('comments', None) or [])
+            return [Comment.model_validate(comment) for comment in data]
 
 class BaseYoutubeDLFetcher(ABC):
     """
@@ -115,18 +106,7 @@ class BaseYoutubeDLFetcher(ABC):
         Returns:
             list[DLSnippet]: List of structured DLSnippet objects.
         """
-        return [
-            DLSnippet(
-                video_id=entry["id"],
-                title=entry["title"],
-                description=entry["description"],
-                url=entry.get("url") or f"https://youtube.com/watch?v={entry.get('id')}",
-                duration=entry["duration"],
-                view_count=entry["view_count"],
-                thumbnails=entry["thumbnails"],
-            )
-            for entry in entries
-        ]
+        return [DLSnippet.model_validate(entry) for entry in entries]
 
 
 class ChannelFetcher(BaseYoutubeDLFetcher):
