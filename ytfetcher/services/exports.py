@@ -206,6 +206,7 @@ class CSVExporter(BaseExporter):
                     'index': i,
                     'video_id': data.video_id,
                     **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
                 }
 
                 self._write_comments(data=data, writer=writer, base_info=base_info)
