@@ -48,7 +48,7 @@ def test_export_arguments():
     assert cli.args.output_dir == 'C:/Users/user1/Desktop'
     assert cli.args.filename == 'testing'
 
-def test_comment_argument():
+def test_comments_argument():
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
@@ -61,7 +61,20 @@ def test_comment_argument():
 
     assert cli.args.comments == 5
 
-def test_comment_argument_default():
+def test_comments_only_argument():
+    parser = create_parser()
+    args = parser.parse_args([
+        "from_channel",
+        "-c", "TestChannel",
+        "-f", "json",
+        "--comments-only", "5"
+    ])
+
+    cli = YTFetcherCLI(args=args)
+
+    assert cli.args.comments_only == 5
+
+def test_comments_argument_default():
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
