@@ -6,9 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+- Added **comment fetching** feature. You can now **fetch comments alongside with transcript data** or fetch **comments only**.
 - Added `Dockerfile` and `docker-compose.yml` for setup docker enviroment.
 
 ### Changed
+- `Exporter` changed to subclasses; `JSONExporter`, `TXTExporter` and `CSVExporter` for better control over every export option.
+- Changed some log messages to be more professional and clear.
 
 ### Fixed
 - Fix KeyError for missing 'url' in yt_dlp entry when fetching by video_ids.
