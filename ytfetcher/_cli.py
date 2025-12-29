@@ -56,19 +56,22 @@ class YTFetcherCLI:
             **kwargs
         )
 
-        async def get_data(comments: int):
+        async def get_data(comments_arg: int, comments_only_arg: int) -> list[ChannelData]:
             """
             Decides correct method and returns data based on `comments` argument.
             
             :param comments: Whether comments arg is None or not.
             :type comments: bool
             """
-            if comments > 0:
+            if comments_arg > 0:
                 return await fetcher.fetch_with_comments(max_comments=self.args.comments)
+
+            elif comments_only_arg > 0:
+                return await fetcher.fetch_comments(max_comments=self.args.comments_only)
 
             return await fetcher.fetch_youtube_data()
 
-        data = await get_data(comments=self.args.comments)
+        data = await get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
         log('Fetched all transcripts.', level='DONE')
         if self.args.print:
             print(data)
@@ -177,7 +180,8 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     parser.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
-    parser.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata.")
+    parser.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
+    parser.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
     parser.add_argument("--print", action="store_true", help="Print data to console.")
     parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
