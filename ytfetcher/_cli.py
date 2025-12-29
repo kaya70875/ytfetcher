@@ -110,7 +110,7 @@ class YTFetcherCLI:
     async def run(self):
         match self.args.command:
             case 'from_channel':
-                log(f'Fetching transcripts from channel: {self.args.channel_handle}')
+                log(f'Starting to fetch from channel: {self.args.channel_handle}')
                 await self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel_handle,
@@ -120,7 +120,7 @@ class YTFetcherCLI:
                 )
             
             case 'from_video_ids':
-                log(f'Fetching transcripts from video ids: {self.args.video_ids}')
+                log(f'Starting to fetch from video ids: {self.args.video_ids}')
                 await self._run_fetcher(
                     YTFetcher.from_video_ids,
                     video_ids=self.args.video_ids,
@@ -129,7 +129,7 @@ class YTFetcherCLI:
                 )
             
             case 'from_playlist_id':
-                log(f"Fetching transcripts from playlist id: {self.args.playlist_id}")
+                log(f"Starting to fetch from playlist id: {self.args.playlist_id}")
                 await self._run_fetcher(
                     YTFetcher.from_playlist_id,
                     playlist_id=self.args.playlist_id,
