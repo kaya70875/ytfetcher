@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Fixed
+
+---
+
+## [1.5] - 2025-12-31
+### Added
 - Added **comment fetching** feature. You can now **fetch comments alongside with transcript data** or fetch **comments only**.
 - Added `Dockerfile` and `docker-compose.yml` for setup docker enviroment.
 
