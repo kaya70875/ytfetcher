@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open
 from ytfetcher.services.exports import JSONExporter
-from ytfetcher.models.channel import ChannelData, DLSnippet
+from ytfetcher.models.channel import ChannelData, DLSnippet, Comment
 import pytest
 import json
 
@@ -17,12 +17,35 @@ def sample_snippet():
     )
 
 @pytest.fixture
+def sample_comments():
+    return [
+        Comment(
+        id='commentid',
+        text='This is a comment',
+        like_count=20,
+        author='author1',
+        time_text='01.01.2025'
+        )
+    ]
+
+@pytest.fixture
 def mock_transcript_response(sample_snippet):
     return [
         ChannelData(
             video_id="video1",
             transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
             metadata=sample_snippet
+        )
+    ]
+
+@pytest.fixture
+def mock_transcript_response_with_comments(sample_snippet, sample_comments):
+    return [
+        ChannelData(
+            video_id="video1",
+            transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
+            metadata=sample_snippet,
+            comments=sample_comments
         )
     ]
 
@@ -61,6 +84,41 @@ def test_export_with_json_writes_file_with_correct_structure(mocker: MockerFixtu
                 "start": 1.11,
                 "duration": 2.22,
                 "text": "text1"
+            }
+        ]
+    }]
+
+def test_export_with_json_writes_comments(mocker: MockerFixture, mock_transcript_response_with_comments):
+    m = mock_open()
+    mocker.patch('ytfetcher.services.exports.open', m)
+
+    exporter = JSONExporter(mock_transcript_response_with_comments)
+    exporter.write()
+
+    handle = m()
+    written_json = get_written_json_content(handle)
+
+    assert written_json == [{
+        "video_id": "video1",
+        "title": "channelname1",
+        "description": "description1",
+        "url": "https://youtube.com/videoid",
+        "duration": 25.4,
+        "view_count": 2000,
+        "thumbnails": None,
+        "transcript": [
+            {
+                "start": 1.11,
+                "duration": 2.22,
+                "text": "text1"
+            }
+        ],
+        "comments": [
+            {
+                "comment": "This is a comment",
+                "author": "author1",
+                "time_text": "01.01.2025",
+                "like_count": 20
             }
         ]
     }]

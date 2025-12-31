@@ -1,6 +1,7 @@
 from ytfetcher._youtube_dl import get_fetcher
 from ytfetcher.models.channel import ChannelData, DLSnippet
 from ytfetcher._transcript_fetcher import TranscriptFetcher
+from ytfetcher._youtube_dl import CommentFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
 from typing import Iterable
@@ -36,7 +37,7 @@ class YTFetcher:
         proxy_config: ProxyConfig | None = None,
         http_config: HTTPConfig = HTTPConfig(),
         languages: Iterable[str] = ("en", ),
-        manually_created: bool = False
+        manually_created: bool = False,
         ):
         self.http_config = http_config
         self.proxy_config = proxy_config
@@ -127,6 +128,53 @@ class YTFetcher:
             transcript.metadata = snippet if transcript.transcripts else None
         
         return transcripts
+    
+    async def fetch_with_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
+        """
+        Fetches comments, addition to transcripts and metadata.
+
+        Args:
+            max_comments: Max number of comments to fetch.
+            max_workers: Max number of workers for threads.
+
+        Returns:
+            list[ChannelData]: A list objects containing transcript text, metadata and comments.
+        """
+
+        transcripts = await self.fetcher.fetch()
+        
+        commf = CommentFetcher(max_comments=max_comments, max_workers=max_workers)
+        full_comments = commf.fetch(video_ids=self._get_video_ids())
+
+        for transcript, snippet, comments in zip(transcripts, self.snippets, full_comments):
+            transcript.metadata = snippet if transcript.transcripts else None
+            transcript.comments = comments
+        
+        return transcripts
+    
+    async def fetch_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
+        """
+        Fetches comments for all videos.
+
+        Args:
+            max_comments: Max number of comments to fetch.
+            max_workers: Max number of workers for threads.
+
+        Returns:
+            list[ChannelData]: A list of objects containing only comments.
+        """
+        commf = CommentFetcher(max_comments=max_comments, max_workers=max_workers)
+        full_comments = commf.fetch(video_ids=self._get_video_ids())
+
+        return [
+            ChannelData(
+                video_id=snippet.video_id,
+                transcripts=None,
+                metadata=snippet,
+                comments=comments
+            )
+            for snippet, comments in zip(self.snippets, full_comments)
+        ]
     
     async def fetch_transcripts(self) -> list[ChannelData]:
         """

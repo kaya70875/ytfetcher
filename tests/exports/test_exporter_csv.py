@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open
 from ytfetcher.services.exports import CSVExporter
-from ytfetcher.models.channel import ChannelData, DLSnippet
+from ytfetcher.models.channel import ChannelData, DLSnippet, Comment
 import pytest
 import csv
 
@@ -17,12 +17,35 @@ def sample_snippet():
     )
 
 @pytest.fixture
+def sample_comments():
+    return [
+        Comment(
+        id='commentid',
+        text='This is a comment',
+        like_count=20,
+        author='author1',
+        time_text='01.01.2025'
+        )
+    ]
+
+@pytest.fixture
 def mock_transcript_response(sample_snippet):
     return [
         ChannelData(
             video_id="video1",
             transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
             metadata=sample_snippet
+        )
+    ]
+
+@pytest.fixture
+def mock_transcript_response_with_comments(sample_snippet, sample_comments):
+    return [
+        ChannelData(
+            video_id="video1",
+            transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
+            metadata=sample_snippet,
+            comments=sample_comments
         )
     ]
 
@@ -50,6 +73,22 @@ def test_export_with_csv_writes_file_with_correct_structure(mocker: MockerFixtur
 
     assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
     assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid', '2.22', '2000', '']
+
+def test_export_with_csv_writes_comments(mocker: MockerFixture, mock_transcript_response_with_comments):
+    m = mock_open()
+    mocker.patch('ytfetcher.services.exports.open', m)
+
+    exporter = CSVExporter(mock_transcript_response_with_comments)
+    exporter.write()
+
+    handle = m()
+
+    content = get_written_csv_content(handle)
+    reader = csv.reader(content.splitlines())
+    rows = list(reader)
+
+    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url', 'duration', 'view_count', 'thumbnails', 'comment', 'comment_author', 'comment_like_count', 'comment_time_text']
+    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid', '2.22', '2000', '', 'This is a comment', 'author1', '20', '01.01.2025']
 
 def test_export_with_csv_creates_file_with_correct_custom_name(mocker: MockerFixture, mock_transcript_response):
     m = mock_open()

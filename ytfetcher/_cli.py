@@ -55,7 +55,23 @@ class YTFetcherCLI:
             proxy_config=self._initialize_proxy_config(),
             **kwargs
         )
-        data = await fetcher.fetch_youtube_data()
+
+        async def get_data(comments_arg: int, comments_only_arg: int) -> list[ChannelData]:
+            """
+            Decides correct method and returns data based on `comments` argument.
+            
+            :param comments: Whether comments arg is None or not.
+            :type comments: bool
+            """
+            if comments_arg > 0:
+                return await fetcher.fetch_with_comments(max_comments=self.args.comments)
+
+            elif comments_only_arg > 0:
+                return await fetcher.fetch_comments(max_comments=self.args.comments_only)
+
+            return await fetcher.fetch_youtube_data()
+
+        data = await get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
         log('Fetched all transcripts.', level='DONE')
         if self.args.print:
             print(data)
@@ -94,17 +110,17 @@ class YTFetcherCLI:
     async def run(self):
         match self.args.command:
             case 'from_channel':
-                log(f'Fetching transcripts from channel: {self.args.channel_handle}')
+                log(f'Starting to fetch from channel: {self.args.channel_handle}')
                 await self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel_handle,
                     max_results=self.args.max_results,
                     languages=self.args.languages,
-                    manually_created=self.args.manually_created
+                    manually_created=self.args.manually_created,
                 )
             
             case 'from_video_ids':
-                log(f'Fetching transcripts from video ids: {self.args.video_ids}')
+                log(f'Starting to fetch from video ids: {self.args.video_ids}')
                 await self._run_fetcher(
                     YTFetcher.from_video_ids,
                     video_ids=self.args.video_ids,
@@ -113,7 +129,7 @@ class YTFetcherCLI:
                 )
             
             case 'from_playlist_id':
-                log(f"Fetching transcripts from playlist id: {self.args.playlist_id}")
+                log(f"Starting to fetch from playlist id: {self.args.playlist_id}")
                 await self._run_fetcher(
                     YTFetcher.from_playlist_id,
                     playlist_id=self.args.playlist_id,
@@ -164,6 +180,8 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     parser.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
+    parser.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
+    parser.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
     parser.add_argument("--print", action="store_true", help="Print data to console.")
     parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")

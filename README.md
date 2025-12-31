@@ -21,6 +21,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Retreive Different Languages](#retreive-different-languages)
 - [Fetching Only Manually Created Transcripts](#fetching-only-manually-created-transcripts)
 - [Exporting](#exporting)
+- [Comments](#Fetching-Comments)
 - [Other Methods](#other-methods)
 - [Proxy Configuration](#proxy-configuration)
 - [Advanced HTTP Configuration (Optional)](#advanced-http-configuration-optional)
@@ -90,6 +91,7 @@ options:
 ## Features
 - Fetch full **transcripts** from a YouTube channel.
 - Get video **metadata: title, description, thumbnails, published date**.
+- Fetch **comments** in bulk.
 - Async support for **high performance**.
 - **Export** fetched data as txt, csv or json.
 - **CLI** support.
@@ -230,7 +232,7 @@ ytfetcher from_channel -c TEDx -f csv --manually-created
 Use the `BaseExporter` class to export `ChannelData` in **csv**, **json**, or **txt**:
 
 ```python
-from ytfetcher.services import JSONExporter #OR you can import other exporters: TXTExporter, CSVExporter
+from ytfetcher.services import JSONExporter # OR you can import other exporters: TXTExporter, CSVExporter
 
 channel_data = asyncio.run(fetcher.fetch_youtube_data())
 
@@ -255,6 +257,81 @@ ytfetcher from_channel -c TheOffice -m 20 -f json --no-timing --metadata title d
 This command will **exclude** `timings` from transcripts and keep only `title` and `description` as metadata.
 
 ---
+
+## Fetching Comments
+
+`ytfetcher` allows you fetch comments in bulk with additional metadata and transcripts or just comments alone.
+
+[!NOTE] Performance: Comment fetching is a resource-intensive process. The speed of extraction depends significantly on the user's internet connection and the total volume of comments being retrieved.
+
+### Fetch Comments With Transcripts And Metadata
+
+To fetch comments alongside with transcripts and metadata you can use `fetch_with_comments` method.
+```python
+fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
+
+async def get_channel_data():
+    channel_data_with_comments = await fetcher.fetch_with_comments(max_comments=10)
+```
+
+This will simply fetch **top 10 comments** for every video alongside with transcript data.
+
+Here's an example structure:
+
+```python
+[
+    ChannelData(
+        video_id='id1',
+        transcripts=list[Transcript(...)],
+        metadata=DLSnippet(...),
+        comments=list[Comment(        
+            text='Comment one.',
+            like_count=20,
+            author='@author',
+            time_text='8 days ago'
+        )]
+    )
+]
+```
+
+### Fetch Only Comments
+
+To fetch comments without transcripts you can use `fetch_comments` method.
+```python
+fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
+
+def get_comments() -> list[Comment]:
+    comments = fetcher.fetch_comments(max_comments=20)
+    print(comments)
+```
+
+This will return list of `Comment` like this:
+```python
+[
+    Comment(
+        text='Comment one.',
+        like_count=20,
+        author='@author',
+        time_text='8 days ago'
+    )
+
+    ## OTHER COMMENT OBJECTS...
+]
+```
+
+### Fetching Comments With CLI
+
+Fetching comments in `ytfetcher` with CLI is very easy.
+
+To fetch comments with transcripts you can use `--comments` argument:
+```bash
+ytfetcher from_channel -c TheOffice -m 20 --comments 10 -f json
+```
+
+To fetch only comments with metadata you can use `--comments-only` argument:
+```bash
+ytfetcher from_channel -c TheOffice -m 20 --comments-only 10 -f json
+```
 
 ## Other Methods
 

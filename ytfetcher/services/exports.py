@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from ytfetcher.models.channel import ChannelData
 from ytfetcher.exceptions import NoDataToExport, OutputDirectoryNotFoundError
-from typing import Literal, Sequence, get_args
+from typing import Literal, Sequence, get_args, Any
 import json
 import csv
 import logging
@@ -105,11 +105,26 @@ class TXTExporter(BaseExporter):
                     if data.metadata:
                         file.write(f'{metadata} --> {getattr(data.metadata, metadata)}\n')
                 
-                for transcript in data.transcripts:
-                    if self.timing:
-                        file.write(f"{transcript.start} --> {transcript.start + transcript.duration}\n")
-                    file.write(f"{transcript.text}\n")
-                file.write("\n")
+                
+                self._write_transcripts(file=file, data=data)
+
+                self._write_comments(file=file, data=data)
+    
+    def _write_transcripts(self, file, data: ChannelData) -> None:
+        if not data.transcripts: return
+
+        for transcript in data.transcripts:
+            if self.timing:
+                file.write(f"{transcript.start} --> {transcript.start + transcript.duration}\n")
+            file.write(f"{transcript.text}\n")
+        file.write("\n")
+
+    def _write_comments(self, file, data: ChannelData) -> None:
+        if not data.comments: return
+
+        for comment in data.comments:
+            file.write(f"Comments for {data.video_id}\nComment --> {comment.text}\nAuthor --> {comment.author}\nLikes --> {comment.like_count}\nTime Text --> {comment.time_text}")
+        file.write("\n")
 
 class JSONExporter(BaseExporter):
     """
@@ -122,22 +137,45 @@ class JSONExporter(BaseExporter):
         output_path = self._initialize_output_path(export_type='json')
         export_data = []
 
-        for data in self.channel_data:
-            video_data = {
-                "video_id": data.video_id,
-                **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
-                "transcript": [
-                    {
-                        **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
-                        "text": transcript.text
-                    }
-                    for transcript in data.transcripts
-                ]
-            }
-            export_data.append(video_data)
+        with open(output_path, 'w', encoding='utf-8') as file:
+            for data in self.channel_data:
+                video_data = {
+                    "video_id": data.video_id,
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
+                }
+
+                self._write_transcripts(data=data, video_data=video_data)
+
+                self._write_comments(data=data, video_data=video_data)
+
+                export_data.append(video_data)
 
         with open(output_path, 'w', encoding='utf-8') as file:
             json.dump(export_data, file, indent=2, ensure_ascii=False)
+    
+    def _write_transcripts(self, data: ChannelData, video_data: dict[str, Any]) -> None:
+        if not data.transcripts: return
+
+        video_data['transcript'] = [
+            {
+                **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                "text": transcript.text
+            }
+            for transcript in data.transcripts
+        ]
+    
+    def _write_comments(self, data: ChannelData, video_data: dict[str, Any]) -> None:
+        if not data.comments: return
+
+        video_data['comments'] = [
+            {
+                "comment": comment.text,
+                "author": comment.author,
+                "time_text": comment.time_text,
+                "like_count": comment.like_count
+            }
+            for comment in data.comments
+        ]
 
 class CSVExporter(BaseExporter):
     """
@@ -150,10 +188,12 @@ class CSVExporter(BaseExporter):
         output_path = self._initialize_output_path(export_type='csv')
 
         t = ['start', 'duration']
+        comments = ['comment', 'comment_author', 'comment_like_count', 'comment_time_text']
         metadata = [*self.allowed_metadata_list]
         fieldnames = ['index', 'video_id', 'text']
         fieldnames += t if self.timing else []
         fieldnames += metadata if any(d.metadata for d in self.channel_data) else []
+        fieldnames += comments if any(d.comments for d in self.channel_data) else []
 
         with open(output_path, 'w', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -161,13 +201,49 @@ class CSVExporter(BaseExporter):
 
             i = 0
             for data in self.channel_data:
+
+                base_info = {
+                    'index': i,
+                    'video_id': data.video_id,
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
+                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
+                }
+
+                self._write_comments(data=data, writer=writer, base_info=base_info)
+                i += 1
+
+                self._write_transcripts(data=data, writer=writer, base_info=base_info)
+                i += 1
+                
+    def _write_transcripts(self, data: ChannelData, writer, base_info: dict[str, Any]) -> None:
+        if not data.transcripts: return
+
+        for transcript in data.transcripts:
+            row = {
+                **base_info,
+                **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
+                'text': transcript.text
+            }
+
+            writer.writerow(row)
+    
+    def _write_comments(self, data: ChannelData, writer, base_info: dict[str, Any]) -> None:
+        if not data.comments: return
+        
+        for comment in data.comments:
+            row = {
+                **base_info,
+                'comment': comment.text,
+                'comment_author': comment.author,
+                'comment_like_count': comment.like_count,
+                'comment_time_text': comment.time_text
+            }
+
+            if data.transcripts:
                 for transcript in data.transcripts:
-                    row = {
-                        'index': i,
-                        'video_id': data.video_id,
-                        **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata},
+                    row.update({
                         **({"start": transcript.start, "duration": transcript.duration} if self.timing else {}),
-                        'text': transcript.text
-                    }
-                    writer.writerow(row)
-                    i += 1
+                        'text': transcript.text,
+                    })  
+
+            writer.writerow(row)
