@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 from ytfetcher.models import DLSnippet
 from ytfetcher import YTFetcher
-from ytfetcher.filters import filter_by_title, min_views
+from ytfetcher.filters import filter_by_title, min_views, min_duration
 
 @pytest.fixture
 def sample_snippets():
@@ -22,6 +22,27 @@ def sample_snippets():
         url='https://youtube.com/videoid',
         duration=900,
         view_count=2000
+        )
+    ]
+
+@pytest.fixture
+def sample_missing_snippets():
+    return [
+        DLSnippet(
+        video_id='id1',
+        title="channelname1",
+        description="description1",
+        url='https://youtube.com/videoid',
+        duration=None,
+        view_count=None
+        ),
+        DLSnippet(
+        video_id='id1',
+        title="channelname1",
+        description="description1",
+        url='https://youtube.com/videoid',
+        duration=1000,
+        view_count=None
         )
     ]
 
@@ -59,3 +80,20 @@ def test_filter_snippets_returns_empty_list(mock_get_ytfetcher, setup_mock_fetch
 
     assert len(fetcher.snippets) == 0
     assert fetcher.snippets == []
+
+@patch('ytfetcher._core.get_fetcher')
+def test_filter_snippets_with_multiple_filters(mock_get_ytfetcher, setup_mock_fetcher, sample_missing_snippets):
+    setup_mock_fetcher(mock_get_ytfetcher, sample_missing_snippets)
+    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+        min_duration(10000)
+    ])
+
+    assert len(fetcher.snippets) == 0
+    assert fetcher.snippets == []
+
+    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+        min_duration(900)
+    ])
+
+    assert len(fetcher.snippets) == 1
+    assert fetcher.snippets[0] == sample_missing_snippets[1]
