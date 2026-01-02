@@ -242,6 +242,9 @@ class YTFetcher:
         return [snippet.video_id for snippet in self.snippets]
     
     def _filter_snippets(self) -> list[DLSnippet]:
+        """
+        Returns filtered DLSnippet object based on defined callable filters.
+        """
         return [
             snippet for snippet in self.snippets
             if all(filter(snippet) for filter in self.filters)
