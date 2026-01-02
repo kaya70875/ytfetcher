@@ -84,7 +84,8 @@ class YTFetcher:
         http_config: HTTPConfig = HTTPConfig(),
         proxy_config: ProxyConfig | None = None,
         languages: Iterable[str] = ("en",),
-        manually_created: bool = False
+        manually_created: bool = False,
+        filters: list[Callable[[DLSnippet], bool]] | None = None
         ) -> "YTFetcher":
         """
         Create a fetcher that only fetches from given video ids.
@@ -96,7 +97,8 @@ class YTFetcher:
             channel_handle=None,
             proxy_config=proxy_config,
             languages=languages,
-            manually_created=manually_created
+            manually_created=manually_created,
+            filters=filters
             )
     
     @classmethod
@@ -106,7 +108,8 @@ class YTFetcher:
         http_config: HTTPConfig = HTTPConfig(),
         proxy_config: ProxyConfig | None = None,
         languages: Iterable[str] = ("en",),
-        manually_created: bool = False
+        manually_created: bool = False,
+        filters: list[Callable[[DLSnippet], bool]] | None = None
         ) -> "YTFetcher":
         """
         Create a fetcher tthat fetches from given playlist id.
@@ -118,7 +121,8 @@ class YTFetcher:
             languages=languages,
             max_results=max_results,
             video_ids=None,
-            manually_created=manually_created
+            manually_created=manually_created,
+            filters=filters
             )
 
     async def fetch_youtube_data(self) -> list[ChannelData]:
