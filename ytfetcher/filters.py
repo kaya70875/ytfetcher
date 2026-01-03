@@ -60,4 +60,4 @@ def filter_by_title(title: str) -> bool:
     Returns:
         function: A function that takes a video object and returns True if its title starts with title, otherwise False.
     """
-    return lambda v: v.title and v.title.startswith(title)
+    return lambda v: v.title and v.title.lower().startswith(title.lower())
