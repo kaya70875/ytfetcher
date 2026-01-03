@@ -17,7 +17,7 @@ def sample_snippets():
         ),
         DLSnippet(
         video_id='id1',
-        title="namechannel1",
+        title="Namechannel1",
         description="description1",
         url='https://youtube.com/videoid',
         duration=900,
@@ -97,3 +97,23 @@ def test_filter_snippets_with_multiple_filters(mock_get_ytfetcher, setup_mock_fe
 
     assert len(fetcher.snippets) == 1
     assert fetcher.snippets[0] == sample_missing_snippets[1]
+
+@patch('ytfetcher._core.get_fetcher')
+def test_filter_snippets_with_case_sensitivity(mock_get_ytfetcher, setup_mock_fetcher, sample_snippets):
+    setup_mock_fetcher(mock_get_ytfetcher, sample_snippets)
+    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+        filter_by_title('NAME')
+    ])
+
+    assert len(fetcher.snippets) == 1
+    assert fetcher.snippets[0] == sample_snippets[1]
+
+@patch('ytfetcher._core.get_fetcher')
+def test_filter_snippets_with_boundary_values(mock_get_ytfetcher, setup_mock_fetcher, sample_snippets):
+    setup_mock_fetcher(mock_get_ytfetcher, sample_snippets)
+    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+        min_duration(900),
+        min_views(20)
+    ])
+
+    assert len(fetcher.snippets) == 2
