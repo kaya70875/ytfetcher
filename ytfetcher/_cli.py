@@ -2,13 +2,14 @@ import argparse
 import asyncio
 import ast
 import sys
-from typing import Union
+from typing import Union, Callable
 from ytfetcher._core import YTFetcher
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
+from ytfetcher import filters
 
 from argparse import ArgumentParser
 
@@ -50,6 +51,9 @@ class YTFetcherCLI:
         return HTTPConfig()
     
     async def _run_fetcher(self, factory_method: type[YTFetcher], **kwargs) -> None:
+        # Get active filters and inject them info kwargs.
+        kwargs['filters'] = self._get_active_filters()
+
         fetcher = factory_method(
             http_config=self._initialize_http_config(),
             proxy_config=self._initialize_proxy_config(),
@@ -78,6 +82,23 @@ class YTFetcherCLI:
         self._export(data)
         log(f"Data exported successfully as {self.args.format}", level='DONE')
     
+    def _get_active_filters(self) -> list[Callable]:
+        """
+        Get all active filters based on CLI arguments.
+        """
+        active_filters = []
+
+        if self.args.min_views:
+            active_filters.append(filters.min_views(self.args.min_views))
+        
+        if self.args.min_duration:
+            active_filters.append(filters.min_duration(self.args.min_duration))
+
+        if self.args.includes_title:
+            active_filters.append(filters.filter_by_title(self.args.includes_title))
+        
+        return active_filters
+
     @staticmethod
     def _get_exporter(format_type: str) -> type[BaseExporter]:
         """
@@ -182,6 +203,12 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
     parser.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
     parser.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
+
+    filter_group = parser.add_argument_group("Filtering Options (Pre-Fetch)")
+    filter_group.add_argument("--min-views", type=int, help="Minimum views to process.")
+    filter_group.add_argument("--min-duration", type=int, help="Minimum video duration to process.")
+    filter_group.add_argument("--includes-title", type=str, help="Filter by video title.")
+
     parser.add_argument("--print", action="store_true", help="Print data to console.")
     parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
     parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
