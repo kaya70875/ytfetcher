@@ -75,8 +75,10 @@ class YTFetcherCLI:
         log('Fetched all transcripts.', level='DONE')
         if self.args.print:
             print(data)
-        self._export(data)
-        log(f"Data exported successfully as {self.args.format}", level='DONE')
+        
+        if self.args.format:
+            self._export(data)
+            log(f"Data exported successfully as {self.args.format}", level='DONE')
     
     @staticmethod
     def _get_exporter(format_type: str) -> type[BaseExporter]:
@@ -175,7 +177,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     Creates common arguments for parsers.
     """
     parser.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
-    parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
+    parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default=None, help="Export format")
     parser.add_argument("--metadata", nargs="+", default=DEFAULT_METADATA, choices=DEFAULT_METADATA, help="Allowed metadata")
     parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
