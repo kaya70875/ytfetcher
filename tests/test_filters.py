@@ -9,7 +9,7 @@ def sample_snippets():
     return [
         DLSnippet(
         video_id='id1',
-        title="channelname1",
+        title="channel1",
         description="description1",
         url='https://youtube.com/videoid',
         duration=2800,

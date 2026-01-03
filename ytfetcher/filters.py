@@ -50,14 +50,17 @@ def max_views(n: int) -> bool:
     return lambda v: v.view_count and v.view_count <= n
 
 
-def filter_by_title(title: str) -> bool:
+def filter_by_title(search_query: str) -> bool:
     """
     Returns a filter function that checks if a video's title includes the specified string.
 
     Args:
-        title (str): The title string to check against.
+        search_query (str): The title string to check against.
 
     Returns:
         function: A function that takes a video object and returns True if its title includes title, otherwise False.
     """
-    return lambda v: v.title and v.title.lower() in title.lower()
+
+    query = search_query.lower()
+
+    return lambda v: v.title and query in v.title.lower()
