@@ -52,12 +52,12 @@ def max_views(n: int) -> bool:
 
 def filter_by_title(title: str) -> bool:
     """
-    Returns a filter function that checks if a video's title starts with the specified string.
+    Returns a filter function that checks if a video's title includes the specified string.
 
     Args:
         title (str): The title string to check against.
 
     Returns:
-        function: A function that takes a video object and returns True if its title starts with title, otherwise False.
+        function: A function that takes a video object and returns True if its title includes title, otherwise False.
     """
-    return lambda v: v.title and v.title.lower().startswith(title.lower())
+    return lambda v: v.title and v.title.lower() in title.lower()
