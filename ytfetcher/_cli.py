@@ -9,6 +9,7 @@ from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
+from pprint import pprint
 
 from argparse import ArgumentParser
 
@@ -73,8 +74,8 @@ class YTFetcherCLI:
 
         data = await get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
         log('Fetched all transcripts.', level='DONE')
-        if self.args.print:
-            print(data)
+        if self.args.stdout:
+            pprint(data)
         
         if self.args.format:
             self._export(data)
@@ -180,7 +181,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     transcript_group.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     transcript_group.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     transcript_group.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
-    transcript_group.add_argument("--print", action="store_true", help="Print data to console.")
+    transcript_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
 
     comments_group = parser.add_argument_group("Comment Options")
     comments_group.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
