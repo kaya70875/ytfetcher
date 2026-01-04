@@ -74,9 +74,9 @@ class YTFetcherCLI:
 
         data = await get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
         log('Fetched all transcripts.', level='DONE')
+        pprint(data[:1], depth=3)
         if self.args.stdout:
-            pprint(data)
-        
+            print(data)
         if self.args.format:
             self._export(data)
             log(f"Data exported successfully as {self.args.format}", level='DONE')
