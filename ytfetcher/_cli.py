@@ -75,8 +75,10 @@ class YTFetcherCLI:
         log('Fetched all transcripts.', level='DONE')
         if self.args.print:
             print(data)
-        self._export(data)
-        log(f"Data exported successfully as {self.args.format}", level='DONE')
+        
+        if self.args.format:
+            self._export(data)
+            log(f"Data exported successfully as {self.args.format}", level='DONE')
     
     @staticmethod
     def _get_exporter(format_type: str) -> type[BaseExporter]:
@@ -174,22 +176,29 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     """
     Creates common arguments for parsers.
     """
-    parser.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
-    parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
-    parser.add_argument("--metadata", nargs="+", default=DEFAULT_METADATA, choices=DEFAULT_METADATA, help="Allowed metadata")
-    parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
-    parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
-    parser.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
-    parser.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
-    parser.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
-    parser.add_argument("--print", action="store_true", help="Print data to console.")
-    parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
-    parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
-    parser.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
-    parser.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
-    parser.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
-    parser.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
-    parser.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+    transcript_group = parser.add_argument_group("Transcript Options")
+    transcript_group.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
+    transcript_group.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
+    transcript_group.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
+    transcript_group.add_argument("--print", action="store_true", help="Print data to console.")
+
+    comments_group = parser.add_argument_group("Comment Options")
+    comments_group.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
+    comments_group.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
+
+    export_group = parser.add_argument_group("Exporter Options")
+    export_group.add_argument("-f", "--format", choices=["txt", "json", "csv"], default=None, help="Export format")
+    export_group.add_argument("--metadata", nargs="+", default=DEFAULT_METADATA, choices=DEFAULT_METADATA, help="Allowed metadata")
+    export_group.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
+    export_group.add_argument("--filename", default="data", help="Decide filename to be exported.")
+
+    proxy_group = parser.add_argument_group("Proxy Options")
+    proxy_group.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
+    proxy_group.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
+    proxy_group.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
+    proxy_group.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
+    proxy_group.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
+    proxy_group.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
 
 def main():
     args = parse_args(sys.argv[1:])
