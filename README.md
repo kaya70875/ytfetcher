@@ -206,7 +206,7 @@ fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
 
 Also here's a quick CLI command for `languages` param.
 ```bash
-ytfetcher from_channel -c TheOffice -m 50 -f csv --print --languages tr en
+ytfetcher from_channel -c TheOffice -m 50 -f csv --languages tr en
 ```
 
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
