@@ -20,6 +20,8 @@ class PreviewRenderer:
     def _render_metadata(self, meta: DLSnippet) -> None:
         print(f"Video: {meta.title}")
         print(f"Video ID: {meta.video_id}")
+        print(f"URL: {meta.url}")
+        print(f"Description: {meta.description}")
         print(f"Duration: {PreviewRenderer._format_time(meta.duration)}")
         print(f"Views: {meta.view_count:,}")
     
