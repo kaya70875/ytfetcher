@@ -9,7 +9,7 @@ from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
-from pprint import pprint
+from ytfetcher.services._preview import PreviewRenderer
 
 from argparse import ArgumentParser
 
@@ -73,8 +73,10 @@ class YTFetcherCLI:
             return await fetcher.fetch_youtube_data()
 
         data = await get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
-        log('Fetched all transcripts.', level='DONE')
-        pprint(data[:1], depth=3)
+        log('Fetched all channel data.', level='DONE')
+
+        if sys.stdout.isatty() and not self.args.stdout:
+            PreviewRenderer(data=data).preview_channel_data(limit=5)
         if self.args.stdout:
             print(data)
         if self.args.format:
