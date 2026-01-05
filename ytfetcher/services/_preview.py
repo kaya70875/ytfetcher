@@ -1,6 +1,4 @@
 from ytfetcher.models.channel import ChannelData, Transcript, Comment, DLSnippet
-from ytfetcher.utils.log import log
-
 class PreviewRenderer:
     def __init__(self, data: list[ChannelData]):
         self.data = data
@@ -13,9 +11,6 @@ class PreviewRenderer:
             self._render_metadata(meta=meta)
             self._render_transcript_preview(item.transcripts, limit)
             self._render_comment_preview(item.comments, limit)
-
-            log("Showing preview (5 lines)")
-            log("Use --stdout or --format to see full output", level='WARNING')
 
     def _render_metadata(self, meta: DLSnippet) -> None:
         print(f"Video: {meta.title}")
