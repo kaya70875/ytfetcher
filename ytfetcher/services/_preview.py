@@ -39,9 +39,9 @@ class PreviewRenderer:
         print("\nComment preview:")
 
         for c in comments[:limit]:
-            author = getattr(c, "author", "unknown")
-            likes = getattr(c, "like_count", None)
-            time_text = getattr(c, "time_text", None)
+            author = c.author
+            likes = c.like_count
+            time_text = c.time_text
 
             text = c.text.replace("\n", " ").strip()
             text = text[:120] + "..." if len(text) > 120 else text
