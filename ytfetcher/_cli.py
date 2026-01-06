@@ -75,6 +75,9 @@ class YTFetcherCLI:
         data = await get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
         log('Fetched all channel data.', level='DONE')
 
+        self._handle_output(data=data)
+    
+    def _handle_output(self, data: list[ChannelData]) -> None:
         if sys.stdout.isatty() and not self.args.stdout:
             PreviewRenderer().render(data=data)
             log("Showing preview (5 lines)")
@@ -84,7 +87,8 @@ class YTFetcherCLI:
         if self.args.format:
             self._export(data)
             log(f"Data exported successfully as {self.args.format}", level='DONE')
-    
+
+
     @staticmethod
     def _get_exporter(format_type: str) -> type[BaseExporter]:
         """
