@@ -38,6 +38,8 @@ class PreviewRenderer:
 
     def _build_video_view(self, item: ChannelData, limit: int) -> Panel:
         """Orchestrates the layout for a single video."""
+        assert item.metadata is not None
+
         meta_grid = self._create_metadata_grid(item.metadata)
         transcript_table = self._create_transcript_table(item.transcripts, limit)
         comment_section = self._create_comments_view(item.comments, limit)
