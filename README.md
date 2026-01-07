@@ -158,6 +158,19 @@ ChannelData(
 ]
 ```
 
+You can also **preview** this data using `PreviewRenderer` class from `ytfetcher.services`.
+
+```python
+from ytfetcher.services import PreviewRenderer
+
+channel_data = await fetcher.fetch_with_comments(max_comments=10)
+#print(channel_data)
+preview = PreviewRenderer()
+preview.render(data=channel_data, limit=4)
+```
+
+This will preview the first 4 results of the data in a beautifully formatted terminal view, including metadata, transcript snippets, and comments.
+
 ---
 
 ## Using Different Fetchers
