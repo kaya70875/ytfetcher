@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+- Added preview mode in CLI for `ytfetcher`. It's now default mode and exporting is optional with `--format`. Also dumping data possible with `--stdout` argument in CLI.
 
 ### Changed
 - Exporter now optional in CLI if you don't define `--format` argument.
