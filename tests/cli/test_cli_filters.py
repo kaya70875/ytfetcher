@@ -34,4 +34,16 @@ async def test_run_filter_argument_passed_correctly_to_ytfetcher(mock_ytfetcher,
     mock_fetcher.fetch_youtube_data.assert_awaited_once()
 
 def test_get_active_filters():
-    ...
+    parser = create_parser()
+    args = parser.parse_args([
+        "from_channel",
+        "-c", "Channel",
+        "--includes-title", "title"
+    ])
+
+    cli = YTFetcherCLI(args=args)
+    active_filters = cli._get_active_filters()
+
+    assert len(active_filters) == 1
+    for f in active_filters:
+        assert callable(f)
