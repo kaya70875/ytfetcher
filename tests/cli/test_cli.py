@@ -72,7 +72,8 @@ async def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytf
         http_config=cli._initialize_http_config(),
         proxy_config=cli._initialize_proxy_config(),
         languages=["en"],
-        manually_created=False
+        manually_created=False,
+        filters=[]
     )
 
     mock_fetcher.fetch_youtube_data.assert_awaited_once()
@@ -103,7 +104,8 @@ async def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock
         http_config=cli._initialize_http_config(),
         proxy_config=cli._initialize_proxy_config(),
         languages=["en", "de"],
-        manually_created=True
+        manually_created=True,
+        filters=[]
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
@@ -135,7 +137,8 @@ async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_y
         http_config=cli._initialize_http_config(),
         proxy_config=cli._initialize_proxy_config(),
         languages=["en", "de"],
-        manually_created=False
+        manually_created=False,
+        filters=[]
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
