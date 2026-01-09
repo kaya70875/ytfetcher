@@ -26,8 +26,6 @@ async def test_run_filter_argument_passed_correctly_to_ytfetcher(mock_ytfetcher,
     args, kwargs = mock_ytfetcher.from_channel.call_args
     passed_filters = kwargs.get('filters')
 
-    print(passed_filters[0])
-
     assert passed_filters is not None
     assert len(passed_filters) == 2
     assert callable(passed_filters[0])
