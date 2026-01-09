@@ -9,6 +9,8 @@
 
 A python tool for fetching thousands of videos fast from a Youtube channel along with structured transcripts and additional metadata. Export data easily as CSV, TXT, or JSON.
 
+[![asciicast](https://asciinema.org/a/GlkTWhcXHwsYslYd.svg)](https://asciinema.org/a/GlkTWhcXHwsYslYd)
+
 ---
 
 ## 📚 Table of Contents
@@ -158,6 +160,19 @@ ChannelData(
 ]
 ```
 
+You can also **preview** this data using `PreviewRenderer` class from `ytfetcher.services`.
+
+```python
+from ytfetcher.services import PreviewRenderer
+
+channel_data = await fetcher.fetch_with_comments(max_comments=10)
+#print(channel_data)
+preview = PreviewRenderer()
+preview.render(data=channel_data, limit=4)
+```
+
+This will preview the first 4 results of the data in a beautifully formatted terminal view, including metadata, transcript snippets, and comments.
+
 ---
 
 ## Using Different Fetchers
@@ -206,7 +221,7 @@ fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
 
 Also here's a quick CLI command for `languages` param.
 ```bash
-ytfetcher from_channel -c TheOffice -m 50 -f csv --print --languages tr en
+ytfetcher from_channel -c TheOffice -m 50 -f csv --languages tr en
 ```
 
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.

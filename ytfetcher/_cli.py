@@ -10,6 +10,7 @@ from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
 from ytfetcher import filters
+from ytfetcher.services._preview import PreviewRenderer
 
 from argparse import ArgumentParser
 
@@ -76,11 +77,20 @@ class YTFetcherCLI:
             return await fetcher.fetch_youtube_data()
 
         data = await get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
-        log('Fetched all transcripts.', level='DONE')
-        if self.args.print:
+        log('Fetched all channel data.', level='DONE')
+
+        self._handle_output(data=data)
+    
+    def _handle_output(self, data: list[ChannelData]) -> None:
+        if sys.stdout.isatty() and not self.args.stdout:
+            PreviewRenderer().render(data=data)
+            log("Showing preview (5 lines)")
+            log("Use --stdout or --format to see full structured output", level='WARNING') if not self.args.format else ""
+        if self.args.stdout:
             print(data)
-        self._export(data)
-        log(f"Data exported successfully as {self.args.format}", level='DONE')
+        if self.args.format:
+            self._export(data)
+            log(f"Data exported successfully as {self.args.format}", level='DONE')
     
     def _get_active_filters(self) -> list[Callable]:
         """
@@ -195,28 +205,34 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     """
     Creates common arguments for parsers.
     """
-    parser.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
-    parser.add_argument("-f", "--format", choices=["txt", "json", "csv"], default="txt", help="Export format")
-    parser.add_argument("--metadata", nargs="+", default=DEFAULT_METADATA, choices=DEFAULT_METADATA, help="Allowed metadata")
-    parser.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
-    parser.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
-    parser.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
-    parser.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
-    parser.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
+    transcript_group = parser.add_argument_group("Transcript Options")
+    transcript_group.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
+    transcript_group.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
+    transcript_group.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
+    transcript_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
+
+    comments_group = parser.add_argument_group("Comment Options")
+    comments_group.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
+    comments_group.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
 
     filter_group = parser.add_argument_group("Filtering Options (Pre-Fetch)")
     filter_group.add_argument("--min-views", type=int, help="Minimum views to process.")
     filter_group.add_argument("--min-duration", type=int, help="Minimum video duration to process.")
     filter_group.add_argument("--includes-title", type=str, help="Filter by video title.")
 
-    parser.add_argument("--print", action="store_true", help="Print data to console.")
-    parser.add_argument("--filename", default="data", help="Decide filename to be exported.")
-    parser.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
-    parser.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
-    parser.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
-    parser.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
-    parser.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
-    parser.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+    export_group = parser.add_argument_group("Exporter Options")
+    export_group.add_argument("-f", "--format", choices=["txt", "json", "csv"], default=None, help="Export format")
+    export_group.add_argument("--metadata", nargs="+", default=DEFAULT_METADATA, choices=DEFAULT_METADATA, help="Allowed metadata")
+    export_group.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
+    export_group.add_argument("--filename", default="data", help="Decide filename to be exported.")
+
+    proxy_group = parser.add_argument_group("Proxy Options")
+    proxy_group.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
+    proxy_group.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
+    proxy_group.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
+    proxy_group.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
+    proxy_group.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
+    proxy_group.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
 
 def main():
     args = parse_args(sys.argv[1:])
