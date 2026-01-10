@@ -149,3 +149,64 @@ fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True)
 
 !!! Tip
     Also it makes sense to use this flag to fetch channels like `TEDx` which naturally has more **manually created** transcripts.
+
+## Fetching Comments
+`ytfetcher` allows you fetch comments in bulk **with additional metadata and transcripts** or **just comments alone.**
+
+!!! Note
+    **Performance:** Comment fetching is a resource-intensive process. The speed of extraction depends significantly on the user's internet connection and the total volume of comments being retrieved.
+
+### Fetch Comments With Transcripts And Metadata
+To fetch comments alongside with transcripts and metadata you can use `fetch_with_comments` method.
+
+```py
+fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
+
+async def get_channel_data():
+    channel_data_with_comments = await fetcher.fetch_with_comments(max_comments=10)
+```
+
+This will simply fetch **top 10 comments for every video** alongside with transcript data.
+
+Here's an example structure:
+
+```py
+[
+    ChannelData(
+        video_id='id1',
+        transcripts=list[Transcript(...)],
+        metadata=DLSnippet(...),
+        comments=list[Comment(        
+            text='Comment one.',
+            like_count=20,
+            author='@author',
+            time_text='8 days ago'
+        )]
+    )
+]
+```
+
+### Fetch Only Comments
+To fetch comments without transcripts you can use `fetch_comments` method.
+```py
+fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
+
+def get_comments() -> list[Comment]:
+    comments = fetcher.fetch_comments(max_comments=20)
+    print(comments)
+```
+
+This will return list of `Comment` like this:
+
+```py
+[
+    Comment(
+        text='Comment one.',
+        like_count=20,
+        author='@author',
+        time_text='8 days ago'
+    )
+
+    ## OTHER COMMENT OBJECTS...
+]
+```
