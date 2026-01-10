@@ -210,3 +210,78 @@ This will return list of `Comment` like this:
     ## OTHER COMMENT OBJECTS...
 ]
 ```
+
+
+## Proxy and Configuration
+
+YTFetcher provides built-in support for proxy servers and custom HTTP configuration to help you avoid rate limits and customize request behavior when fetching YouTube data at scale.
+
+### Proxy Configuration
+
+When fetching large amounts of data, YouTube may rate limit your requests. Using a proxy helps distribute requests across different IP addresses, significantly reducing the risk of being blocked. YTFetcher supports two types of proxy configurations:
+
+**Generic Proxy Configuration**
+
+Use custom HTTP/HTTPS proxy servers with `GenericProxyConfig`:
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.config import GenericProxyConfig
+
+proxy_config = GenericProxyConfig(
+    http_url="http://user:pass@host:port",
+    https_url="https://user:pass@host:port"
+)
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    proxy_config=proxy_config
+)
+```
+
+**Webshare Proxy Configuration**
+
+For Webshare proxy service users, use `WebshareProxyConfig`:
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.config import WebshareProxyConfig
+
+proxy_config = WebshareProxyConfig(
+    proxy_username="your_webshare_username",
+    proxy_password="your_webshare_password"
+)
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    proxy_config=proxy_config
+)
+```
+
+!!! Tip
+    You can find your Webshare proxy credentials at [https://dashboard.webshare.io/proxy/settings](https://dashboard.webshare.io/proxy/settings)
+
+### HTTP Configuration
+
+YTFetcher automatically uses realistic browser-like headers to mimic real browser behavior. However, you can customize HTTP settings including timeout and custom headers:
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.config import HTTPConfig
+
+http_config = HTTPConfig(
+    timeout=4.0,  # Request timeout in seconds
+    headers={"User-Agent": "Custom-Agent/1.0"}  # Custom headers
+)
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=10,
+    http_config=http_config
+)
+```
+
+!!! Note
+    If you don't provide custom headers, YTFetcher will automatically use realistic browser headers to avoid detection.
