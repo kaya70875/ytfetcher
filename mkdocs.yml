@@ -1,0 +1,41 @@
+site_name: YTFetcher Docs
+repo_url: https://github.com/kaya70875/ytfetcher
+repo_name: kaya70875/ytfetcher
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  language: en
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+      primary: teal
+      accent: purple
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+      primary: teal
+      accent: lime
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+extra:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/kaya70875
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/ahmet-kaya-44a2172aa/
