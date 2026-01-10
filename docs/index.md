@@ -123,3 +123,23 @@ async def get_channel_data() -> list[ChannelData]:
     channel_data = await fetcher.fetch_youtube_data()
     return channel_data
 ```
+
+## Transcript Options
+
+YTFetcher provides flexible transcript fetching with support for multiple languages and fallback mechanisms. You can customize how transcripts are retrieved to match your specific needs.
+
+### Retrieve Different Languages
+You can use the `--languages` param to **retrieve your desired language.** (Default en)
+
+```py
+fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
+```
+
+`ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
+
+### Fetching Only Manually Created Transcripts
+
+`ytfetcher` allows you to fetch only manually created transcripts from a channel which allows you to get more precise transcripts.
+```py
+fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True)
+```
