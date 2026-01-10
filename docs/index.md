@@ -126,10 +126,10 @@ async def get_channel_data() -> list[ChannelData]:
 
 ## Transcript Options
 
-YTFetcher provides flexible transcript fetching with support for multiple languages and fallback mechanisms. You can customize how transcripts are retrieved to match your specific needs.
+YTFetcher provides **flexible transcript fetching with support for multiple languages and fallback mechanisms.** You can customize how transcripts are retrieved to match your specific needs.
 
 ### Retrieve Different Languages
-You can use the `--languages` param to **retrieve your desired language.** (Default en)
+You can use the `languages` param to **retrieve your desired language.** (Default en)
 
 ```py
 fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
@@ -143,3 +143,9 @@ fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
 ```py
 fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True)
 ```
+
+!!! Note
+    As default `ytfetcher` already tries to fetch manually created transcripts first, but if you want get **only manually created ones** you can use this flag.
+
+!!! Tip
+    Also it makes sense to use this flag to fetch channels like `TEDx` which naturally has more **manually created** transcripts.
