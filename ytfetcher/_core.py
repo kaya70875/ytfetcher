@@ -129,13 +129,12 @@ class YTFetcher:
         
         return transcripts
     
-    async def fetch_with_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
+    async def fetch_with_comments(self, max_comments: int = 20) -> list[ChannelData]:
         """
         Fetches comments, addition to transcripts and metadata.
 
         Args:
             max_comments: Max number of comments to fetch.
-            max_workers: Max number of workers for threads.
 
         Returns:
             list[ChannelData]: A list objects containing transcript text, metadata and comments.
@@ -143,7 +142,7 @@ class YTFetcher:
 
         transcripts = await self.fetcher.fetch()
         
-        commf = CommentFetcher(max_comments=max_comments, max_workers=max_workers)
+        commf = CommentFetcher(max_comments=max_comments)
         full_comments = commf.fetch(video_ids=self._get_video_ids())
 
         for transcript, snippet, comments in zip(transcripts, self.snippets, full_comments):
@@ -152,7 +151,7 @@ class YTFetcher:
         
         return transcripts
     
-    async def fetch_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
+    async def fetch_comments(self, max_comments: int = 20) -> list[ChannelData]:
         """
         Fetches comments for all videos.
 
@@ -163,7 +162,7 @@ class YTFetcher:
         Returns:
             list[ChannelData]: A list of objects containing only comments.
         """
-        commf = CommentFetcher(max_comments=max_comments, max_workers=max_workers)
+        commf = CommentFetcher(max_comments=max_comments)
         full_comments = commf.fetch(video_ids=self._get_video_ids())
 
         return [
