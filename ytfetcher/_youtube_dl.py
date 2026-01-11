@@ -242,7 +242,8 @@ class VideoListFetcher(BaseYoutubeDLFetcher):
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             futures = [executor.submit(self._fetch_single, video_id, ydl_opts) for video_id in self.video_ids]
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc="Extracting Metadata"):
-                results.append(future.result())
+                if future.result():
+                    results.append(future.result())
                 
         return self._to_snippets(entries=results)
 
