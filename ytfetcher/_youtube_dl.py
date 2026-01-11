@@ -236,18 +236,23 @@ class VideoListFetcher(BaseYoutubeDLFetcher):
         self.video_ids = video_ids
 
     def fetch(self) -> list[DLSnippet]:
-        ydl_opts = self._setup_ydl_opts()
         results: list[dict[str, Any]] = []
+        ydl_opts = self._setup_ydl_opts()
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            for video_id in tqdm(self.video_ids, desc="Extracting metadata", unit="video"):
-                url = f"https://www.youtube.com/watch?v={video_id}"
-                info = cast(dict[str, Any], ydl.extract_info(url, download=False))
-                if info:
-                    results.append(info)
-
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            futures = [executor.submit(self._fetch_single, video_id, ydl_opts) for video_id in self.video_ids]
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc="Extracting Metadata"):
+                if future.result():
+                    results.append(future.result())
+                
         return self._to_snippets(entries=results)
 
+    def _fetch_single(self, video_id: str, ydl_opts: dict) -> dict[str, Any]:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+            url = f"https://www.youtube.com/watch?v={video_id}"
+            info = cast(dict[str, Any], ydl.extract_info(url, download=False))
+
+        return info
 
 def get_fetcher(
     channel_handle: str | None = None,
