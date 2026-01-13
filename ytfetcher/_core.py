@@ -142,8 +142,8 @@ class YTFetcher:
 
         transcripts = await self.fetcher.fetch()
         
-        commf = CommentFetcher(max_comments=max_comments)
-        full_comments = commf.fetch(video_ids=self._get_video_ids())
+        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids())
+        full_comments = commf.fetch()
 
         for transcript, snippet, comments in zip(transcripts, self.snippets, full_comments):
             transcript.metadata = snippet if transcript.transcripts else None
@@ -162,8 +162,8 @@ class YTFetcher:
         Returns:
             list[ChannelData]: A list of objects containing only comments.
         """
-        commf = CommentFetcher(max_comments=max_comments)
-        full_comments = commf.fetch(video_ids=self._get_video_ids())
+        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids())
+        full_comments = commf.fetch()
 
         return [
             ChannelData(
