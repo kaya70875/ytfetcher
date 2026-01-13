@@ -287,7 +287,7 @@ def get_fetcher(
     playlist_id: str | None = None,
     video_ids: list[str] | None = None,
     max_results: int = 50,
-) -> BaseYoutubeDLFetcher:
+) -> BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher:
     """
     Factory function that returns the correct fetcher
     based on provided parameters.
@@ -299,7 +299,7 @@ def get_fetcher(
         max_results (int): Maximum number of videos to fetch.
 
     Returns:
-        BaseYoutubeDLFetcher: An appropriate fetcher subclass instance.
+        BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher: An appropriate fetcher subclass instance.
 
     Raises:
         ValueError: If no valid input was provided.
