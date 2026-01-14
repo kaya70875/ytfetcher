@@ -4,10 +4,9 @@ from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.models.channel import ChannelData, VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.utils.log import log
-from concurrent.futures import ThreadPoolExecutor
+from concurrent import futures
 from tqdm import tqdm  # type: ignore
 from typing import Iterable
-import asyncio
 import requests
 import logging
 import re
@@ -15,7 +14,7 @@ import re
 logger = logging.getLogger(__name__)
 class TranscriptFetcher:
     """
-    Asynchronously fetches transcripts for a list of YouTube video IDs 
+    Synchronously fetches transcripts for a list of YouTube video IDs 
     using the YouTube Transcript API.
 
     Transcripts are fetched concurrently using threads, while optionally 
@@ -42,34 +41,32 @@ class TranscriptFetcher:
         self.video_ids = video_ids
         self.languages = languages
         self.manually_created = manually_created
-        self.executor = ThreadPoolExecutor(max_workers=30)
+        self.executor = futures.ThreadPoolExecutor(max_workers=30)
         self.proxy_config = proxy_config
         self.http_client = requests.Session()
 
         # Initialize client
         self.http_client.headers = http_config.headers
 
-    async def fetch(self) -> list[ChannelData]:
+    def fetch(self) -> list[ChannelData]:
         """
         Asynchronously fetches transcripts for all provided video IDs.
 
-        Transcripts are fetched using threads wrapped in asyncio. Results are streamed as they are completed,
+        Transcripts are fetched using threads wrapped in ThreadPoolExecutor. Results are streamed as they are completed,
         and errors like `NoTranscriptFound`, `TranscriptsDisabled`, or `VideoUnavailable` are silently handled.
 
         Returns:
             list[VideoTranscript]: A list of successful transcripts from list of videos with video_id information.
         """
 
-        async def run_in_thread(video_id: str):
-            return await asyncio.to_thread(self._fetch_single, video_id)
+        with self.executor as executor:
+            futures = [executor.submit(self._fetch_single(video_id=video_id) for video_id in self.video_ids)]
 
-        tasks = [run_in_thread(video_id) for video_id in self.video_ids]
+            channel_data = self._build_channel_data(futures)
+            
+            if not channel_data and self.manually_created: log("No manually created transcripts found!", level="ERROR")
 
-        channel_data = await self._build_channel_data(tasks)
-        
-        if not channel_data and self.manually_created: log("No manually created transcripts found!", level="ERROR")
-
-        return channel_data
+            return channel_data
 
     def _fetch_single(self, video_id: str) -> VideoTranscript | None:
         """
@@ -127,7 +124,7 @@ class TranscriptFetcher:
         return self._convert_to_transcript_object(raw_transcripts)
     
     @staticmethod
-    async def _build_channel_data(tasks: list) -> list[ChannelData]:
+    def _build_channel_data(tasks: list[futures.Future]) -> list[ChannelData]:
         """
         Builds list of `ChannelData` from all tasks from completed thread with progress support.
         Args:
@@ -137,8 +134,8 @@ class TranscriptFetcher:
         """
         channel_data: list[ChannelData] = []
 
-        for coro in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript'):
-            result: VideoTranscript = await coro
+        for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript'):
+            result: VideoTranscript = future.result()
             if result:
                 channel_data.append(
                     ChannelData(
@@ -174,12 +171,6 @@ class TranscriptFetcher:
     
     @staticmethod
     def _convert_to_transcript_object(transcript_dict: list[dict]) -> list[Transcript]:
-        return [
-            Transcript(
-            text=transcript['text'],
-            start=transcript['start'],
-            duration=transcript['duration']
-            )
-        for transcript in transcript_dict
-        ]
+        # No need for exception handling, transcripts should be complete.
+        return [Transcript.model_validate(transcript) for transcript in transcript_dict]
 
