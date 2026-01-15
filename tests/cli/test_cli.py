@@ -1,61 +1,56 @@
-import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch, Mock
 from ytfetcher._cli import YTFetcherCLI, create_parser
 from ytfetcher.config import HTTPConfig
 from ytfetcher.services.exports import METEDATA_LIST
 
 # --> Basic Call Tests <--
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch.object(YTFetcherCLI, '_run_fetcher')
-async def test_run_from_channel_called(mock_run_channel, mock_export_as_txt):
+def test_run_from_channel_called(mock_run_channel, mock_export_as_txt):
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_run_channel.assert_called_once()
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch.object(YTFetcherCLI, '_run_fetcher')
-async def test_run_from_video_ids_called(mock_run_from_video_ids, mock_export_as_txt):
+def test_run_from_video_ids_called(mock_run_from_video_ids, mock_export_as_txt):
     parser = create_parser()
     args = parser.parse_args([
         "from_video_ids",
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_run_from_video_ids.assert_called_once()
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch.object(YTFetcherCLI, '_run_fetcher')
-async def test_run_from_playlist_id_called(mock_run_from_playlist_id, mock_export_as_txt):
+def test_run_from_playlist_id_called(mock_run_from_playlist_id, mock_export_as_txt):
     parser = create_parser()
     args = parser.parse_args([
         "from_playlist_id",
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_run_from_playlist_id.assert_called_once()
 
 # --> Arguments Test <--
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.YTFetcher')
-async def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
-    mock_fetcher = AsyncMock()
+def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
+    mock_fetcher = Mock()
     mock_ytfetcher.from_channel.return_value = mock_fetcher
 
     # Mock HTTP Config
@@ -68,7 +63,7 @@ async def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytf
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="Channel",
@@ -79,14 +74,13 @@ async def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytf
         manually_created=False
     )
 
-    mock_fetcher.fetch_youtube_data.assert_awaited_once()
+    mock_fetcher.fetch_youtube_data.assert_called_once()
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.YTFetcher')
-async def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
-    mock_fetcher = AsyncMock()
+def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
+    mock_fetcher = Mock()
     mock_ytfetcher.from_playlist_id.return_value = mock_fetcher
 
     # Mock HTTP Config
@@ -101,7 +95,7 @@ async def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_ytfetcher.from_playlist_id.assert_called_once_with(
         playlist_id="playlistid",
@@ -113,12 +107,11 @@ async def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.YTFetcher')
-async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
-    mock_fetcher = AsyncMock()
+def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
+    mock_fetcher = Mock()
     mock_ytfetcher.from_video_ids.return_value = mock_fetcher
 
     # Mock HTTP Config
@@ -133,7 +126,7 @@ async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_y
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_ytfetcher.from_video_ids.assert_called_once_with(
         video_ids=['id1', 'id2'],
@@ -147,12 +140,11 @@ async def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_y
 
 # --> Exporter Tests <--
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.TXTExporter')
 @patch('ytfetcher._cli.YTFetcher')
-async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class, mock_export_as_txt):
-    mock_fetcher = AsyncMock()
+def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class, mock_export_as_txt):
+    mock_fetcher = Mock()
     mock_ytfetcher.from_video_ids.return_value = mock_fetcher
     mock_fetcher.fetch_youtube_data.return_value = 'channeldata'
 
@@ -168,7 +160,7 @@ async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class,
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_exporter_class.assert_called_once_with(
         channel_data='channeldata',
@@ -180,12 +172,11 @@ async def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class,
 
     mock_exporter_instance.write.assert_called_once()
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.TXTExporter')
 @patch('ytfetcher._cli.YTFetcher')
-async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, mock_export_as_txt):
-    mock_fetcher = AsyncMock()
+def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, mock_export_as_txt):
+    mock_fetcher = Mock()
     mock_ytfetcher.from_channel.return_value = mock_fetcher
     mock_fetcher.fetch_youtube_data.return_value = 'channeldata'
 
@@ -199,7 +190,7 @@ async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, m
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_exporter_class.assert_called_once_with(
         channel_data='channeldata',
@@ -211,12 +202,11 @@ async def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, m
 
     mock_exporter_instance.write.assert_called_once()
 
-@pytest.mark.asyncio
 @patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.TXTExporter')
 @patch('ytfetcher._cli.YTFetcher')
-async def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_class, mock_export_as_txt):
-    mock_fetcher = AsyncMock()
+def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_class, mock_export_as_txt):
+    mock_fetcher = Mock()
     mock_ytfetcher.from_playlist_id.return_value = mock_fetcher
     mock_fetcher.fetch_youtube_data.return_value = 'channeldata'
 
@@ -230,7 +220,7 @@ async def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_clas
     ])
 
     cli = YTFetcherCLI(args=args)
-    await cli.run()
+    cli.run()
 
     mock_exporter_class.assert_called_once_with(
         channel_data='channeldata',
