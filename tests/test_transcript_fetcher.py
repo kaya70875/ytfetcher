@@ -1,5 +1,4 @@
 import pytest
-import asyncio
 import time
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
@@ -29,8 +28,7 @@ def mock_transcripts():
         )
     ]
 
-@pytest.mark.asyncio
-async def test_fetch_method_returns_correct_data(mocker: MockerFixture, mock_video_ids, mock_transcripts):
+def test_fetch_method_returns_correct_data(mocker: MockerFixture, mock_video_ids, mock_transcripts):
 
     fetcher = TranscriptFetcher(mock_video_ids)
     mocker.patch.object(
@@ -42,7 +40,7 @@ async def test_fetch_method_returns_correct_data(mocker: MockerFixture, mock_vid
         )
     )
     
-    results = await fetcher.fetch()
+    results = fetcher.fetch()
 
     assert isinstance(results[0], ChannelData)
     assert results[0].transcripts[0].text == 'text1'
@@ -82,7 +80,7 @@ def test_concurrent_fetching(mocker, mock_video_ids):
     
     # Time the execution (should be ~1s, not 2s if parallel)
     start_time = time.time()
-    results = asyncio.run(fetcher.fetch())
+    results = fetcher.fetch()
     elapsed = time.time() - start_time
     
     assert len(results) == 2
