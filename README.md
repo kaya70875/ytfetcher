@@ -8,8 +8,6 @@
 
 A python tool for fetching thousands of videos fast from a Youtube channel along with structured transcripts and additional metadata. Export data easily as CSV, TXT, or JSON.
 
-[![asciicast](https://asciinema.org/a/GlkTWhcXHwsYslYd.svg)](https://asciinema.org/a/GlkTWhcXHwsYslYd)
-
 ---
 
 ## 📚 Table of Contents
