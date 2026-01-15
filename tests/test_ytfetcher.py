@@ -91,7 +91,7 @@ def initialize_ytfetcher_with_video_ids(mock_http_config, sample_video_ids):
     return fetcher
 
 # --- Tests ---
-async def test_fetch_youtube_data_from_video_ids(
+def test_fetch_youtube_data_from_video_ids(
     sample_video_ids,
     mock_http_config,
     patch_fetchers,
@@ -108,7 +108,7 @@ async def test_fetch_youtube_data_from_video_ids(
     assert results[0].transcripts[0].text == 'text1'
 
 
-async def test_fetch_youtube_data_from_channel_name(
+def test_fetch_youtube_data_from_channel_name(
     patch_fetchers,
     initialize_ytfetcher_with_channel_name,
     sample_channel_name,
@@ -123,7 +123,7 @@ async def test_fetch_youtube_data_from_channel_name(
     assert results[0].metadata.description == 'description1'
     assert results[0].transcripts[0].text == 'text1'
 
-async def test_fetch_transcripts_method_with_channel_name(patch_fetchers, initialize_ytfetcher_with_channel_name):
+def test_fetch_transcripts_method_with_channel_name(patch_fetchers, initialize_ytfetcher_with_channel_name):
     fetcher = initialize_ytfetcher_with_channel_name
     results = fetcher.fetch_transcripts()
 
@@ -134,7 +134,7 @@ async def test_fetch_transcripts_method_with_channel_name(patch_fetchers, initia
     assert results[0].transcripts[0].text == 'text1'
     assert results[0].metadata == None
 
-async def test_fetch_snippets_method_with_channel_name(patch_fetchers, initialize_ytfetcher_with_channel_name, sample_video_ids):
+def test_fetch_snippets_method_with_channel_name(patch_fetchers, initialize_ytfetcher_with_channel_name, sample_video_ids):
     fetcher = initialize_ytfetcher_with_channel_name
     results = fetcher.fetch_snippets()
 
@@ -144,7 +144,7 @@ async def test_fetch_snippets_method_with_channel_name(patch_fetchers, initializ
     assert results[0].transcripts == None
     assert results[0].metadata.title == 'channelname1'
 
-async def test_fetch_transcripts_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids):
+def test_fetch_transcripts_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids):
     fetcher = initialize_ytfetcher_with_video_ids
     results = fetcher.fetch_transcripts()
 
@@ -155,7 +155,7 @@ async def test_fetch_transcripts_method_with_video_ids(patch_fetchers, initializ
     assert results[0].transcripts[0].text == 'text1'
     assert results[0].metadata == None
 
-async def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids, sample_video_ids):
+def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids, sample_video_ids):
     fetcher = initialize_ytfetcher_with_video_ids
     results = fetcher.fetch_snippets()
 
