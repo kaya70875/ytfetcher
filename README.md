@@ -111,7 +111,7 @@ fetcher = YTFetcher.from_channel(
     max_results=2
 )
 
-channel_data = await fetcher.fetch_youtube_data()
+channel_data = fetcher.fetch_youtube_data()
 print(channel_data)
 
 ```

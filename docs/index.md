@@ -32,7 +32,7 @@ fetcher = YTFetcher.from_channel(
     max_results=2
 )
 
-channel_data = await fetcher.fetch_youtube_data()
+channel_data = fetcher.fetch_youtube_data()
 print(channel_data)
 
 ```
@@ -76,7 +76,7 @@ You can also preview this data using `PreviewRenderer` class from `ytfetcher.ser
 ```py
 from ytfetcher.services import PreviewRenderer
 
-channel_data = await fetcher.fetch_youtube_data(max_comments=10)
+channel_data = fetcher.fetch_youtube_data(max_comments=10)
 #print(channel_data)
 preview = PreviewRenderer()
 preview.render(data=channel_data, limit=4)
@@ -103,7 +103,6 @@ data = fetcher.fetch_youtube_data()
 Initialize `ytfetcher` with custom video IDs using `from_video_ids` method:
 ```py
 from ytfetcher import YTFetcher
-import asyncio
 
 fetcher = YTFetcher.from_video_ids(
     video_ids=['video1', 'video2', 'video3']
