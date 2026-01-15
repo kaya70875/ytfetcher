@@ -125,37 +125,36 @@ class YTFetcher:
             filters=filters
             )
 
-    async def fetch_youtube_data(self) -> list[ChannelData]:
+    def fetch_youtube_data(self) -> list[ChannelData]:
         """
-        Asynchronously fetches transcript and metadata for all videos retrieved from the channel or video IDs.
+        Synchronously fetches transcript and metadata for all videos retrieved from the channel or video IDs.
 
         Returns:
             list[ChannelData]: A list of objects containing transcript text and associated metadata.
         """
 
-        transcripts = await self.fetcher.fetch()
+        transcripts = self.fetcher.fetch()
         
         for transcript, snippet in zip(transcripts, self.snippets):
             transcript.metadata = snippet if transcript.transcripts else None
         
         return transcripts
     
-    async def fetch_with_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
+    def fetch_with_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
         """
         Fetches comments, addition to transcripts and metadata.
 
         Args:
             max_comments: Max number of comments to fetch.
-            max_workers: Max number of workers for threads.
 
         Returns:
             list[ChannelData]: A list objects containing transcript text, metadata and comments.
         """
 
-        transcripts = await self.fetcher.fetch()
+        transcripts = self.fetcher.fetch()
         
-        commf = CommentFetcher(max_comments=max_comments, max_workers=max_workers)
-        full_comments = commf.fetch(video_ids=self._get_video_ids())
+        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids())
+        full_comments = commf.fetch()
 
         for transcript, snippet, comments in zip(transcripts, self.snippets, full_comments):
             transcript.metadata = snippet if transcript.transcripts else None
@@ -163,7 +162,7 @@ class YTFetcher:
         
         return transcripts
     
-    async def fetch_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
+    def fetch_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
         """
         Fetches comments for all videos.
 
@@ -174,8 +173,8 @@ class YTFetcher:
         Returns:
             list[ChannelData]: A list of objects containing only comments.
         """
-        commf = CommentFetcher(max_comments=max_comments, max_workers=max_workers)
-        full_comments = commf.fetch(video_ids=self._get_video_ids())
+        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids())
+        full_comments = commf.fetch()
 
         return [
             ChannelData(
@@ -187,7 +186,7 @@ class YTFetcher:
             for snippet, comments in zip(self.snippets, full_comments)
         ]
     
-    async def fetch_transcripts(self) -> list[ChannelData]:
+    def fetch_transcripts(self) -> list[ChannelData]:
         """
         Returns only the transcripts from cached or freshly fetched YouTube data.
 
@@ -195,9 +194,9 @@ class YTFetcher:
             list[ChannelData]: Transcripts only with video_id (excluding metadata).
         """
         
-        return await self.fetcher.fetch()
+        return self.fetcher.fetch()
 
-    async def fetch_snippets(self) -> list[ChannelData] | None:
+    def fetch_snippets(self) -> list[ChannelData] | None:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 

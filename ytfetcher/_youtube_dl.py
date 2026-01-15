@@ -9,25 +9,37 @@ from ytfetcher.utils.log import log
 from typing import Any, cast
 
 logger = logging.getLogger(__name__)
-
-class CommentFetcher:
-    def __init__(self, max_comments: int = 20, max_workers: int = 20):
-        self.max_comments = max_comments
-        self.max_workers = max_workers
+class ConcurrentYoutubeDLFetcher(ABC):
+    def __init__(self, video_ids: list[str], info: str | None = None, description: str | None = None):
+        self.video_ids = video_ids
+        self.info = info
+        self.description = description
     
-    def fetch(self, video_ids: list[str]) -> list[list[Comment]]:
-        log(f"Starting to fetch comments for {len(video_ids)} videos...", level='INFO')
-        
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = [executor.submit(self._fetch_single, video_id) for video_id in video_ids]
+    def fetch(self) -> list:
+        log(f"Starting to fetch {self.info} for {len(self.video_ids)} videos...", level='INFO')
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
+            futures = [executor.submit(self.fetch_single, video_id) for video_id in self.video_ids]
 
             results = []
-            for future in tqdm(concurrent.futures.as_completed(futures), total=len(video_ids), desc="Fetching Comments"):
-                results.append(future.result())
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc=self.description):
+                res = future.result()
+                if res is not None:
+                    results.append(res)
                 
             return results
+
+    @abstractmethod
+    def fetch_single(self, video_id: str):
+        """Must be implemented by subclass"""
+        pass
+
+class CommentFetcher(ConcurrentYoutubeDLFetcher):
+    def __init__(self, video_ids: list[str], max_comments: int = 20):
+        super().__init__(video_ids, 'comments', 'Fetching Comments')
+        self.max_comments = max_comments
             
-    def _fetch_single(self, video_id: str) -> list[Comment]:
+    def fetch_single(self, video_id: str) -> list[Comment]:
         video_url = f'https://www.youtube.com/watch?v={video_id}'
         
         ydl_opts_deep = {
@@ -48,11 +60,30 @@ class CommentFetcher:
                 }
             }
         }
-                
-        with yt_dlp.YoutubeDL(ydl_opts_deep) as ydl: #type: ignore[arg-type]
-            info_dict = ydl.extract_info(video_url, download=False)
-            data = cast(list[dict[str, Any]], info_dict.get('comments', None) or [])
-            return [Comment.model_validate(comment) for comment in data]
+        try:       
+            with yt_dlp.YoutubeDL(ydl_opts_deep) as ydl: #type: ignore[arg-type]
+                info_dict = ydl.extract_info(video_url, download=False)
+                data = cast(list[dict[str, Any]], info_dict.get('comments', None) or [])
+                return self._safe_validate_comments(data)
+        
+        except Exception as e:
+            log(f"Failed to fetch comments for {video_id}: {e}", level="WARNING")
+            return []
+        
+    def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
+        """
+        Handles comments with missing fields and returns completed data.
+        """
+        comments: list[Comment] = []
+
+        for raw in raw_comments:
+            try:
+                comments.append(Comment.model_validate(raw))
+            except Exception:
+                continue
+
+        return comments
+
 
 class BaseYoutubeDLFetcher(ABC):
     """
@@ -225,7 +256,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         raise ValueError(f"Could not extract playlist ID from URL: {url}")
 
 
-class VideoListFetcher(BaseYoutubeDLFetcher):
+class VideoListFetcher(ConcurrentYoutubeDLFetcher):
     """
     Fetches metadata for one or more specific YouTube videos.
     Args:
@@ -233,28 +264,30 @@ class VideoListFetcher(BaseYoutubeDLFetcher):
     """
 
     def __init__(self, video_ids: list[str]):
-        self.video_ids = video_ids
+        super().__init__(video_ids, 'metadata', 'Extracting Metadata')
 
-    def fetch(self) -> list[DLSnippet]:
-        ydl_opts = self._setup_ydl_opts()
-        results: list[dict[str, Any]] = []
+    def fetch_single(self, video_id: str) -> DLSnippet | None:
+        ydl_opts = {
+            "quiet": True,
+            "skip_download": True,
+            "extract_flat": True,
+            "no_warnings": True,
+        }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            for video_id in tqdm(self.video_ids, desc="Extracting metadata", unit="video"):
-                url = f"https://www.youtube.com/watch?v={video_id}"
-                info = cast(dict[str, Any], ydl.extract_info(url, download=False))
-                if info:
-                    results.append(info)
+            url = f"https://www.youtube.com/watch?v={video_id}"
+            metadata = cast(dict[str, Any], ydl.extract_info(url, download=False))
 
-        return self._to_snippets(entries=results)
+            if not metadata: return None
 
+        return DLSnippet.model_validate(metadata)
 
 def get_fetcher(
     channel_handle: str | None = None,
     playlist_id: str | None = None,
     video_ids: list[str] | None = None,
     max_results: int = 50,
-) -> BaseYoutubeDLFetcher:
+) -> BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher:
     """
     Factory function that returns the correct fetcher
     based on provided parameters.
@@ -266,7 +299,7 @@ def get_fetcher(
         max_results (int): Maximum number of videos to fetch.
 
     Returns:
-        BaseYoutubeDLFetcher: An appropriate fetcher subclass instance.
+        BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher: An appropriate fetcher subclass instance.
 
     Raises:
         ValueError: If no valid input was provided.

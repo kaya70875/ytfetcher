@@ -6,13 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+
+### Changed
+- Changed `ytfetcher` to be completely **sync**.
+
+### Fixed
+- Fixed VideoListFetcher performance issue with implementing `ThreadPoolExecutor`.
+---
+
+## [1.5.3] - 2026-01-01
+### Added
 - Added preview mode in CLI for `ytfetcher`. It's now default mode and exporting is optional with `--format`. Also dumping data possible with `--stdout` argument in CLI.
 
 ### Changed
 - Exporter now optional in CLI if you don't define `--format` argument.
 - Categorized `ytfetcher` arguments for better clarity and user experience.
-
-### Fixed
 
 ---
 
