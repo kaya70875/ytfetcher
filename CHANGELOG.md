@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 ### Changed
+- Changed `ytfetcher` to be completely **sync**.
 
 ### Fixed
 - Fixed VideoListFetcher performance issue with implementing `ThreadPoolExecutor`.
