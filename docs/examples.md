@@ -7,11 +7,10 @@ We created example use cases for you. You can check and get inspired by visiting
 One common use case is searching for specific keywords or phrases across all videos in a channel. Here's an example:
 
 ```python
-import asyncio
 from ytfetcher import YTFetcher
 from ytfetcher.services import JSONExporter
 
-async def search_in_channel(handle: str, keyword: str):
+def search_in_channel(handle: str, keyword: str):
     # 1. Initialize using your factory method
     fetcher = YTFetcher.from_channel(
         channel_handle=handle,
@@ -20,7 +19,7 @@ async def search_in_channel(handle: str, keyword: str):
 
     # 2. Fetch the structured data
     print(f"Searching for '{keyword}' in @{handle}...")
-    channel_data = await fetcher.fetch_youtube_data()
+    channel_data = fetcher.fetch_youtube_data()
 
     matches = []
 
@@ -48,7 +47,7 @@ async def search_in_channel(handle: str, keyword: str):
     exporter.write()
 
 if __name__ == "__main__":
-    asyncio.run(search_in_channel("TheOffice", "Dunder Mifflin"))
+    search_in_channel("TheOffice", "Dunder Mifflin")
 ```
 
 ## Sentiment Analysis With Youtube Comments
@@ -64,17 +63,16 @@ pip install vaderSentiment
 Here's the full code:
 
 ```py
-import asyncio
 from ytfetcher import YTFetcher
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-async def analyze_comments(handle: str):
+def analyze_comments(handle: str):
     # 1. Initialize the fetcher for a specific channel
     fetcher = YTFetcher.from_channel(channel_handle=handle, max_results=3)
     
     # 2. Fetch data WITH comments (using your specific method)
     print(f"Fetching comments from @{handle}...")
-    channel_data = await fetcher.fetch_with_comments(max_comments=20)
+    channel_data = fetcher.fetch_with_comments(max_comments=20)
 
     analyzer = SentimentIntensityAnalyzer()
     stats = {"Positive": 0, "Neutral": 0, "Negative": 0}
@@ -109,23 +107,22 @@ async def analyze_comments(handle: str):
         print(f"{label}: {count}")
 
 if __name__ == "__main__":
-    asyncio.run(analyze_comments("TheOffice"))
+    analyze_comments("TheOffice")
 ```
 
 ## The AI-Ready Content Summarizer
 This script fetches a video's transcript, **strips out unnecessary timing info,** and combines it with metadata to create a perfectly formatted `.txt` file that you can drop into any AI tool.
 
 ```py
-import asyncio
 from ytfetcher import YTFetcher
 from ytfetcher.services import TXTExporter
 
-async def prepare_for_ai(video_ids: list[str]):
+def prepare_for_ai(video_ids: list[str]):
     # 1. Initialize using the video URL factory
     fetcher = YTFetcher.from_video_ids(video_ids=video_ids)
     
     print(f"Downloading transcript for AI processing...")
-    channel_data = await fetcher.fetch_youtube_data()
+    channel_data = fetcher.fetch_youtube_data()
 
     # 2. Extract the text only for a clean 'context' string
     full_transcript = ""
@@ -151,5 +148,5 @@ async def prepare_for_ai(video_ids: list[str]):
 
 if __name__ == "__main__":
     url = ['NKnZYvZA7w4']
-    asyncio.run(prepare_for_ai(url))
+    prepare_for_ai(url)
 ```
