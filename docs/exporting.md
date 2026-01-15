@@ -7,7 +7,7 @@ Use the `BaseExporter` class to export `ChannelData` in **csv, json, or txt**:
 ```py
 from ytfetcher.services import JSONExporter # OR you can import other exporters: TXTExporter, CSVExporter
 
-channel_data = asyncio.run(fetcher.fetch_youtube_data())
+channel_data = fetcher.fetch_youtube_data()
 
 exporter = JSONExporter(
     channel_data=channel_data,

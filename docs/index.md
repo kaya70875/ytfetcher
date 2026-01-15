@@ -7,7 +7,7 @@
 ## Why YTFetcher?
 Most YouTube scrapers are either slow, break easily, or only give you raw text. YTFetcher is built for **speed** and **structure**:
 
-* 🚀 **Async-first:** Fetches thousands of videos in minutes.
+* 🚀 **High performance:** Fetches thousands of videos in minutes.
 * 📦 **Structured Data:** Returns clean Pydantic models (metadata, transcripts, comments).
 * 🛠️ **CLI & API:** Use it in your terminal or integrate it into your Python pipeline.
 * 🛡️ **Built-in Proxy Support:** Avoid rate limits with Generic or Webshare proxies.
@@ -26,21 +26,15 @@ pip install ytfetcher
 Here’s how you can get transcripts and metadata information like **channel name, description, published date**, etc. from a channel with `from_channel` method:
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.models.channel import ChannelData
-import asyncio
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=2
 )
 
-async def get_channel_data() -> list[ChannelData]:
-    channel_data = await fetcher.fetch_youtube_data()
-    return channel_data
+channel_data = await fetcher.fetch_youtube_data()
+print(channel_data)
 
-if __name__ == '__main__':
-    data = asyncio.run(get_channel_data())
-    print(data)
 ```
 
 !!! Note
@@ -98,16 +92,12 @@ This will preview the first 4 results of the data in a **beautifully formatted t
 Here's how you can fetch bulk transcripts from a specific `playlist_id` using `ytfetcher`.
 ```py
 from ytfetcher import YTFetcher
-import asyncio
 
 fetcher = YTFetcher.from_playlist_id(
     playlist_id="playlistid1254"
 )
 
-async def get_channel_data() -> list[ChannelData]:
-    channel_data = await fetcher.fetch_youtube_data()
-    return channel_data
-```
+data = fetcher.fetch_youtube_data()
 
 ### Fetching With Custom Video IDs
 Initialize `ytfetcher` with custom video IDs using `from_video_ids` method:
@@ -119,9 +109,7 @@ fetcher = YTFetcher.from_video_ids(
     video_ids=['video1', 'video2', 'video3']
 )
 
-async def get_channel_data() -> list[ChannelData]:
-    channel_data = await fetcher.fetch_youtube_data()
-    return channel_data
+data = fetcher.fetch_youtube_data()
 ```
 
 ## Transcript Options
@@ -161,9 +149,7 @@ To fetch comments alongside with transcripts and metadata you can use `fetch_wit
 
 ```py
 fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
-
-async def get_channel_data():
-    channel_data_with_comments = await fetcher.fetch_with_comments(max_comments=10)
+comments = fetcher.fetch_with_comments(max_comments=10)
 ```
 
 This will simply fetch **top 10 comments for every video** alongside with transcript data.
@@ -190,10 +176,7 @@ Here's an example structure:
 To fetch comments without transcripts you can use `fetch_comments` method.
 ```py
 fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
-
-def get_comments() -> list[Comment]:
-    comments = fetcher.fetch_comments(max_comments=20)
-    print(comments)
+comments = fetcher.fetch_comments(max_comments=20)
 ```
 
 This will return list of `Comment` like this:

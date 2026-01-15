@@ -1,5 +1,4 @@
 import argparse
-import asyncio
 import ast
 import sys
 from typing import Union
@@ -50,14 +49,14 @@ class YTFetcherCLI:
 
         return HTTPConfig()
     
-    async def _run_fetcher(self, factory_method: type[YTFetcher], **kwargs) -> None:
+    def _run_fetcher(self, factory_method: type[YTFetcher], **kwargs) -> None:
         fetcher = factory_method(
             http_config=self._initialize_http_config(),
             proxy_config=self._initialize_proxy_config(),
             **kwargs
         )
 
-        async def get_data(comments_arg: int, comments_only_arg: int) -> list[ChannelData]:
+        def get_data(comments_arg: int, comments_only_arg: int) -> list[ChannelData]:
             """
             Decides correct method and returns data based on `comments` argument.
             
@@ -65,14 +64,14 @@ class YTFetcherCLI:
             :type comments: bool
             """
             if comments_arg > 0:
-                return await fetcher.fetch_with_comments(max_comments=self.args.comments)
+                return fetcher.fetch_with_comments(max_comments=self.args.comments)
 
             elif comments_only_arg > 0:
-                return await fetcher.fetch_comments(max_comments=self.args.comments_only)
+                return fetcher.fetch_comments(max_comments=self.args.comments_only)
 
-            return await fetcher.fetch_youtube_data()
+            return fetcher.fetch_youtube_data()
 
-        data = await get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
+        data = get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
         log('Fetched all channel data.', level='DONE')
 
         self._handle_output(data=data)
@@ -118,11 +117,11 @@ class YTFetcherCLI:
 
         exporter.write()
     
-    async def run(self):
+    def run(self):
         match self.args.command:
             case 'from_channel':
                 log(f'Starting to fetch from channel: {self.args.channel_handle}')
-                await self._run_fetcher(
+                self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel_handle,
                     max_results=self.args.max_results,
@@ -132,7 +131,7 @@ class YTFetcherCLI:
             
             case 'from_video_ids':
                 log(f'Starting to fetch from video ids: {self.args.video_ids}')
-                await self._run_fetcher(
+                self._run_fetcher(
                     YTFetcher.from_video_ids,
                     video_ids=self.args.video_ids,
                     languages=self.args.languages,
@@ -141,7 +140,7 @@ class YTFetcherCLI:
             
             case 'from_playlist_id':
                 log(f"Starting to fetch from playlist id: {self.args.playlist_id}")
-                await self._run_fetcher(
+                self._run_fetcher(
                     YTFetcher.from_playlist_id,
                     playlist_id=self.args.playlist_id,
                     languages=self.args.languages,
@@ -212,7 +211,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
 def main():
     args = parse_args(sys.argv[1:])
     cli = YTFetcherCLI(args=args)
-    asyncio.run(cli.run())
+    cli.run()
 
 if __name__ == "__main__":
     main()
