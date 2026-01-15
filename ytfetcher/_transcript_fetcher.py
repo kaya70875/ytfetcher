@@ -60,7 +60,7 @@ class TranscriptFetcher:
         """
 
         with self.executor as executor:
-            futures = [executor.submit(self._fetch_single(video_id=video_id) for video_id in self.video_ids)]
+            futures = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
 
             channel_data = self._build_channel_data(futures)
             
