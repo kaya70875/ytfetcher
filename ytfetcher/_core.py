@@ -116,7 +116,7 @@ class YTFetcher:
 
     def fetch_youtube_data(self) -> list[ChannelData]:
         """
-        Asynchronously fetches transcript and metadata for all videos retrieved from the channel or video IDs.
+        Synchronously fetches transcript and metadata for all videos retrieved from the channel or video IDs.
 
         Returns:
             list[ChannelData]: A list of objects containing transcript text and associated metadata.
@@ -186,7 +186,7 @@ class YTFetcher:
         
         return self.fetcher.fetch()
 
-    async def fetch_snippets(self) -> list[ChannelData] | None:
+    def fetch_snippets(self) -> list[ChannelData] | None:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 
