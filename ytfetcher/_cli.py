@@ -100,12 +100,18 @@ class YTFetcherCLI:
         if self.args.min_views:
             active_filters.append(filters.min_views(self.args.min_views))
         
+        if self.args.max_views:
+            active_filters.append(filters.max_views(self.args.max_views))
+        
         if self.args.min_duration:
             active_filters.append(filters.min_duration(self.args.min_duration))
 
+        if self.args.max_duration:
+            active_filters.append(filters.max_duration(self.args.max_duration))
+
         if self.args.includes_title:
             active_filters.append(filters.filter_by_title(self.args.includes_title))
-        
+
         return active_filters
 
     @staticmethod
@@ -216,7 +222,9 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
 
     filter_group = parser.add_argument_group("Filtering Options (Pre-Fetch)")
     filter_group.add_argument("--min-views", type=int, help="Minimum views to process.")
+    filter_group.add_argument("--max-views", type=int, help="Maximum views to process.")
     filter_group.add_argument("--min-duration", type=int, help="Minimum video duration to process.")
+    filter_group.add_argument("--max-duration", type=int, help="Maximum video duration to process.")
     filter_group.add_argument("--includes-title", type=str, help="Filter by video title.")
 
     export_group = parser.add_argument_group("Exporter Options")
