@@ -53,7 +53,7 @@ ytfetcher from_channel -c TheOffice -m 20 -f json
 ```
 
 !!! Note
-  You can use channel handles with or without the `@` symbol, or even full URLs like `https://www.youtube.com/@TheOffice`.
+    You can use channel handles with or without the `@` symbol, or even full URLs like `https://www.youtube.com/@TheOffice`.
 
 ### Fetching from Video IDs
 
@@ -128,7 +128,7 @@ All commands support the following common options:
 - Example: `ytfetcher from_channel -c TheOffice -m 20 --comments-only 10 -f json`
 
 !!! Warning
-Comment fetching is resource-intensive. Performance depends on your internet connection and the volume of comments being retrieved.
+    Comment fetching is resource-intensive. Performance depends on your internet connection and the volume of comments being retrieved.
 
 ### Filtering Options
 
@@ -170,7 +170,7 @@ This command only processes videos that:
 - Have "tutorial" in the title
 
 !!! Note
-Filters work on video metadata retrieved before transcript fetching. If a video's metadata is missing (e.g., `duration=None`), it will be excluded by duration filters.
+    Filters work on video metadata retrieved before transcript fetching. If a video's metadata is missing (e.g., `duration=None`), it will be excluded by duration filters.
 
 ### Export Options
 

@@ -137,6 +137,53 @@ fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True)
 !!! Tip
     Also it makes sense to use this flag to fetch channels like `TEDx` which naturally has more **manually created** transcripts.
 
+## Filtering
+
+`ytfetcher` allows you to filter videos **before** fetching transcripts, which helps you focus on specific content and save processing time. Filters are applied to video metadata (duration, view count, title) and work with all fetcher methods.
+
+### Available Filter Functions
+
+The following filter functions are available in `ytfetcher.filters`:
+
+- **`min_duration(sec: float)`** - Filter videos with duration greater than or equal to specified seconds
+- **`max_duration(sec: float)`** - Filter videos with duration less than or equal to specified seconds
+- **`min_views(n: int)`** - Filter videos with view count greater than or equal to specified number
+- **`max_views(n: int)`** - Filter videos with view count less than or equal to specified number
+- **`filter_by_title(search_query: str)`** - Filter videos whose title contains the search query (case-insensitive)
+
+### Using Filters in Python API
+
+Pass a list of filter functions to the `filters` parameter when creating a fetcher:
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.filters import min_duration, min_views, filter_by_title
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    filters=[
+        min_views(5000),
+        min_duration(600),  # At least 10 minutes
+        filter_by_title("tutorial")
+    ]
+)
+```
+
+Filters also work with `from_video_ids` and `from_playlist_id`:
+
+```python
+fetcher = YTFetcher.from_playlist_id(
+    playlist_id="playlistid1254",
+    filters=[min_views(1000), max_duration(1800)]  # Max 30 minutes
+)
+
+fetcher = YTFetcher.from_video_ids(
+    video_ids=['video1', 'video2', 'video3'],
+    filters=[filter_by_title("python")]
+)
+```
+
 ## Fetching Comments
 `ytfetcher` allows you fetch comments in bulk **with additional metadata and transcripts** or **just comments alone.**
 
