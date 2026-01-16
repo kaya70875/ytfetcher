@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+- Added pre-fetch filters for `ytfetcher`.
 
 ### Changed
 - Changed `ytfetcher` to be completely **sync**.
