@@ -1,4 +1,5 @@
 # YTFetcher
+
 [![codecov](https://codecov.io/gh/kaya70875/ytfetcher/branch/main/graph/badge.svg)](https://codecov.io/gh/kaya70875/ytfetcher)
 [![PyPI Downloads](https://static.pepy.tech/personalized-badge/ytfetcher?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/ytfetcher)
 [![PyPI version](https://img.shields.io/pypi/v/ytfetcher)](https://pypi.org/project/ytfetcher/)
@@ -11,6 +12,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 ---
 
 ## 📚 Table of Contents
+
 - [Installation](#installation)
 - [Quick CLI Usage](#quick-cli-usage)
 - [Docker Quick Start](#docker-quick-start)
@@ -18,6 +20,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Basic Usage (Python API)](#basic-usage-python-api)
 - [Using Different Fetchers](#using-different-fetchers)
 - [Retreive Different Languages](#retreive-different-languages)
+- [Filtering](#filtering)
 - [Fetching Only Manually Created Transcripts](#fetching-only-manually-created-transcripts)
 - [Exporting](#exporting)
 - [Comments](#Fetching-Comments)
@@ -34,7 +37,9 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 ---
 
 ## Installation
+
 Install from PyPI:
+
 ```bash
 pip install ytfetcher
 ```
@@ -42,7 +47,9 @@ pip install ytfetcher
 ---
 
 ## Quick CLI Usage
+
 Fetch 50 video transcripts + metadata from a channel and save as JSON:
+
 ```bash
 ytfetcher from_channel -c TheOffice -m 50 -f json
 ```
@@ -50,6 +57,7 @@ ytfetcher from_channel -c TheOffice -m 50 -f json
 ---
 
 ## Docker Quick Start
+
 The recommended way to run or develop YTFetcher is using Docker to ensure a clean, stable environment without needing local Python or dependency management.
 
 ```bash
@@ -57,6 +65,7 @@ docker-compose build
 ```
 
 Use `docker-compose run` to execute your desired command inside the container.
+
 ```bash
 docker-compose run ytfetcher poetry run ytfetcher from_channel -c TheOffice -m 20 -f json
 ```
@@ -64,6 +73,7 @@ docker-compose run ytfetcher poetry run ytfetcher from_channel -c TheOffice -m 2
 ---
 
 ## CLI Overview
+
 YTFetcher comes with a simple CLI so you can fetch data directly from your terminal.
 
 ```bash
@@ -88,6 +98,7 @@ options:
 ---
 
 ## Features
+
 - Fetch full **transcripts** from a YouTube channel.
 - Get video **metadata: title, description, thumbnails, published date**.
 - Fetch **comments** in bulk.
@@ -206,11 +217,79 @@ fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
 ```
 
 Also here's a quick CLI command for `languages` param.
+
 ```bash
 ytfetcher from_channel -c TheOffice -m 50 -f csv --languages tr en
 ```
 
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
+
+---
+
+## Filtering
+
+`ytfetcher` allows you to filter videos **before** fetching transcripts, which helps you focus on specific content and save processing time. Filters are applied to video metadata (duration, view count, title) and work with all fetcher methods.
+
+### Available Filter Functions
+
+The following filter functions are available in `ytfetcher.filters`:
+
+- **`min_duration(sec: float)`** - Filter videos with duration greater than or equal to specified seconds
+- **`max_duration(sec: float)`** - Filter videos with duration less than or equal to specified seconds
+- **`min_views(n: int)`** - Filter videos with view count greater than or equal to specified number
+- **`max_views(n: int)`** - Filter videos with view count less than or equal to specified number
+- **`filter_by_title(search_query: str)`** - Filter videos whose title contains the search query (case-insensitive)
+
+### Using Filters in Python API
+
+Pass a list of filter functions to the `filters` parameter when creating a fetcher:
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.filters import min_duration, min_views, filter_by_title
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    filters=[
+        min_views(5000),
+        min_duration(600),  # At least 10 minutes
+        filter_by_title("tutorial")
+    ]
+)
+```
+
+Filters also work with `from_video_ids` and `from_playlist_id`:
+
+```python
+fetcher = YTFetcher.from_playlist_id(
+    playlist_id="playlistid1254",
+    filters=[min_views(1000), max_duration(1800)]  # Max 30 minutes
+)
+
+fetcher = YTFetcher.from_video_ids(
+    video_ids=['video1', 'video2', 'video3'],
+    filters=[filter_by_title("python")]
+)
+```
+
+### Using Filters in CLI
+
+You can use filter arguments directly in the CLI:
+
+```bash
+# Filter by minimum views
+ytfetcher from_channel -c TheOffice -m 50 -f json --min-views 1000
+
+# Filter by minimum duration (in seconds)
+ytfetcher from_channel -c TheOffice -m 50 -f csv --min-duration 300
+
+# Filter by title substring
+ytfetcher from_channel -c TheOffice -m 50 -f json --includes-title "episode"
+
+# Combine multiple filters
+ytfetcher from_channel -c TheOffice -m 50 -f json --min-views 1000 --min-duration 300 --includes-title "tutorial"
+```
 
 ---
 
@@ -251,6 +330,7 @@ exporter.write()
 ### Exporting With CLI
 
 You can also specify arguments when exporting which allows you to decide whether to exclude `timings` and choose desired `metadata`.
+
 ```bash
 ytfetcher from_channel -c TheOffice -m 20 -f json --no-timing --metadata title description
 ```
@@ -268,6 +348,7 @@ Performance: Comment fetching is a resource-intensive process. The speed of extr
 ### Fetch Comments With Transcripts And Metadata
 
 To fetch comments alongside with transcripts and metadata you can use `fetch_with_comments` method.
+
 ```python
 fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
 
@@ -284,7 +365,7 @@ Here's an example structure:
         video_id='id1',
         transcripts=list[Transcript(...)],
         metadata=DLSnippet(...),
-        comments=list[Comment(        
+        comments=list[Comment(
             text='Comment one.',
             like_count=20,
             author='@author',
@@ -297,6 +378,7 @@ Here's an example structure:
 ### Fetch Only Comments
 
 To fetch comments without transcripts you can use `fetch_comments` method.
+
 ```python
 fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
 
@@ -304,6 +386,7 @@ comments = fetcher.fetch_comments(max_comments=20)
 ```
 
 This will return list of `Comment` like this:
+
 ```python
 [
     Comment(
@@ -322,11 +405,13 @@ This will return list of `Comment` like this:
 Fetching comments in `ytfetcher` with CLI is very easy.
 
 To fetch comments with transcripts you can use `--comments` argument:
+
 ```bash
 ytfetcher from_channel -c TheOffice -m 20 --comments 10 -f json
 ```
 
 To fetch only comments with metadata you can use `--comments-only` argument:
+
 ```bash
 ytfetcher from_channel -c TheOffice -m 20 --comments-only 10 -f json
 ```
@@ -371,6 +456,7 @@ fetcher = YTFetcher.from_channel(
 ---
 
 ## Advanced HTTP Configuration (Optional)
+
 `YTfetcher` already uses custom headers for mimic real browser behavior but if you want to change it, you can use a custom `HTTPConfig` class.
 
 ```python
@@ -394,16 +480,19 @@ fetcher = YTFetcher.from_channel(
 ## CLI (Advanced)
 
 ### Basic Usage
+
 ```bash
 ytfetcher from_channel -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ```
 
 ### Fetching by Video IDs
+
 ```bash
 ytfetcher from_video_ids -v video_id1 video_id2 ... -f json
 ```
 
 ### Fetching From Playlist Id
+
 ```bash
 ytfetcher from_playlist_id -p playlistid123 -f csv -m 25
 ```
@@ -447,6 +536,7 @@ poetry run pytest
 ---
 
 ## Running Type Check
+
 You should be passing all type checks to contribute `ytfetcher`.
 
 ```bash
@@ -474,4 +564,3 @@ Thanks to everyone who has contributed to **ytfetcher** ❤️
 ---
 
 ⭐ If you find this useful, please star the repo or open an issue with feedback!
-
