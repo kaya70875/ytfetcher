@@ -47,8 +47,8 @@ class YTFetcherCLI:
     This class handles the orchestration of transcript fetching operations from various YouTube sources
     (channels, videos, or playlists) and manages the export of fetched data in multiple formats.
     """
-    def __init__( args: argparse.Namespace):
-        args = args
+    def __init__(self, args: argparse.Namespace):
+        self.args = args
     
     def _fetch_data(self, fetcher: YTFetcher) -> list[ChannelData]:
         """
