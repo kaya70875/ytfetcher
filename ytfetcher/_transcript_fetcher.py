@@ -65,7 +65,7 @@ class TranscriptFetcher:
 
             channel_data = self._build_channel_data(futures)
             
-            if not channel_data and self.manually_created: log("No manually created transcripts found!", level="ERROR")
+            if not channel_data and self.manually_created: logger.error("No manually created transcripts found!")
 
             return channel_data
 

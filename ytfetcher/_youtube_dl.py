@@ -17,7 +17,7 @@ class ConcurrentYoutubeDLFetcher(ABC):
         self.description = description
     
     def fetch(self) -> list:
-        log(f"Starting to fetch {self.info} for {len(self.video_ids)} videos...", level='INFO')
+        logger.info(f"Starting to fetch {self.info} for {len(self.video_ids)} videos...")
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
             futures = [executor.submit(self.fetch_single, video_id) for video_id in self.video_ids]
@@ -68,7 +68,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 return self._safe_validate_comments(data)
         
         except Exception as e:
-            log(f"Failed to fetch comments for {video_id}: {e}", level="WARNING")
+            logger.warning(f"Failed to fetch comments for {video_id}: {e}")
             return []
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
@@ -188,7 +188,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         Raises:
             ValueError: If no valid handle can be extracted.
         """
-        log("Got full URL, trying to extract channel handle. If it fails, try providing only the handle.", level="WARNING")
+        logger.warning("Got full URL, trying to extract channel handle. If it fails, try providing only the handle.")
 
         parsed = urlparse(url)
         path = parsed.path
@@ -245,7 +245,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         Raises:
             ValueError: If no valid playlist ID can be found.
         """
-        log("Got full URL, trying to extract playlist ID. If it fails, try providing only playlist ID.", level="WARNING")
+        logger.warning("Got full URL, trying to extract playlist ID. If it fails, try providing only playlist ID.")
 
         parsed = urlparse(url)
         query_params = parse_qs(parsed.query)
