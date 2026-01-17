@@ -2,10 +2,11 @@ import yt_dlp
 import concurrent.futures
 import logging
 from ytfetcher.models.channel import DLSnippet, Comment
+from ytfetcher.utils.log import log
+from ytfetcher.utils.state import should_disable_progress
 from tqdm import tqdm
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse, parse_qs
-from ytfetcher.utils.log import log
 from typing import Any, cast
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class ConcurrentYoutubeDLFetcher(ABC):
             futures = [executor.submit(self.fetch_single, video_id) for video_id in self.video_ids]
 
             results = []
-            for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc=self.description):
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc=self.description, disable=should_disable_progress()):
                 res = future.result()
                 if res is not None:
                     results.append(res)
