@@ -1,14 +1,10 @@
 from unittest.mock import patch, Mock
-from ytfetcher.config import HTTPConfig
 from ytfetcher._cli import create_parser, YTFetcherCLI
 
-@patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.YTFetcher')
-def test_run_filter_argument_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_initialize_http_config):
+def test_run_filter_argument_passed_correctly_to_ytfetcher(mock_ytfetcher):
     mock_fetcher = Mock()
     mock_ytfetcher.from_channel.return_value = mock_fetcher
-
-    mock_initialize_http_config.return_value = HTTPConfig()
 
     parser = create_parser()
     args = parser.parse_args([
