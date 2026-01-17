@@ -60,7 +60,7 @@ class YTFetcherCLI:
         if self.args.comments > 0:
             return fetcher.fetch_with_comments(max_comments=self.args.comments)
 
-        elif self.args.comment_only > 0:
+        elif self.args.comments_only > 0:
             return fetcher.fetch_comments(max_comments=self.args.comments_only)
 
         return fetcher.fetch_youtube_data()
