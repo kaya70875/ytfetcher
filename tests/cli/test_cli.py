@@ -5,9 +5,8 @@ from ytfetcher.services.exports import METEDATA_LIST
 
 # --> Basic Call Tests <--
 
-@patch('ytfetcher._cli.TXTExporter.write')
 @patch.object(YTFetcherCLI, '_run_fetcher')
-def test_run_from_channel_called(mock_run_channel, mock_export_as_txt):
+def test_run_from_channel_called(mock_run_channel):
     parser = create_parser()
     args = parser.parse_args([
         "from_channel",
@@ -18,9 +17,8 @@ def test_run_from_channel_called(mock_run_channel, mock_export_as_txt):
 
     mock_run_channel.assert_called_once()
 
-@patch('ytfetcher._cli.TXTExporter.write')
 @patch.object(YTFetcherCLI, '_run_fetcher')
-def test_run_from_video_ids_called(mock_run_from_video_ids, mock_export_as_txt):
+def test_run_from_video_ids_called(mock_run_from_video_ids):
     parser = create_parser()
     args = parser.parse_args([
         "from_video_ids",
@@ -31,9 +29,8 @@ def test_run_from_video_ids_called(mock_run_from_video_ids, mock_export_as_txt):
 
     mock_run_from_video_ids.assert_called_once()
 
-@patch('ytfetcher._cli.TXTExporter.write')
 @patch.object(YTFetcherCLI, '_run_fetcher')
-def test_run_from_playlist_id_called(mock_run_from_playlist_id, mock_export_as_txt):
+def test_run_from_playlist_id_called(mock_run_from_playlist_id):
     parser = create_parser()
     args = parser.parse_args([
         "from_playlist_id",
@@ -47,9 +44,8 @@ def test_run_from_playlist_id_called(mock_run_from_playlist_id, mock_export_as_t
 # --> Arguments Test <--
 
 @patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
-@patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.YTFetcher')
-def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
+def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_initialize_http_config):
     mock_fetcher = Mock()
     mock_ytfetcher.from_channel.return_value = mock_fetcher
 
@@ -71,15 +67,15 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
         http_config=cli._initialize_http_config(),
         proxy_config=cli._initialize_proxy_config(),
         languages=["en"],
-        manually_created=False
+        manually_created=False,
+        filters=[]
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
 
 @patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
-@patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.YTFetcher')
-def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
+def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_initialize_http_config):
     mock_fetcher = Mock()
     mock_ytfetcher.from_playlist_id.return_value = mock_fetcher
 
@@ -102,15 +98,15 @@ def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfet
         http_config=cli._initialize_http_config(),
         proxy_config=cli._initialize_proxy_config(),
         languages=["en", "de"],
-        manually_created=True
+        manually_created=True,
+        filters=[]
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
 
 @patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
-@patch('ytfetcher._cli.TXTExporter.write')
 @patch('ytfetcher._cli.YTFetcher')
-def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_export_as_txt, mock_initialize_http_config):
+def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_initialize_http_config):
     mock_fetcher = Mock()
     mock_ytfetcher.from_video_ids.return_value = mock_fetcher
 
@@ -121,7 +117,6 @@ def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetch
     args = parser.parse_args([
         "from_video_ids",
         "-v", "id1", "id2",
-        "-f", "txt",
         "--languages", "en", "de"
     ])
 
@@ -133,7 +128,8 @@ def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetch
         http_config=cli._initialize_http_config(),
         proxy_config=cli._initialize_proxy_config(),
         languages=["en", "de"],
-        manually_created=False
+        manually_created=False,
+        filters=[]
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()

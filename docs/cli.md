@@ -130,6 +130,48 @@ All commands support the following common options:
 !!! Warning
     Comment fetching is resource-intensive. Performance depends on your internet connection and the volume of comments being retrieved.
 
+### Filtering Options
+
+Filters are applied **before** fetching transcripts, allowing you to focus on specific content and save processing time. Multiple filters use **AND** logic - all specified filters must pass for a video to be included.
+
+**`--min-views <NUMBER>`**
+
+- Filter videos with view count greater than or equal to the specified number
+- Example: `ytfetcher from_channel -c TheOffice -m 50 -f json --min-views 1000`
+- Only processes videos with at least 1000 views
+
+**`--min-duration <SECONDS>`**
+
+- Filter videos with duration greater than or equal to the specified seconds
+- Example: `ytfetcher from_channel -c TheOffice -m 50 -f csv --min-duration 300`
+- Only processes videos that are at least 5 minutes (300 seconds) long
+
+**`--includes-title <STRING>`**
+
+- Filter videos whose title contains the specified string (case-insensitive)
+- Example: `ytfetcher from_channel -c TheOffice -m 50 -f json --includes-title "episode"`
+- Only processes videos with "episode" in the title
+
+**Combining Multiple Filters**
+
+You can combine multiple filters to create more specific criteria:
+
+```bash
+ytfetcher from_channel -c TheOffice -m 50 -f json \
+  --min-views 1000 \
+  --min-duration 300 \
+  --includes-title "tutorial"
+```
+
+This command only processes videos that:
+
+- Have at least 1000 views
+- Are at least 5 minutes long
+- Have "tutorial" in the title
+
+!!! Note
+    Filters work on video metadata retrieved before transcript fetching. If a video's metadata is missing (e.g., `duration=None`), it will be excluded by duration filters.
+
 ### Export Options
 
 **`-f`, `--format`**
