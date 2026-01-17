@@ -314,3 +314,20 @@ fetcher = YTFetcher.from_channel(
 
 !!! Note
     If you don't provide custom headers, YTFetcher will automatically use realistic browser headers to avoid detection.
+
+## Progress Configurations
+By default, the `ytfetcher` Python API **runs in silent mode to keep your logs clean.** If you want to see real-time progress bars and status updates (similar to the CLI experience), you must explicitly enable **verbose mode.**
+
+Here's how to enable progress bars:
+```py
+from ytfetcher import YTFetcher
+from ytfetcher.utils.state import RuntimeConfig
+
+# 1. Enable verbose mode globally
+RuntimeConfig.enable_verbose()
+
+# 2. Run your fetch operations normally
+# Progress bars (tqdm) will now appear in your console
+fetcher = YTFetcher.from_channel(channel_handle="ChannelName")
+data = fetcher.fetch_youtube_data()
+```
