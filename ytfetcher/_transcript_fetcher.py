@@ -90,7 +90,7 @@ class TranscriptFetcher:
             if not transcript: return None
 
             cleaned_transcript = self._clean_transcripts(transcript)
-            logger.info(f'{video_id} fetched.')
+            logger.debug(f'{video_id} fetched.')
             return VideoTranscript(
                 video_id=video_id,
                 transcripts=cleaned_transcript
