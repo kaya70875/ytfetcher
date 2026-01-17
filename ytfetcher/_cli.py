@@ -53,9 +53,6 @@ class YTFetcherCLI:
     def _fetch_data(self, fetcher: YTFetcher) -> list[ChannelData]:
         """
         Decides correct method and returns data based on `comments` argument.
-        
-        :param comments: Whether comments arg is None or not.
-        :type comments: bool
         """
         if self.args.comments > 0:
             return fetcher.fetch_with_comments(max_comments=self.args.comments)
