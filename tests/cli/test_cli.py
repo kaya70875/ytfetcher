@@ -1,7 +1,26 @@
+import pytest
 from unittest.mock import patch, Mock
 from ytfetcher._cli import YTFetcherCLI, create_parser
 from ytfetcher.config import HTTPConfig
 from ytfetcher.services.exports import METEDATA_LIST
+
+@pytest.fixture
+def mock_configurations():
+    """
+    Patches ConfigBuilder methods for the duration of the test.
+    """
+    # Create the objects we expect
+    expected_http_config = HTTPConfig()
+    expected_proxy_config = None
+
+    with patch('ytfetcher._cli.ConfigBuilder.build_proxy_config') as mock_proxy, \
+         patch('ytfetcher._cli.ConfigBuilder.build_http_config') as mock_http:
+        
+        mock_http.return_value = expected_http_config
+        mock_proxy.return_value = expected_proxy_config
+
+        yield (expected_http_config, expected_proxy_config)
+
 
 # --> Basic Call Tests <--
 
@@ -43,14 +62,12 @@ def test_run_from_playlist_id_called(mock_run_from_playlist_id):
 
 # --> Arguments Test <--
 
-@patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.YTFetcher')
-def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_initialize_http_config):
+def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurations):
     mock_fetcher = Mock()
     mock_ytfetcher.from_channel.return_value = mock_fetcher
 
-    # Mock HTTP Config
-    mock_initialize_http_config.return_value = HTTPConfig()
+    expected_http_config, expected_proxy_config = mock_configurations
 
     parser = create_parser()
     args = parser.parse_args([
@@ -64,8 +81,8 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="Channel",
         max_results=5,
-        http_config=cli._initialize_http_config(),
-        proxy_config=cli._initialize_proxy_config(),
+        http_config=expected_http_config,
+        proxy_config=expected_proxy_config,
         languages=["en"],
         manually_created=False,
         filters=[]
@@ -73,14 +90,12 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
 
-@patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.YTFetcher')
-def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_initialize_http_config):
+def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurations):
     mock_fetcher = Mock()
     mock_ytfetcher.from_playlist_id.return_value = mock_fetcher
 
-    # Mock HTTP Config
-    mock_initialize_http_config.return_value = HTTPConfig()
+    expected_http_config, expected_proxy_config = mock_configurations
 
     parser = create_parser()
     args = parser.parse_args([
@@ -95,8 +110,8 @@ def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfet
 
     mock_ytfetcher.from_playlist_id.assert_called_once_with(
         playlist_id="playlistid",
-        http_config=cli._initialize_http_config(),
-        proxy_config=cli._initialize_proxy_config(),
+        http_config=expected_http_config,
+        proxy_config=expected_proxy_config,
         languages=["en", "de"],
         manually_created=True,
         filters=[]
@@ -104,14 +119,12 @@ def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfet
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
 
-@patch('ytfetcher._cli.YTFetcherCLI._initialize_http_config')
 @patch('ytfetcher._cli.YTFetcher')
-def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_initialize_http_config):
+def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurations):
     mock_fetcher = Mock()
     mock_ytfetcher.from_video_ids.return_value = mock_fetcher
 
-    # Mock HTTP Config
-    mock_initialize_http_config.return_value = HTTPConfig()
+    expected_http_config, expected_proxy_config = mock_configurations
 
     parser = create_parser()
     args = parser.parse_args([
@@ -125,8 +138,8 @@ def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetch
 
     mock_ytfetcher.from_video_ids.assert_called_once_with(
         video_ids=['id1', 'id2'],
-        http_config=cli._initialize_http_config(),
-        proxy_config=cli._initialize_proxy_config(),
+        http_config=expected_http_config,
+        proxy_config=expected_proxy_config,
         languages=["en", "de"],
         manually_created=False,
         filters=[]
