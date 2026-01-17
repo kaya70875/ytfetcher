@@ -11,8 +11,35 @@ from ytfetcher.utils.log import log
 from ytfetcher import filters
 from ytfetcher.services._preview import PreviewRenderer
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
+class ConfigBuilder:
+    """Helper class to build configuration objects from CLI arguments."""
+
+    @staticmethod
+    def build_proxy_config(args: Namespace) -> Union[WebshareProxyConfig, GenericProxyConfig, None]:
+        if args.http_proxy or args.https_proxy:
+            return GenericProxyConfig(
+                http_url=args.http_proxy,
+                https_url=args.https_proxy,
+            )
+
+        if (
+            args.webshare_proxy_username or args.webshare_proxy_password):
+            return WebshareProxyConfig(
+                proxy_username=args.webshare_proxy_username,
+                proxy_password=args.webshare_proxy_password,
+        )
+            
+        return None
+    
+    @staticmethod
+    def build_http_config(args: Namespace) -> HTTPConfig:
+        if args.http_timeout or args.http_headers:
+            http_config = HTTPConfig(timeout=args.http_timeout, headers=args.http_headers)
+            return http_config
+
+        return HTTPConfig()
 class YTFetcherCLI:
     """
     YTFetcherCLI
@@ -20,43 +47,16 @@ class YTFetcherCLI:
     This class handles the orchestration of transcript fetching operations from various YouTube sources
     (channels, videos, or playlists) and manages the export of fetched data in multiple formats.
     """
-    def __init__(self, args: argparse.Namespace):
-        self.args = args
-    
-    def _initialize_proxy_config(self) -> Union[WebshareProxyConfig, GenericProxyConfig, None]:
-        proxy_config = None
-
-        if self.args.http_proxy != "" or self.args.https_proxy != "":
-            proxy_config = GenericProxyConfig(
-                http_url=self.args.http_proxy,
-                https_url=self.args.https_proxy,
-            )
-
-        if (
-            self.args.webshare_proxy_username is not None
-            or self.args.webshare_proxy_password is not None
-        ):
-            proxy_config = WebshareProxyConfig(
-                proxy_username=self.args.webshare_proxy_username,
-                proxy_password=self.args.webshare_proxy_password,
-        )
-            
-        return proxy_config
-
-    def _initialize_http_config(self) -> HTTPConfig:
-        if self.args.http_timeout or self.args.http_headers:
-            http_config = HTTPConfig(timeout=self.args.http_timeout, headers=self.args.http_headers)
-            return http_config
-
-        return HTTPConfig()
+    def __init__( args: argparse.Namespace):
+        args = args
     
     def _run_fetcher(self, factory_method: type[YTFetcher], **kwargs) -> None:
         # Get active filters and inject them info kwargs.
         kwargs['filters'] = self._get_active_filters()
 
         fetcher = factory_method(
-            http_config=self._initialize_http_config(),
-            proxy_config=self._initialize_proxy_config(),
+            http_config=ConfigBuilder.build_http_config(self.args),
+            proxy_config=ConfigBuilder.build_proxy_config(self.args),
             **kwargs
         )
 
