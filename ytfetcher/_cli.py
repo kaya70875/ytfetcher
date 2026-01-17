@@ -50,6 +50,21 @@ class YTFetcherCLI:
     def __init__( args: argparse.Namespace):
         args = args
     
+    def _fetch_data(self, fetcher: YTFetcher) -> list[ChannelData]:
+        """
+        Decides correct method and returns data based on `comments` argument.
+        
+        :param comments: Whether comments arg is None or not.
+        :type comments: bool
+        """
+        if self.args.comments > 0:
+            return fetcher.fetch_with_comments(max_comments=self.args.comments)
+
+        elif self.args.comment_only > 0:
+            return fetcher.fetch_comments(max_comments=self.args.comments_only)
+
+        return fetcher.fetch_youtube_data()
+
     def _run_fetcher(self, factory_method: type[YTFetcher], **kwargs) -> None:
         # Get active filters and inject them info kwargs.
         kwargs['filters'] = self._get_active_filters()
@@ -59,23 +74,7 @@ class YTFetcherCLI:
             proxy_config=ConfigBuilder.build_proxy_config(self.args),
             **kwargs
         )
-
-        def get_data(comments_arg: int, comments_only_arg: int) -> list[ChannelData]:
-            """
-            Decides correct method and returns data based on `comments` argument.
-            
-            :param comments: Whether comments arg is None or not.
-            :type comments: bool
-            """
-            if comments_arg > 0:
-                return fetcher.fetch_with_comments(max_comments=self.args.comments)
-
-            elif comments_only_arg > 0:
-                return fetcher.fetch_comments(max_comments=self.args.comments_only)
-
-            return fetcher.fetch_youtube_data()
-
-        data = get_data(comments_arg=self.args.comments, comments_only_arg=self.args.comments_only)
+        data = self._fetch_data(fetcher=fetcher)
         log('Fetched all channel data.', level='DONE')
 
         self._handle_output(data=data)
