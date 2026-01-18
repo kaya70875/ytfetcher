@@ -34,6 +34,7 @@ class YTFetcher:
         video_ids: list[str] | None,
         playlist_id: str | None = None,
         channel_handle: str | None = None,
+        query: str | None = None,
         proxy_config: ProxyConfig | None = None,
         http_config: HTTPConfig = HTTPConfig(),
         languages: Iterable[str] = ("en", ),
@@ -44,7 +45,7 @@ class YTFetcher:
         self.proxy_config = proxy_config
         self.filters = filters or []
 
-        self.youtube_dl = get_fetcher(channel_handle, playlist_id, video_ids, max_results)
+        self.youtube_dl = get_fetcher(channel_handle, playlist_id, video_ids, query, max_results)
         self.snippets = self.youtube_dl.fetch()
 
         if self.filters:
@@ -112,7 +113,7 @@ class YTFetcher:
         filters: list[Callable[[DLSnippet], bool]] | None = None
         ) -> "YTFetcher":
         """
-        Create a fetcher tthat fetches from given playlist id.
+        Create a fetcher that fetches from given playlist id.
         """
         return cls(
             http_config=http_config,
@@ -124,6 +125,31 @@ class YTFetcher:
             manually_created=manually_created,
             filters=filters
             )
+    
+    @classmethod
+    def from_search(
+        cls,
+        query: str,
+        max_results: int = 50,
+        http_config: HTTPConfig = HTTPConfig(),
+        proxy_config: ProxyConfig | None = None,
+        languages: Iterable[str] = ("en",),
+        manually_created: bool = False,
+        filters: list[Callable[[DLSnippet], bool]] | None = None
+    ) -> "YTFetcher":
+        """
+        Create a fetcher that fetches from search query.
+        """
+        return cls(
+            query=query,
+            max_results=max_results,
+            http_config=http_config,
+            proxy_config=proxy_config,
+            languages=languages,
+            video_ids=None,
+            manually_created=manually_created,
+            filters=filters
+        )
 
     def fetch_youtube_data(self) -> list[ChannelData]:
         """
