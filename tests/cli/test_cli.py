@@ -28,7 +28,8 @@ def mock_configurations():
 def test_run_from_channel_called(mock_run_channel):
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
+        "channel",
+        "TestChannel"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -40,7 +41,8 @@ def test_run_from_channel_called(mock_run_channel):
 def test_run_from_video_ids_called(mock_run_from_video_ids):
     parser = create_parser()
     args = parser.parse_args([
-        "from_video_ids",
+        "video",
+        "v1"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -52,7 +54,8 @@ def test_run_from_video_ids_called(mock_run_from_video_ids):
 def test_run_from_playlist_id_called(mock_run_from_playlist_id):
     parser = create_parser()
     args = parser.parse_args([
-        "from_playlist_id",
+        "playlist",
+        "p1"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -71,15 +74,15 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
 
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "Channel"
+        "channel",
+        "TestChannel"
     ])
 
     cli = YTFetcherCLI(args=args)
     cli.run()
 
     mock_ytfetcher.from_channel.assert_called_once_with(
-        channel_handle="Channel",
+        channel_handle="TestChannel",
         max_results=5,
         http_config=expected_http_config,
         proxy_config=expected_proxy_config,
@@ -99,8 +102,8 @@ def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfet
 
     parser = create_parser()
     args = parser.parse_args([
-        "from_playlist_id",
-        "-p", "playlistid",
+        "playlist",
+        "playlistid",
         "--languages", "en", "de",
         "--manually-created"
     ])
@@ -128,8 +131,8 @@ def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetch
 
     parser = create_parser()
     args = parser.parse_args([
-        "from_video_ids",
-        "-v", "id1", "id2",
+        "video",
+        "id1", "id2",
         "--languages", "en", "de"
     ])
 
@@ -161,8 +164,8 @@ def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class, mock_
 
     parser = create_parser()
     args = parser.parse_args([
-        "from_video_ids",
-        "-v", "id1", "id2",
+        "video",
+        "id1", "id2",
         "-f", "txt",
         "--filename", "testing",
         "--no-timing"
@@ -193,8 +196,8 @@ def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, mock_ex
 
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "TheOffice",
+        "channel",
+        "TestChannel",
         "-f", "txt",
     ])
 
@@ -223,8 +226,8 @@ def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_class, moc
 
     parser = create_parser()
     args = parser.parse_args([
-        "from_playlist_id",
-        "-p", "playlistid",
+        "playlist",
+        "playlistid",
         "-f", "txt",
     ])
 

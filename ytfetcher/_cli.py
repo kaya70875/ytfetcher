@@ -87,7 +87,8 @@ class YTFetcherCLI:
         if should_show_preview:
             PreviewRenderer().render(data=data)
             log("Showing preview (5 lines)")
-            log("Use --stdout or --format to see full structured output", level='WARNING') if not self.args.format else ""
+            if not self.args.format:
+                log("Use --stdout or --format to see full structured output", level='WARNING')
         if self.args.stdout:
             print(data)
         if self.args.format:
@@ -148,17 +149,17 @@ class YTFetcherCLI:
     
     def run(self):
         match self.args.command:
-            case 'from_channel':
-                log(f'Starting to fetch from channel: {self.args.channel_handle}')
+            case 'channel':
+                log(f'Starting to fetch from channel: {self.args.channel}')
                 self._run_fetcher(
                     YTFetcher.from_channel,
-                    channel_handle=self.args.channel_handle,
+                    channel_handle=self.args.channel,
                     max_results=self.args.max_results,
                     languages=self.args.languages,
                     manually_created=self.args.manually_created,
                 )
             
-            case 'from_video_ids':
+            case 'video':
                 log(f'Starting to fetch from video ids: {self.args.video_ids}')
                 self._run_fetcher(
                     YTFetcher.from_video_ids,
@@ -167,7 +168,7 @@ class YTFetcherCLI:
                     manually_created=self.args.manually_created
                 )
             
-            case 'from_playlist_id':
+            case 'playlist':
                 log(f"Starting to fetch from playlist id: {self.args.playlist_id}")
                 self._run_fetcher(
                     YTFetcher.from_playlist_id,
@@ -182,25 +183,22 @@ class YTFetcherCLI:
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch YouTube transcripts for a channel")
 
-    subparsers = parser.add_subparsers(dest="command")
+    subparsers = parser.add_subparsers(dest="command", required=True, help="Source to fetch from")
 
     # From Channel parsers
-    parser_channel = subparsers.add_parser("from_channel", help="Fetch data from channel handle with max_results.")
-
-    parser_channel.add_argument("-c", "--channel_handle", help="YouTube channel handle")
+    parser_channel = subparsers.add_parser("channel", help="Fetch data from channel handle with max_results.")
+    parser_channel.add_argument("channel", help="The Channel Handle or ID (e.g. @PewDiePie)")
     parser_channel.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
     _create_common_arguments(parser_channel)
 
     # From Video Ids parsers
-    parser_video_ids = subparsers.add_parser("from_video_ids", help="Fetch data from your custom video ids.")
-
-    parser_video_ids.add_argument("-v", "--video-ids", nargs="+", help='Video id list to fetch')
+    parser_video_ids = subparsers.add_parser("video", help="Fetch data from your custom video ids.")
+    parser_video_ids.add_argument("video_ids", nargs="+", help="List of Video IDs")
     _create_common_arguments(parser_video_ids)
 
     # From playlist_id parsers
-    parser_playlist_id = subparsers.add_parser("from_playlist_id", help="Fetch data from a specific playlist id.")
-
-    parser_playlist_id.add_argument("-p", "--playlist-id", type=str, help='Playlist id to be fetch from.')
+    parser_playlist_id = subparsers.add_parser("playlist", help="Fetch data from a specific playlist id.")
+    parser_playlist_id.add_argument("playlist_id", type=str, help='Playlist id to be fetch from.')
     _create_common_arguments(parser_playlist_id)
 
     return parser
