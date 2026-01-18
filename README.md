@@ -51,7 +51,7 @@ pip install ytfetcher
 Fetch 50 video transcripts + metadata from a channel and save as JSON:
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 50 -f json
+ytfetcher channel -c TheOffice -m 50 -f json
 ```
 
 ---
@@ -67,7 +67,7 @@ docker-compose build
 Use `docker-compose run` to execute your desired command inside the container.
 
 ```bash
-docker-compose run ytfetcher poetry run ytfetcher from_channel -c TheOffice -m 20 -f json
+docker-compose run ytfetcher poetry run ytfetcher channel -c TheOffice -m 20 -f json
 ```
 
 ---
@@ -81,15 +81,15 @@ ytfetcher -h
 ```
 
 ```bash
-usage: ytfetcher [-h] {from_channel,from_video_ids} ...
+usage: ytfetcher [-h] {channel,video} ...
 
 Fetch YouTube transcripts for a channel
 
 positional arguments:
-  {from_channel,from_video_ids}
-    from_channel        Fetch data from channel handle with max_results.
-    from_playlist_id    Fetch data from a specific playlist id.
-    from_video_ids      Fetch data from your custom video ids.
+  {channel,playlist,video}
+    channel        Fetch data from channel handle with max_results.
+    playlist    Fetch data from a specific playlist id.
+    video      Fetch data from your custom video ids.
 
 options:
   -h, --help            show this help message and exit
@@ -219,7 +219,7 @@ fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
 Also here's a quick CLI command for `languages` param.
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 50 -f csv --languages tr en
+ytfetcher channel TheOffice -m 50 -f csv --languages tr en
 ```
 
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
@@ -279,16 +279,16 @@ You can use filter arguments directly in the CLI:
 
 ```bash
 # Filter by minimum views
-ytfetcher from_channel -c TheOffice -m 50 -f json --min-views 1000
+ytfetcher channel TheOffice -m 50 -f json --min-views 1000
 
 # Filter by minimum duration (in seconds)
-ytfetcher from_channel -c TheOffice -m 50 -f csv --min-duration 300
+ytfetcher channel TheOffice -m 50 -f csv --min-duration 300
 
 # Filter by title substring
-ytfetcher from_channel -c TheOffice -m 50 -f json --includes-title "episode"
+ytfetcher channel TheOffice -m 50 -f json --includes-title "episode"
 
 # Combine multiple filters
-ytfetcher from_channel -c TheOffice -m 50 -f json --min-views 1000 --min-duration 300 --includes-title "tutorial"
+ytfetcher channel TheOffice -m 50 -f json --min-views 1000 --min-duration 300 --includes-title "tutorial"
 ```
 
 ---
@@ -304,7 +304,7 @@ fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True) #
 You can also easily enable this feature with `--manually-created` argument in CLI.
 
 ```bash
-ytfetcher from_channel -c TEDx -f csv --manually-created
+ytfetcher channel TEDx -f csv --manually-created
 ```
 
 ## Exporting
@@ -332,7 +332,7 @@ exporter.write()
 You can also specify arguments when exporting which allows you to decide whether to exclude `timings` and choose desired `metadata`.
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 20 -f json --no-timing --metadata title description
+ytfetcher channel TheOffice -m 20 -f json --no-timing --metadata title description
 ```
 
 This command will **exclude** `timings` from transcripts and keep only `title` and `description` as metadata.
@@ -407,13 +407,13 @@ Fetching comments in `ytfetcher` with CLI is very easy.
 To fetch comments with transcripts you can use `--comments` argument:
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 20 --comments 10 -f json
+ytfetcher channel TheOffice -m 20 --comments 10 -f json
 ```
 
 To fetch only comments with metadata you can use `--comments-only` argument:
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 20 --comments-only 10 -f json
+ytfetcher channel TheOffice -m 20 --comments-only 10 -f json
 ```
 
 ## Other Methods
@@ -482,37 +482,37 @@ fetcher = YTFetcher.from_channel(
 ### Basic Usage
 
 ```bash
-ytfetcher from_channel -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
+ytfetcher <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ```
 
 ### Fetching by Video IDs
 
 ```bash
-ytfetcher from_video_ids -v video_id1 video_id2 ... -f json
+ytfetcher video video_id1 video_id2 ... -f json
 ```
 
 ### Fetching From Playlist Id
 
 ```bash
-ytfetcher from_playlist_id -p playlistid123 -f csv -m 25
+ytfetcher playlist playlistid123 -f csv -m 25
 ```
 
 ### Using Webshare Proxy
 
 ```bash
-ytfetcher from_channel -c <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>" --webshare-proxy-password "<PASSWORD>"
+ytfetcher <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>" --webshare-proxy-password "<PASSWORD>"
 ```
 
 ### Using Custom Proxy
 
 ```bash
-ytfetcher from_channel -c <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
+ytfetcher <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
 ```
 
 ### Using Custom HTTP Config
 
 ```bash
-ytfetcher from_channel -c <CHANNEL_HANDLE> --http-timeout 4.2 --http-headers "{'key': 'value'}"
+ytfetcher <CHANNEL_HANDLE> --http-timeout 4.2 --http-headers "{'key': 'value'}"
 ```
 
 ---
