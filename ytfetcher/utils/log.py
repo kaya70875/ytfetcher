@@ -1,3 +1,4 @@
+from ytfetcher.utils.state import RuntimeConfig
 from typing import Literal
 import colorama
 
@@ -26,5 +27,9 @@ def log(message: str, level: LEVEL = ('INFO')):
         message(str): The message to be printed.
         level(LEVEL): Priority level. Default to INFO
     """
+
+    if not RuntimeConfig.is_verbose():
+        return None
+
     decided_color = decide_color(level=level)
     return print(decided_color + f'[{level}] ' + colorama.Style.RESET_ALL + message)
