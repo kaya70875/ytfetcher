@@ -304,6 +304,7 @@ def get_fetcher(
     channel_handle: str | None = None,
     playlist_id: str | None = None,
     video_ids: list[str] | None = None,
+    query: str | None = None,
     max_results: int = 50,
 ) -> BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher:
     """
@@ -328,4 +329,6 @@ def get_fetcher(
         return ChannelFetcher(channel_handle, max_results)
     elif video_ids:
         return VideoListFetcher(video_ids)
+    elif query:
+        return SearchFetcher(query, max_results)
     raise ValueError("No YoutubeDLFetcher found.")
