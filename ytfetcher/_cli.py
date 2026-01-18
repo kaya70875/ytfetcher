@@ -87,7 +87,8 @@ class YTFetcherCLI:
         if should_show_preview:
             PreviewRenderer().render(data=data)
             log("Showing preview (5 lines)")
-            log("Use --stdout or --format to see full structured output", level='WARNING') if not self.args.format else ""
+            if not self.args.format:
+                log("Use --stdout or --format to see full structured output", level='WARNING')
         if self.args.stdout:
             print(data)
         if self.args.format:
