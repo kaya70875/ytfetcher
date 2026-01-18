@@ -201,6 +201,12 @@ def create_parser() -> argparse.ArgumentParser:
     parser_playlist_id.add_argument("playlist_id", type=str, help='Playlist id to be fetch from.')
     _create_common_arguments(parser_playlist_id)
 
+    # From search parsers
+    parser_search = subparsers.add_parser("search", help="Fetch data from youtube with search query.")
+    parser.add_argument("search", help="The query to search from Youtube.")
+    parser.add_argument("-m", "--max-resuts", type=int, default=20, help="Maximum videos to fetch.")
+    _create_common_arguments(parser_search)
+
     return parser
 
 def parse_args(argv=None):
