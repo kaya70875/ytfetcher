@@ -14,6 +14,7 @@ class YTFetcher:
     - From a channel handle (via `from_channel`)
     - From a playlist ID (via `from_playlist_id`)
     - From a list of specific video IDs (via `from_video_ids`)
+    - From a search query (via `from_search`)
 
     Internally, it uses the yt-dlp to retrieve video snippets and metadata,
     and the `youtube_transcript_api` (with optional proxy support) to fetch transcripts.
@@ -23,6 +24,7 @@ class YTFetcher:
         video_ids (list[str]): List of specific video IDs to fetch.
         playlist_id (str | None) Playlist id to fetch from.
         channel_handle (str | None): Optional YouTube channel handle (used when fetching from channel).
+        query (str | None): Optional search query to find videos across Youtube.
         http_config (HTTPConfig): Configuration for HTTP client behavior.
         proxy_config (ProxyConfig | None): Optional proxy settings for transcript fetching.
         languages (Iterable[str]): Preferred languages to fetch first, default to `en`
