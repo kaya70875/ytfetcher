@@ -3,8 +3,8 @@ from ytfetcher._cli import create_parser, YTFetcherCLI
 def test_initialize_http_and_proxy_config():
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "TheOffice",
+        "channel",
+        "TestChannel",
         "--http-timeout", "4.2",
         "--http-headers", "{'key': 'value'}",
         "--http-proxy", "testhttp:proxy",
@@ -22,7 +22,8 @@ def test_initialize_http_and_proxy_config():
 def test_webshare_proxy_config():
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
+        "channel",
+        "TestChannel",
         "--webshare-proxy-username", "username",
         "--webshare-proxy-password", "password"
     ])
@@ -35,8 +36,8 @@ def test_webshare_proxy_config():
 def test_export_arguments():
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "TheOffice",
+        "channel",
+        "TestChannel",
         "-f", "json",
         "-o", "C:/Users/user1/Desktop",
         "--filename", "testing"
@@ -51,8 +52,8 @@ def test_export_arguments():
 def test_comments_argument():
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "TestChannel",
+        "channel",
+        "TestChannel",
         "-f", "json",
         "--comments", "5"
     ])
@@ -64,8 +65,8 @@ def test_comments_argument():
 def test_comments_only_argument():
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "TestChannel",
+        "channel",
+        "TestChannel",
         "-f", "json",
         "--comments-only", "5"
     ])
@@ -77,8 +78,8 @@ def test_comments_only_argument():
 def test_comments_argument_default():
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "TestChannel",
+        "channel",
+        "TestChannel",
         "-f", "json",
     ])
 
