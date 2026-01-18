@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+- Added a `--quiet` tag for CLI.
 - Added pre-fetch filters for `ytfetcher`.
 
 ### Changed
+- Python API for `ytfetcher` is now completely silent as default. Logs and progress informations are only visible in CLI or by enabling `verbose` mode.
 - Changed `ytfetcher` to be completely **sync**.
 
 ### Fixed

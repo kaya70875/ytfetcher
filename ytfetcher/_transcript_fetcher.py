@@ -4,6 +4,7 @@ from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.models.channel import ChannelData, VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.utils.log import log
+from ytfetcher.utils.state import should_disable_progress
 from concurrent import futures
 from tqdm import tqdm  # type: ignore
 from typing import Iterable
@@ -64,7 +65,7 @@ class TranscriptFetcher:
 
             channel_data = self._build_channel_data(futures)
             
-            if not channel_data and self.manually_created: log("No manually created transcripts found!", level="ERROR")
+            if not channel_data and self.manually_created: logger.error("No manually created transcripts found!")
 
             return channel_data
 
@@ -89,7 +90,7 @@ class TranscriptFetcher:
             if not transcript: return None
 
             cleaned_transcript = self._clean_transcripts(transcript)
-            logger.info(f'{video_id} fetched.')
+            logger.debug(f'{video_id} fetched.')
             return VideoTranscript(
                 video_id=video_id,
                 transcripts=cleaned_transcript
@@ -134,7 +135,7 @@ class TranscriptFetcher:
         """
         channel_data: list[ChannelData] = []
 
-        for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript'):
+        for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript', disable=should_disable_progress()):
             result: VideoTranscript = future.result()
             if result:
                 channel_data.append(

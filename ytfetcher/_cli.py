@@ -10,6 +10,7 @@ from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
 from ytfetcher import filters
 from ytfetcher.services._preview import PreviewRenderer
+from ytfetcher.utils.state import RuntimeConfig
 
 from argparse import ArgumentParser, Namespace
 
@@ -77,7 +78,13 @@ class YTFetcherCLI:
         self._handle_output(data=data)
     
     def _handle_output(self, data: list[ChannelData]) -> None:
-        if sys.stdout.isatty() and not self.args.stdout:
+        should_show_preview = (
+            sys.stdout.isatty() 
+            and not self.args.stdout 
+            and RuntimeConfig.is_verbose()
+        )
+
+        if should_show_preview:
             PreviewRenderer().render(data=data)
             log("Showing preview (5 lines)")
             log("Use --stdout or --format to see full structured output", level='WARNING') if not self.args.format else ""
@@ -210,7 +217,6 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     transcript_group.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
     transcript_group.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     transcript_group.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
-    transcript_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
 
     comments_group = parser.add_argument_group("Comment Options")
     comments_group.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
@@ -229,16 +235,25 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     export_group.add_argument("-o", "--output-dir", default=".", help="Output directory for data")
     export_group.add_argument("--filename", default="data", help="Decide filename to be exported.")
 
-    proxy_group = parser.add_argument_group("Proxy Options")
-    proxy_group.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
-    proxy_group.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
-    proxy_group.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
-    proxy_group.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
-    proxy_group.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
-    proxy_group.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+    net_group = parser.add_argument_group("Network Options")
+    net_group.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
+    net_group.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
+    net_group.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
+    net_group.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
+    net_group.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
+    net_group.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+
+    output_group = parser.add_argument_group("Output Options")
+    output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
+    output_group.add_argument("--quiet", action="store_true", help="Supress output logs and progress informations.")
+
 
 def main():
     args = parse_args(sys.argv[1:])
+
+    if not args.quiet:
+        RuntimeConfig.enable_verbose()
+
     cli = YTFetcherCLI(args=args)
     cli.run()
 
