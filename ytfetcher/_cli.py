@@ -183,7 +183,7 @@ class YTFetcherCLI:
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Fetch YouTube transcripts for a channel")
 
-    subparsers = parser.add_subparsers(dest="command")
+    subparsers = parser.add_subparsers(dest="command", required=True, help="Source to fetch from")
 
     # From Channel parsers
     parser_channel = subparsers.add_parser("channel", help="Fetch data from channel handle with max_results.")
