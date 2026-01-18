@@ -78,7 +78,13 @@ class YTFetcherCLI:
         self._handle_output(data=data)
     
     def _handle_output(self, data: list[ChannelData]) -> None:
-        if sys.stdout.isatty() and not self.args.stdout:
+        should_show_preview = (
+            sys.stdout.isatty() 
+            and not self.args.stdout 
+            and RuntimeConfig.is_verbose()
+        )
+
+        if should_show_preview:
             PreviewRenderer().render(data=data)
             log("Showing preview (5 lines)")
             log("Use --stdout or --format to see full structured output", level='WARNING') if not self.args.format else ""
