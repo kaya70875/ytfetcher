@@ -176,6 +176,15 @@ class YTFetcherCLI:
                     languages=self.args.languages,
                     manually_created=self.args.manually_created
                 )
+            
+            case 'search':
+                log(f"Starting to fetch for {self.args.search} query.")
+                self._run_fetcher(
+                    YTFetcher.from_search,
+                    query=self.args.search,
+                    languages=self.args.languages,
+                    manually_created=self.args.manually_created
+                )
 
             case _:
                 raise ValueError(f"Unknown method: {self.args.command}")
