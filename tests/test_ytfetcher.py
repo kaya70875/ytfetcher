@@ -15,13 +15,6 @@ from unittest.mock import create_autospec
 from pytest_mock import MockerFixture
 
 # --- Fixtures for test setup ---
-@pytest.fixture
-def sample_video_ids():
-    return ["video_1", "video_2"]
-
-@pytest.fixture
-def sample_channel_name():
-    return "test_channel"
 
 @pytest.fixture
 def mock_http_config():
@@ -72,9 +65,9 @@ def patch_fetchers(mocker: MockerFixture, sample_snippet, sample_transcripts):
     return mock_transcript_fetcher
 
 @pytest.fixture
-def initialize_ytfetcher_with_channel_name(mock_http_config, sample_channel_name):
+def initialize_ytfetcher_with_channel_name(mock_http_config):
     fetcher = YTFetcher.from_channel(
-        channel_handle=sample_channel_name,
+        channel_handle='test_channel',
         max_results=5,
         http_config=mock_http_config
     )
@@ -82,9 +75,18 @@ def initialize_ytfetcher_with_channel_name(mock_http_config, sample_channel_name
     return fetcher
 
 @pytest.fixture
-def initialize_ytfetcher_with_video_ids(mock_http_config, sample_video_ids):
+def initialize_ytfetcher_with_video_ids(mock_http_config):
     fetcher = YTFetcher.from_video_ids(
-        video_ids=sample_video_ids,
+        video_ids=['video1', 'video2'],
+        http_config=mock_http_config
+    )
+
+    return fetcher
+
+@pytest.fixture
+def initialize_ytfetcher_with_search(mock_http_config):
+    fetcher = YTFetcher.from_search(
+        query='query',
         http_config=mock_http_config
     )
 
@@ -92,11 +94,8 @@ def initialize_ytfetcher_with_video_ids(mock_http_config, sample_video_ids):
 
 # --- Tests ---
 def test_fetch_youtube_data_from_video_ids(
-    sample_video_ids,
-    mock_http_config,
     patch_fetchers,
     initialize_ytfetcher_with_video_ids,
-    mocker: MockerFixture
 ):
     fetcher = initialize_ytfetcher_with_video_ids
     results = fetcher.fetch_youtube_data()
@@ -111,10 +110,21 @@ def test_fetch_youtube_data_from_video_ids(
 def test_fetch_youtube_data_from_channel_name(
     patch_fetchers,
     initialize_ytfetcher_with_channel_name,
-    sample_channel_name,
-    mock_http_config
 ):
     fetcher = initialize_ytfetcher_with_channel_name
+    results = fetcher.fetch_youtube_data()
+
+    assert len(results) == 1
+    assert isinstance(results[0], ChannelData)
+    assert results[0].metadata.title == 'channelname1'
+    assert results[0].metadata.description == 'description1'
+    assert results[0].transcripts[0].text == 'text1'
+
+def test_fetch_youtube_data_from_search(
+    patch_fetchers,
+    initialize_ytfetcher_with_search,
+):
+    fetcher = initialize_ytfetcher_with_search
     results = fetcher.fetch_youtube_data()
 
     assert len(results) == 1
@@ -134,7 +144,7 @@ def test_fetch_transcripts_method_with_channel_name(patch_fetchers, initialize_y
     assert results[0].transcripts[0].text == 'text1'
     assert results[0].metadata == None
 
-def test_fetch_snippets_method_with_channel_name(patch_fetchers, initialize_ytfetcher_with_channel_name, sample_video_ids):
+def test_fetch_snippets_method_with_channel_name(patch_fetchers, initialize_ytfetcher_with_channel_name):
     fetcher = initialize_ytfetcher_with_channel_name
     results = fetcher.fetch_snippets()
 
@@ -155,7 +165,7 @@ def test_fetch_transcripts_method_with_video_ids(patch_fetchers, initialize_ytfe
     assert results[0].transcripts[0].text == 'text1'
     assert results[0].metadata == None
 
-def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids, sample_video_ids):
+def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetcher_with_video_ids):
     fetcher = initialize_ytfetcher_with_video_ids
     results = fetcher.fetch_snippets()
 
@@ -165,13 +175,13 @@ def test_fetch_snippets_method_with_video_ids(patch_fetchers, initialize_ytfetch
     assert results[0].transcripts == None
     assert results[0].metadata.title == 'channelname1'
 
-def test_http_config(patch_fetchers, sample_channel_name):
+def test_http_config(patch_fetchers):
 
     headers = get_realistic_headers()
     config = HTTPConfig(timeout=2.0, headers=headers)
 
     fetcher = YTFetcher.from_channel(
-        channel_handle=sample_channel_name,
+        channel_handle='channelname',
         max_results=5,
         http_config=config
     )
@@ -179,13 +189,13 @@ def test_http_config(patch_fetchers, sample_channel_name):
     assert fetcher.http_config.headers == config.headers
     assert fetcher.http_config.timeout == config.timeout
 
-def test_proxy_config(patch_fetchers, sample_channel_name, sample_video_ids):
+def test_proxy_config(patch_fetchers):
     proxy_config_mock = create_autospec(ProxyConfig, instance=True)
 
     fetcher = YTFetcher(
-        channel_handle=sample_channel_name,
+        channel_handle='channelname',
         max_results=5,
-        video_ids=sample_video_ids,
+        video_ids=['video1', 'video2'],
         http_config=HTTPConfig(),
         proxy_config=proxy_config_mock
     )

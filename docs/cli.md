@@ -25,6 +25,7 @@ YTFetcher supports three main commands:
 - `channel` - Fetch data from a YouTube channel handle
 - `video` - Fetch data from custom video IDs
 - `playlist` - Fetch data from a specific playlist ID
+- `search` - Fetch data based on a search query, similar to youtube search bar.
 
 ---
 
@@ -83,6 +84,24 @@ ytfetcher playlist <PLAYLIST_ID> -f <FORMAT>
 ytfetcher playlist PLrAXtmRdnEQy6nuLMH7Pj4Lb3zY9gK8kK -f json -m 25
 ```
 
+### Fetching With Search Method
+
+Fetch transcripts and metadata based on a search query, similar to Youtube search.
+
+```bash
+ytfetcher search <QUERY> -m <MAX_RESULTS>
+```
+
+**Example**
+
+```bash
+ytfetcher search "AI Getting Jobs" -m 20 -f json
+```
+
+!!! Tip
+    When using `search` method with generic keywords (e.g., "son", "gato", "gift"), YouTube prioritizes results based on your geographic location (IP address). This can lead to transcripts in languages you didn't expect.
+    To ensure you get the right content include `--languages` parameter to CLI with your desired languages.
+
 ---
 
 ## Options
@@ -113,6 +132,11 @@ All commands support the following common options:
 
 - Print data directly to console instead of exporting to file
 - Example: `ytfetcher TheOffice --stdout`
+
+**`--quiet`**
+
+- Supress CLI logs and progress informations.
+- Example: `ytfetcher TEDx --quiet`
 
 ### Comment Options
 

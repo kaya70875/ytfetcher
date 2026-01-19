@@ -10,7 +10,7 @@ import warnings
 
 logger = logging.getLogger(__name__)
 
-METADATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
+METADATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails', 'uploader_url']
 
 DEFAULT_METADATA = get_args(METADATA_LIST)
 
@@ -93,7 +93,7 @@ class BaseExporter(ABC):
         Ensures None values are filtered.
         """
 
-        clean_meta = {}
+        clean_meta: dict[str, str] = {}
 
         if not data.metadata:
             return clean_meta
@@ -261,16 +261,14 @@ class CSVExporter(BaseExporter):
 
             writer.writerow(row)
     
-    def _build_metadata(self) -> list:
+    def _build_metadata(self) -> list | None:
         """
-        Builds metadata list ensuring with not including the None values.
+        Builds metadata list by excluding fields that are None in the first record.
         """
-        all_values = self.channel_data[0].metadata.model_dump()
-        none_fields = [key for key, value in all_values.items() if value is None]
-        
-        active_fields = [
-            field for field in self.allowed_metadata_list 
-            if field not in none_fields
-        ]
+        snippet = self.channel_data[0].metadata
+        if not snippet:
+            return None
 
-        return active_fields
+        valid_data = snippet.model_dump(exclude_none=True)
+
+        return [field for field in self.allowed_metadata_list if field in valid_data]

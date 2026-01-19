@@ -257,6 +257,27 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         raise ValueError(f"Could not extract playlist ID from URL: {url}")
 
 
+class SearchFetcher(BaseYoutubeDLFetcher):
+    """
+    Fetches video snippets via yt-dlp search.
+    """
+    def __init__(self, query: str, max_results: int = 50):
+        super().__init__(max_results)
+        self.query = query
+
+    def fetch(self) -> list[DLSnippet]:
+        ydl_opts = self._setup_ydl_opts(default_search='ytsearch', no_playlist='True')
+
+        search_query = f"ytsearch{self.max_results}:{self.query}"
+
+        logger.info(f"Searching via yt-dlp: '{self.query}'")
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+            info = ydl.extract_info(search_query, download=False)
+            
+            entries = cast(list[dict[str, Any]], info.get("entries", []))
+            return self._to_snippets(entries)
+
 class VideoListFetcher(ConcurrentYoutubeDLFetcher):
     """
     Fetches metadata for one or more specific YouTube videos.
@@ -287,6 +308,7 @@ def get_fetcher(
     channel_handle: str | None = None,
     playlist_id: str | None = None,
     video_ids: list[str] | None = None,
+    query: str | None = None,
     max_results: int = 50,
 ) -> BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher:
     """
@@ -311,4 +333,6 @@ def get_fetcher(
         return ChannelFetcher(channel_handle, max_results)
     elif video_ids:
         return VideoListFetcher(video_ids)
+    elif query:
+        return SearchFetcher(query, max_results)
     raise ValueError("No YoutubeDLFetcher found.")
