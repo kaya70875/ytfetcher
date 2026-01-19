@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+- Added `from_search` method for both Python API and CLI. This method allows user to fetch based on a `query`, similar to Youtube search.
 - Added a `--quiet` tag for CLI.
 - Added pre-fetch filters for `ytfetcher`.
 
