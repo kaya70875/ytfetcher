@@ -85,31 +85,60 @@ preview.render(data=channel_data, limit=4)
 This will preview the first 4 results of the data in a **beautifully formatted terminal view, including metadata, transcript snippets, and comments**.
 
 ## Using Different Fetchers
-`ytfetcher` supports different fetchers so you can fetch with using `channel_handle`, custom `video_ids` or from a `playlist_id` directly.
 
-### Fetching From Playlist ID
+`ytfetcher` supports various fetching options that includes:
 
-Here's how you can fetch bulk transcripts from a specific `playlist_id` using `ytfetcher`.
-```py
+- Fetching from a playlist id with `from_playlist_id` method.
+- Fetching from video id's with `from_video_ids` method.
+- Fetching from a search query with `from_search` method.
+
+### Fetching from Playlist ID
+
+Use `from_playlist_id` to retrieve metadata and transcripts for every video within a public or unlisted YouTube playlist.
+
+```python
 from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_playlist_id(
     playlist_id="playlistid1254"
 )
 
-data = fetcher.fetch_youtube_data()
+# Rest is same ...
+```
 
 ### Fetching With Custom Video IDs
-Initialize `ytfetcher` with custom video IDs using `from_video_ids` method:
-```py
+
+If you already have specific video identifiers, `from_video_ids` allows you to target them directly.
+This is the most efficient way to fetch data when you have an external list of URLs or IDs.
+
+```python
 from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_video_ids(
     video_ids=['video1', 'video2', 'video3']
 )
 
-data = fetcher.fetch_youtube_data()
+# Rest is same ...
 ```
+
+### Fetching With Search Query
+
+The `from_search` method allows you to discover videos based on a keyword or phrase, similar to using the YouTube search bar. You can control the breadth of the search using the `max_results` parameter.
+
+```py
+from ytfetcher import YTFetcher
+
+# Searches for the top 10 videos matching 'Artificial Intelligence'
+fetcher = YTFetcher.from_search(
+    query="Artificial Intelligence",
+    max_results=10
+)
+```
+
+!!! Tip
+    When using `from_search` with generic keywords (e.g., "son", "gato", "gift"), YouTube prioritizes results based on your geographic location (IP address). This can lead to transcripts in languages you didn't expect.
+    To ensure you get the right content ensure your `YTFetcher` initialization includes the correct `language` parameter to match the expected transcript availability.
+
 
 ## Transcript Options
 
