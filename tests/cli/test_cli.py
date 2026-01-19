@@ -373,7 +373,7 @@ def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_class, moc
         channel_data='channeldata',
         output_dir=args.output_dir,
         filename='data',
-        allowed_metadata_list=METEDATA_LIST.__args__,
+        allowed_metadata_list=DEFAULT_METADATA,
         timing=True
     )
 
