@@ -63,6 +63,18 @@ def test_run_from_playlist_id_called(mock_run_from_playlist_id):
 
     mock_run_from_playlist_id.assert_called_once()
 
+@patch.object(YTFetcherCLI, '_run_fetcher')
+def test_run_from_search_called(mock_run_from_search):
+    parser = create_parser()
+    args = parser.parse_args([
+        "search",
+        "query"
+    ])
+
+    cli = YTFetcherCLI(args=args)
+    cli.run()
+
+    mock_run_from_search.assert_called_once()
 # --> Arguments Test <--
 
 @patch('ytfetcher._cli.YTFetcher')
@@ -113,6 +125,7 @@ def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfet
 
     mock_ytfetcher.from_playlist_id.assert_called_once_with(
         playlist_id="playlistid",
+        max_results=20,
         http_config=expected_http_config,
         proxy_config=expected_proxy_config,
         languages=["en", "de"],

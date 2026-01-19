@@ -210,6 +210,8 @@ def create_parser() -> argparse.ArgumentParser:
     # From playlist_id parsers
     parser_playlist_id = subparsers.add_parser("playlist", help="Fetch data from a specific playlist id.")
     parser_playlist_id.add_argument("playlist_id", type=str, help='Playlist id to be fetch from.')
+    parser_playlist_id.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch.")
+
     _create_common_arguments(parser_playlist_id)
 
     # From search parsers
