@@ -163,6 +163,36 @@ def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetch
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
 
+@patch('ytfetcher._cli.YTFetcher')
+def test_run_from_search_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurations):
+    mock_fetcher = Mock()
+    mock_ytfetcher.from_search.return_value = mock_fetcher
+
+    expected_http_config, expected_proxy_config = mock_configurations
+
+    parser = create_parser()
+    args = parser.parse_args([
+        "search",
+        "query",
+        "--languages", "en", "de",
+        "-m", "10"
+    ])
+
+    cli = YTFetcherCLI(args=args)
+    cli.run()
+
+    mock_ytfetcher.from_search.assert_called_once_with(
+        query='query',
+        http_config=expected_http_config,
+        proxy_config=expected_proxy_config,
+        languages=["en", "de"],
+        max_results=10,
+        manually_created=False,
+        filters=[]
+    )
+
+    mock_fetcher.fetch_youtube_data.assert_called_once()
+
 # --> Exporter Tests <--
 
 @patch('ytfetcher._cli.TXTExporter.write')
@@ -241,6 +271,36 @@ def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_class, moc
     args = parser.parse_args([
         "playlist",
         "playlistid",
+        "-f", "txt",
+    ])
+
+    cli = YTFetcherCLI(args=args)
+    cli.run()
+
+    mock_exporter_class.assert_called_once_with(
+        channel_data='channeldata',
+        output_dir=args.output_dir,
+        filename='data',
+        allowed_metadata_list=METEDATA_LIST.__args__,
+        timing=True
+    )
+
+    mock_exporter_instance.write.assert_called_once()
+
+@patch('ytfetcher._cli.TXTExporter.write')
+@patch('ytfetcher._cli.TXTExporter')
+@patch('ytfetcher._cli.YTFetcher')
+def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_class, mock_export_as_txt):
+    mock_fetcher = Mock()
+    mock_ytfetcher.from_search.return_value = mock_fetcher
+    mock_fetcher.fetch_youtube_data.return_value = 'channeldata'
+
+    mock_exporter_instance = mock_exporter_class.return_value
+
+    parser = create_parser()
+    args = parser.parse_args([
+        "search",
+        "query",
         "-f", "txt",
     ])
 
