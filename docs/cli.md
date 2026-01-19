@@ -98,6 +98,10 @@ ytfetcher search <QUERY> -m <MAX_RESULTS>
 ytfetcher search "AI Getting Jobs" -m 20 -f json
 ```
 
+!!! Tip
+    When using `search` method with generic keywords (e.g., "son", "gato", "gift"), YouTube prioritizes results based on your geographic location (IP address). This can lead to transcripts in languages you didn't expect.
+    To ensure you get the right content include `--languages` parameter to CLI with your desired languages.
+
 ---
 
 ## Options
