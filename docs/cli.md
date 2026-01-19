@@ -113,43 +113,48 @@ All commands support the following common options:
 **`--no-timing`**
 
 - Exclude transcript timing information (start time and duration)
-- Example: `ytfetcher TheOffice -f json --no-timing`
+- Example: `ytfetcher channel TheOffice -f json --no-timing`
 
 **`--languages`**
 
 - Specify language codes in priority order (space-separated)
 - Default: `en`
-- Example: `ytfetcher TheOffice -m 50 -f csv --languages tr en`
+- Example: `ytfetcher channel TheOffice -m 50 -f csv --languages tr en`
 - YTFetcher will try Turkish first, then fall back to English if unavailable
 
 **`--manually-created`**
 
 - Fetch only videos with manually created transcripts (more accurate)
 - Useful for channels like TEDx that have high-quality manual transcripts
-- Example: `ytfetcher TEDx -f csv --manually-created`
+- Example: `ytfetcher channel TEDx -f csv --manually-created`
 
 **`--stdout`**
 
 - Print data directly to console instead of exporting to file
-- Example: `ytfetcher TheOffice --stdout`
+- Example: `ytfetcher channel TheOffice --stdout`
 
 **`--quiet`**
 
 - Supress CLI logs and progress informations.
-- Example: `ytfetcher TEDx --quiet`
+- Example: `ytfetcher channel TEDx --quiet`
 
 ### Comment Options
 
 **`--comments <NUMBER>`**
 
 - Fetch top N comments alongside transcripts and metadata
-- Example: `ytfetcher TheOffice -m 20 --comments 10 -f json`
+- Example: `ytfetcher channel TheOffice -m 20 --comments 10 -f json`
 - This fetches top 10 comments for each video along with transcripts
 
 **`--comments-only <NUMBER>`**
 
 - Fetch only comments with metadata (no transcripts)
-- Example: `ytfetcher TheOffice -m 20 --comments-only 10 -f json`
+- Example: `ytfetcher channel TheOffice -m 20 --comments-only 10 -f json`
+
+**`--sort` <`top`, `new`>**
+
+- Sort comments with top or newest ones (default to `top`).
+- Example: `ytfetcher channel TheOffice -m 10 -c --sort new`
 
 !!! Warning
     Comment fetching is resource-intensive. Performance depends on your internet connection and the volume of comments being retrieved.
@@ -161,19 +166,19 @@ Filters are applied **before** fetching transcripts, allowing you to focus on sp
 **`--min-views <NUMBER>`**
 
 - Filter videos with view count greater than or equal to the specified number
-- Example: `ytfetcher TheOffice -m 50 -f json --min-views 1000`
+- Example: `ytfetcher channel TheOffice -m 50 -f json --min-views 1000`
 - Only processes videos with at least 1000 views
 
 **`--min-duration <SECONDS>`**
 
 - Filter videos with duration greater than or equal to the specified seconds
-- Example: `ytfetcher TheOffice -m 50 -f csv --min-duration 300`
+- Example: `ytfetcher channel TheOffice -m 50 -f csv --min-duration 300`
 - Only processes videos that are at least 5 minutes (300 seconds) long
 
 **`--includes-title <STRING>`**
 
 - Filter videos whose title contains the specified string (case-insensitive)
-- Example: `ytfetcher TheOffice -m 50 -f json --includes-title "episode"`
+- Example: `ytfetcher channel TheOffice -m 50 -f json --includes-title "episode"`
 - Only processes videos with "episode" in the title
 
 **Combining Multiple Filters**
@@ -181,7 +186,7 @@ Filters are applied **before** fetching transcripts, allowing you to focus on sp
 You can combine multiple filters to create more specific criteria:
 
 ```bash
-ytfetcher TheOffice -m 50 -f json \
+ytfetcher channel TheOffice -m 50 -f json \
   --min-views 1000 \
   --min-duration 300 \
   --includes-title "tutorial"

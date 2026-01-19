@@ -2,12 +2,11 @@ import yt_dlp
 import concurrent.futures
 import logging
 from ytfetcher.models.channel import DLSnippet, Comment
-from ytfetcher.utils.log import log
 from ytfetcher.utils.state import should_disable_progress
 from tqdm import tqdm
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse, parse_qs
-from typing import Any, cast
+from typing import Any, cast, Literal
 
 logger = logging.getLogger(__name__)
 class ConcurrentYoutubeDLFetcher(ABC):
@@ -36,9 +35,10 @@ class ConcurrentYoutubeDLFetcher(ABC):
         pass
 
 class CommentFetcher(ConcurrentYoutubeDLFetcher):
-    def __init__(self, video_ids: list[str], max_comments: int = 20):
+    def __init__(self, video_ids: list[str], max_comments: int = 20, sort: Literal['top', 'new'] = ('top')):
         super().__init__(video_ids, 'comments', 'Fetching Comments')
         self.max_comments = max_comments
+        self.sort = sort
             
     def fetch_single(self, video_id: str) -> list[Comment]:
         video_url = f'https://www.youtube.com/watch?v={video_id}'
@@ -53,11 +53,8 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 "youtube": {
                     "max_comments": [
                         str(self.max_comments),
-                        "all",
-                        "0",
-                        "0"
                     ],
-                    "comment_sort": "top"
+                    "comment_sort": [self.sort]
                 }
             }
         }

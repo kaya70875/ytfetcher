@@ -4,7 +4,7 @@ from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import CommentFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import ProxyConfig
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Literal
 
 class YTFetcher:
     """
@@ -168,7 +168,7 @@ class YTFetcher:
         
         return transcripts
     
-    def fetch_with_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
+    def fetch_with_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
         """
         Fetches comments, addition to transcripts and metadata.
 
@@ -181,7 +181,7 @@ class YTFetcher:
 
         transcripts = self.fetcher.fetch()
         
-        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids())
+        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
         full_comments = commf.fetch()
 
         for transcript, snippet, comments in zip(transcripts, self.snippets, full_comments):
@@ -190,7 +190,7 @@ class YTFetcher:
         
         return transcripts
     
-    def fetch_comments(self, max_comments: int = 20, max_workers: int = 30) -> list[ChannelData]:
+    def fetch_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
         """
         Fetches comments for all videos.
 
@@ -201,7 +201,7 @@ class YTFetcher:
         Returns:
             list[ChannelData]: A list of objects containing only comments.
         """
-        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids())
+        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
         full_comments = commf.fetch()
 
         return [
