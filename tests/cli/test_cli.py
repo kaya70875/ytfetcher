@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, Mock
 from ytfetcher._cli import YTFetcherCLI, create_parser
 from ytfetcher.config import HTTPConfig
-from ytfetcher.services.exports import METEDATA_LIST
+from ytfetcher.services.exports import DEFAULT_METADATA
 
 @pytest.fixture
 def mock_configurations():
@@ -283,7 +283,7 @@ def test_export_method_from_video_ids(mock_ytfetcher, mock_exporter_class, mock_
         channel_data='channeldata',
         output_dir=args.output_dir,
         filename='testing',
-        allowed_metadata_list=METEDATA_LIST.__args__,
+        allowed_metadata_list=DEFAULT_METADATA,
         timing=False #Expect timing to be false, only for this method but same for others too.
     )
 
@@ -313,7 +313,7 @@ def test_export_method_from_channel(mock_ytfetcher, mock_exporter_class, mock_ex
         channel_data='channeldata',
         output_dir=args.output_dir,
         filename='data',
-        allowed_metadata_list=METEDATA_LIST.__args__,
+        allowed_metadata_list=DEFAULT_METADATA,
         timing=True
     )
 
@@ -343,7 +343,7 @@ def test_export_method_from_playlist_id(mock_ytfetcher, mock_exporter_class, moc
         channel_data='channeldata',
         output_dir=args.output_dir,
         filename='data',
-        allowed_metadata_list=METEDATA_LIST.__args__,
+        allowed_metadata_list=DEFAULT_METADATA,
         timing=True
     )
 

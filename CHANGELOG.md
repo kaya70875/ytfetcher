@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added pre-fetch filters for `ytfetcher`.
 
 ### Changed
+- `Exporter` class now **do not write `None` values** to file which reduces total file size and noise.
 - Changed main CLI arguments for easier usage and user experience.
 - Python API for `ytfetcher` is now completely silent as default. Logs and progress informations are only visible in CLI or by enabling `verbose` mode.
 - Changed `ytfetcher` to be completely **sync**.
