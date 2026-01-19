@@ -258,15 +258,19 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
 
 
 class SearchFetcher(BaseYoutubeDLFetcher):
-    def __init__(self, query: str, max_results = 50):
+    """
+    Fetches video snippets via yt-dlp search.
+    """
+    def __init__(self, query: str, max_results: int = 50):
         super().__init__(max_results)
         self.query = query
-    
+
     def fetch(self) -> list[DLSnippet]:
         ydl_opts = self._setup_ydl_opts(default_search='ytsearch', no_playlist='True')
+
         search_query = f"ytsearch{self.max_results}:{self.query}"
 
-        logger.info(f"Searching via yt-dlp: '{self.query}'...")
+        logger.info(f"Searching via yt-dlp: '{self.query}'")
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(search_query, download=False)
