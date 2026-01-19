@@ -272,7 +272,7 @@ class SearchFetcher(BaseYoutubeDLFetcher):
 
         logger.info(f"Searching via yt-dlp: '{self.query}'")
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
             info = ydl.extract_info(search_query, download=False)
             
             entries = cast(list[dict[str, Any]], info.get("entries", []))
