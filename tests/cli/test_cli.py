@@ -90,7 +90,8 @@ def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurati
     args = parser.parse_args([
         "channel",
         "TestChannel",
-        "--comments", "10"
+        "--comments", "10",
+        "--sort", "new"
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -106,7 +107,7 @@ def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurati
         filters=[]
     )
 
-    mock_fetcher.fetch_with_comments.assert_called_once_with(max_comments=10)
+    mock_fetcher.fetch_with_comments.assert_called_once_with(max_comments=10, sort='new')
 
 @patch('ytfetcher._cli.YTFetcher')
 def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurations):
@@ -119,7 +120,7 @@ def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_config
     args = parser.parse_args([
         "channel",
         "TestChannel",
-        "--comments-only", "10"
+        "--comments-only", "10",
     ])
 
     cli = YTFetcherCLI(args=args)
@@ -135,7 +136,7 @@ def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_config
         filters=[]
     )
 
-    mock_fetcher.fetch_comments.assert_called_once_with(max_comments=10)
+    mock_fetcher.fetch_comments.assert_called_once_with(max_comments=10, sort='top')
 
 ## Comments ----------------------
 
