@@ -238,6 +238,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     comments_group = parser.add_argument_group("Comment Options")
     comments_group.add_argument("--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
     comments_group.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
+    comments_group.add_argument("--sort-comments", type=str, default='top', choices=['new', 'top'], help='Sort comments: "top" (most liked) or "new" (most recent).')
 
     filter_group = parser.add_argument_group("Filtering Options (Pre-Fetch)")
     filter_group.add_argument("--min-views", type=int, help="Minimum views to process.")
