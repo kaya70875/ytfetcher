@@ -81,15 +81,16 @@ ytfetcher -h
 ```
 
 ```bash
-usage: ytfetcher [-h] {channel,video} ...
+usage: ytfetcher [-h] {channel,playlist,video,search} ...
 
 Fetch YouTube transcripts for a channel
 
 positional arguments:
-  {channel,playlist,video}
+  {channel,playlist,video,search}
     channel        Fetch data from channel handle with max_results.
     playlist    Fetch data from a specific playlist id.
     video      Fetch data from your custom video ids.
+    search     Fetch data from youtube with search query. 
 
 options:
   -h, --help            show this help message and exit
@@ -101,6 +102,7 @@ options:
 
 - Fetch full **transcripts** from a YouTube channel.
 - Get video **metadata: title, description, thumbnails, published date**.
+- Support for fetching with **channel handle, playlist id, custom video id's or with a search query.**
 - Fetch **comments** in bulk.
 - Concurrent fetching for **high performance**.
 - **Export** fetched data as txt, csv or json.
@@ -176,11 +178,15 @@ This will preview the first 4 results of the data in a beautifully formatted ter
 
 ## Using Different Fetchers
 
-`ytfetcher` also supports different fetcher so you can fetch with `channel_handle`, custom `video_ids` or from a `playlist_id`
+`ytfetcher` supports various fetching options that includes:
+
+- Fetching from a playlist id with `from_playlist_id` method.
+- Fetching from video id's with `from_video_ids` method.
+- Fetching from a search query with `from_search` method.
 
 ### Fetching from Playlist ID
 
-Here's how you can fetch bulk transcripts from a specific `playlist_id` using `ytfetcher`.
+Use `from_playlist_id` to retrieve metadata and transcripts for every video within a public or unlisted YouTube playlist.
 
 ```python
 from ytfetcher import YTFetcher
@@ -194,7 +200,8 @@ fetcher = YTFetcher.from_playlist_id(
 
 ### Fetching With Custom Video IDs
 
-Initialize `ytfetcher` with custom video IDs using `from_video_ids` method:
+If you already have specific video identifiers, `from_video_ids` allows you to target them directly.
+This is the most efficient way to fetch data when you have an external list of URLs or IDs.
 
 ```python
 from ytfetcher import YTFetcher
@@ -204,6 +211,20 @@ fetcher = YTFetcher.from_video_ids(
 )
 
 # Rest is same ...
+```
+
+### Fetching With Search Query
+
+The `from_search` method allows you to discover videos based on a keyword or phrase, similar to using the YouTube search bar. You can control the breadth of the search using the `max_results` parameter.
+
+```py
+from ytfetcher import YTFetcher
+
+# Searches for the top 10 videos matching 'Artificial Intelligence'
+fetcher = YTFetcher.from_search(
+    query="Artificial Intelligence",
+    max_results=10
+)
 ```
 
 ---
@@ -495,6 +516,11 @@ ytfetcher video video_id1 video_id2 ... -f json
 
 ```bash
 ytfetcher playlist playlistid123 -f csv -m 25
+```
+
+### Fetching with Search Method
+```bash
+ytfetcher search "AI Getting Jobs" -f json -m 25
 ```
 
 ### Using Webshare Proxy
