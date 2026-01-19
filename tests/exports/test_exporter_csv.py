@@ -71,8 +71,8 @@ def test_export_with_csv_writes_file_with_correct_structure(mocker: MockerFixtur
     reader = csv.reader(content.splitlines())
     rows = list(reader)
 
-    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
-    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid', '2.22', '2000', '']
+    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url', 'duration', 'view_count']
+    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid', '2.22', '2000']
 
 def test_export_with_csv_writes_comments(mocker: MockerFixture, mock_transcript_response_with_comments):
     m = mock_open()
@@ -87,8 +87,8 @@ def test_export_with_csv_writes_comments(mocker: MockerFixture, mock_transcript_
     reader = csv.reader(content.splitlines())
     rows = list(reader)
 
-    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url', 'duration', 'view_count', 'thumbnails', 'comment', 'comment_author', 'comment_like_count', 'comment_time_text']
-    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid', '2.22', '2000', '', 'This is a comment', 'author1', '20', '01.01.2025']
+    assert rows[0] == ['index', 'video_id', 'text', 'start', 'duration', 'title', 'description', 'url', 'duration', 'view_count', 'comment', 'comment_author', 'comment_like_count', 'comment_time_text']
+    assert rows[1] == ['0', 'video1', 'text1', '1.11', '2.22', 'channelname1', 'description1', 'https://youtube.com/videoid', '2.22', '2000', 'This is a comment', 'author1', '20', '01.01.2025']
 
 def test_export_with_csv_creates_file_with_correct_custom_name(mocker: MockerFixture, mock_transcript_response):
     m = mock_open()
