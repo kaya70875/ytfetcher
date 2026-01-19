@@ -77,6 +77,68 @@ def test_run_from_search_called(mock_run_from_search):
     mock_run_from_search.assert_called_once()
 # --> Arguments Test <--
 
+## Comments ----------------------
+
+@patch('ytfetcher._cli.YTFetcher')
+def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurations):
+    mock_fetcher = Mock()
+    mock_ytfetcher.from_channel.return_value = mock_fetcher
+
+    expected_http_config, expected_proxy_config = mock_configurations
+
+    parser = create_parser()
+    args = parser.parse_args([
+        "channel",
+        "TestChannel",
+        "--comments", "10"
+    ])
+
+    cli = YTFetcherCLI(args=args)
+    cli.run()
+
+    mock_ytfetcher.from_channel.assert_called_once_with(
+        channel_handle="TestChannel",
+        max_results=5,
+        http_config=expected_http_config,
+        proxy_config=expected_proxy_config,
+        languages=["en"],
+        manually_created=False,
+        filters=[]
+    )
+
+    mock_fetcher.fetch_with_comments.assert_called_once_with(max_comments=10)
+
+@patch('ytfetcher._cli.YTFetcher')
+def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurations):
+    mock_fetcher = Mock()
+    mock_ytfetcher.from_channel.return_value = mock_fetcher
+
+    expected_http_config, expected_proxy_config = mock_configurations
+
+    parser = create_parser()
+    args = parser.parse_args([
+        "channel",
+        "TestChannel",
+        "--comments-only", "10"
+    ])
+
+    cli = YTFetcherCLI(args=args)
+    cli.run()
+
+    mock_ytfetcher.from_channel.assert_called_once_with(
+        channel_handle="TestChannel",
+        max_results=5,
+        http_config=expected_http_config,
+        proxy_config=expected_proxy_config,
+        languages=["en"],
+        manually_created=False,
+        filters=[]
+    )
+
+    mock_fetcher.fetch_comments.assert_called_once_with(max_comments=10)
+
+## Comments ----------------------
+
 @patch('ytfetcher._cli.YTFetcher')
 def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurations):
     mock_fetcher = Mock()
