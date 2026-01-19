@@ -178,7 +178,7 @@ class YTFetcherCLI:
                 )
             
             case 'search':
-                log(f"Starting to fetch for {self.args.search} query.")
+                log(f"Starting to fetch for query: '{self.args.search}'")
                 self._run_fetcher(
                     YTFetcher.from_search,
                     query=self.args.search,
@@ -212,8 +212,8 @@ def create_parser() -> argparse.ArgumentParser:
 
     # From search parsers
     parser_search = subparsers.add_parser("search", help="Fetch data from youtube with search query.")
-    parser.add_argument("search", help="The query to search from Youtube.")
-    parser.add_argument("-m", "--max-resuts", type=int, default=20, help="Maximum videos to fetch.")
+    parser_search.add_argument("search", type=str, help="The query to search from Youtube.")
+    parser_search.add_argument("-m", "--max-resuts", type=int, default=20, help="Maximum videos to fetch.")
     _create_common_arguments(parser_search)
 
     return parser
