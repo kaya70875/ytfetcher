@@ -8,8 +8,8 @@ def test_run_filter_argument_passed_correctly_to_ytfetcher(mock_ytfetcher):
 
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "Channel",
+        "channel",
+        "TestChannel",
         "--includes-title", "title",
         "--min-views", "1000"
     ])
@@ -30,8 +30,8 @@ def test_run_filter_argument_passed_correctly_to_ytfetcher(mock_ytfetcher):
 def test_get_active_filters():
     parser = create_parser()
     args = parser.parse_args([
-        "from_channel",
-        "-c", "Channel",
+        "channel",
+        "TestChannel",
         "--includes-title", "title"
     ])
 
