@@ -224,7 +224,7 @@ To fetch comments alongside with transcripts and metadata you can use `fetch_wit
 
 ```py
 fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
-comments = fetcher.fetch_with_comments(max_comments=10)
+comments = fetcher.fetch_with_comments(max_comments=10, sort='top') # or new if you want latest comments
 ```
 
 This will simply fetch **top 10 comments for every video** alongside with transcript data.
