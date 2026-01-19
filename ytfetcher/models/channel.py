@@ -21,6 +21,7 @@ class DLSnippet(BaseModel):
     duration: float | None = None
     view_count: int | None = None
     thumbnails: list[dict] | None = None
+    uploader: str | None = None
 
     @model_validator(mode='after')
     def validate_url(self) -> 'DLSnippet':

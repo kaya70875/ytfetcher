@@ -10,7 +10,7 @@ import warnings
 
 logger = logging.getLogger(__name__)
 
-METEDATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
+METEDATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails', 'uploader']
 
 DEFAULT_METADATA = get_args(METEDATA_LIST)
 
