@@ -6,8 +6,8 @@ from ytfetcher.models.channel import (
     Transcript,
 )
 from ytfetcher.config.http_config import HTTPConfig
+from ytfetcher.config.fetch_config import FetchOptions
 from ytfetcher.exceptions import *
-from ytfetcher._youtube_dl import BaseYoutubeDLFetcher
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.utils.headers import get_realistic_headers
@@ -65,29 +65,26 @@ def patch_fetchers(mocker: MockerFixture, sample_snippet, sample_transcripts):
     return mock_transcript_fetcher
 
 @pytest.fixture
-def initialize_ytfetcher_with_channel_name(mock_http_config):
+def initialize_ytfetcher_with_channel_name():
     fetcher = YTFetcher.from_channel(
         channel_handle='test_channel',
         max_results=5,
-        http_config=mock_http_config
     )
 
     return fetcher
 
 @pytest.fixture
-def initialize_ytfetcher_with_video_ids(mock_http_config):
+def initialize_ytfetcher_with_video_ids():
     fetcher = YTFetcher.from_video_ids(
         video_ids=['video1', 'video2'],
-        http_config=mock_http_config
     )
 
     return fetcher
 
 @pytest.fixture
-def initialize_ytfetcher_with_search(mock_http_config):
+def initialize_ytfetcher_with_search():
     fetcher = YTFetcher.from_search(
         query='query',
-        http_config=mock_http_config
     )
 
     return fetcher
@@ -183,11 +180,11 @@ def test_http_config(patch_fetchers):
     fetcher = YTFetcher.from_channel(
         channel_handle='channelname',
         max_results=5,
-        http_config=config
+        options=FetchOptions(http_config=config)
     )
 
-    assert fetcher.http_config.headers == config.headers
-    assert fetcher.http_config.timeout == config.timeout
+    assert fetcher.options.http_config.headers == config.headers
+    assert fetcher.options.http_config.timeout == config.timeout
 
 def test_proxy_config(patch_fetchers):
     proxy_config_mock = create_autospec(ProxyConfig, instance=True)
@@ -196,8 +193,10 @@ def test_proxy_config(patch_fetchers):
         channel_handle='channelname',
         max_results=5,
         video_ids=['video1', 'video2'],
-        http_config=HTTPConfig(),
-        proxy_config=proxy_config_mock
+        options=FetchOptions(
+            http_config=HTTPConfig(),
+            proxy_config=proxy_config_mock
+            )
     )
 
-    assert fetcher.proxy_config is proxy_config_mock
+    assert fetcher.options.proxy_config is proxy_config_mock
