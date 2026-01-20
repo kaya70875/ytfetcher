@@ -41,14 +41,20 @@ class YTFetcher:
         options: FetchOptions | None = None
         ):
 
-        self.options = options
+        self.options = options or FetchOptions()
         self.youtube_dl = get_fetcher(channel_handle, playlist_id, video_ids, query, max_results)
         self.snippets = self.youtube_dl.fetch()
 
-        if self.filters:
+        if self.options.filters:
             self.snippets = self._filter_snippets()
 
-        self.fetcher = TranscriptFetcher(self._get_video_ids(), http_config=self.http_config, proxy_config=self.proxy_config, languages=languages, manually_created=manually_created)
+        self.fetcher = TranscriptFetcher(
+            self._get_video_ids(),
+            http_config=self.options.http_config,
+            proxy_config=self.options.proxy_config,
+            languages=self.options.languages,
+            manually_created=self.options.manually_created
+            )
             
     @classmethod
     def from_channel(
@@ -237,5 +243,5 @@ class YTFetcher:
         """
         return [
             snippet for snippet in self.snippets
-            if all(filter(snippet) for filter in self.filters)
+            if all(filter(snippet) for filter in self.options.filters)
         ]
