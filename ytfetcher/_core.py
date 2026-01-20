@@ -26,10 +26,7 @@ class YTFetcher:
         playlist_id (str | None) Playlist id to fetch from.
         channel_handle (str | None): Optional YouTube channel handle (used when fetching from channel).
         query (str | None): Optional search query to find videos across Youtube.
-        http_config (HTTPConfig): Configuration for HTTP client behavior.
-        proxy_config (ProxyConfig | None): Optional proxy settings for transcript fetching.
-        languages (Iterable[str]): Preferred languages to fetch first, default to `en`
-        manually_created (bool): Flag for fetching only manually created transcripts. Default to False
+        options (FetchOptions | None) Optional fetcher options for controlling data and requests.
     """
     def __init__(
         self,
