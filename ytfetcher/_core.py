@@ -2,10 +2,8 @@ from ytfetcher._youtube_dl import get_fetcher
 from ytfetcher.models.channel import ChannelData, DLSnippet
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import CommentFetcher
-from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config.fetch_config import FetchOptions
-from youtube_transcript_api.proxies import ProxyConfig
-from typing import Iterable, Callable, Literal
+from typing import Literal
 
 class YTFetcher:
     """
