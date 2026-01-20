@@ -28,8 +28,8 @@ class YTFetcher:
     """
     def __init__(
         self,
-        max_results: int,
-        video_ids: list[str] | None,
+        max_results: int | None = None,
+        video_ids: list[str] | None = None,
         playlist_id: str | None = None,
         channel_handle: str | None = None,
         query: str | None = None,
@@ -63,7 +63,6 @@ class YTFetcher:
         """
         return cls(
             max_results=max_results,
-            video_ids=None,
             channel_handle=channel_handle,
             options=options
             )
@@ -78,9 +77,7 @@ class YTFetcher:
         Create a fetcher that only fetches from given video ids.
         """
         return cls(
-            max_results=len(video_ids),
             video_ids=video_ids,
-            channel_handle=None,
             options=options
             )
     
@@ -96,7 +93,6 @@ class YTFetcher:
         return cls(
             playlist_id=playlist_id,
             max_results=max_results,
-            video_ids=None,
             options=options
             )
     
@@ -113,7 +109,6 @@ class YTFetcher:
         return cls(
             query=query,
             max_results=max_results,
-            video_ids=None,
             options=options
         )
 
