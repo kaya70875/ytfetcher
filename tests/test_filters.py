@@ -3,6 +3,7 @@ from unittest.mock import patch
 from ytfetcher.models import DLSnippet
 from ytfetcher import YTFetcher
 from ytfetcher.filters import filter_by_title, min_views, min_duration
+from ytfetcher.config.fetch_config import FetchOptions
 
 @pytest.fixture
 def sample_snippets():
@@ -57,16 +58,16 @@ def setup_mock_fetcher():
 @patch('ytfetcher._core.get_fetcher')
 def test_filter_snippets_returns_filtered_data(mock_get_ytfetcher, setup_mock_fetcher, sample_snippets):
     setup_mock_fetcher(mock_get_ytfetcher, sample_snippets)
-    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+    fetcher = YTFetcher.from_channel(channel_handle='channel', options=FetchOptions(filters=[
         min_views(1000),
-    ])
+    ]))
 
     assert len(fetcher.snippets) == 1
     assert fetcher.snippets[0] == sample_snippets[1]
 
-    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+    fetcher = YTFetcher.from_channel(channel_handle='channel', options=FetchOptions(filters=[
         filter_by_title('name'),
-    ])
+    ]))
 
     assert len(fetcher.snippets) == 1
     assert fetcher.snippets[0] == sample_snippets[1]
@@ -74,9 +75,9 @@ def test_filter_snippets_returns_filtered_data(mock_get_ytfetcher, setup_mock_fe
 @patch('ytfetcher._core.get_fetcher')
 def test_filter_snippets_returns_empty_list(mock_get_ytfetcher, setup_mock_fetcher, sample_snippets):
     setup_mock_fetcher(mock_get_ytfetcher, sample_snippets)
-    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+    fetcher = YTFetcher.from_channel(channel_handle='channel', options=FetchOptions(filters=[
         min_views(100000),
-    ])
+    ]))
 
     assert len(fetcher.snippets) == 0
     assert fetcher.snippets == []
@@ -84,16 +85,16 @@ def test_filter_snippets_returns_empty_list(mock_get_ytfetcher, setup_mock_fetch
 @patch('ytfetcher._core.get_fetcher')
 def test_filter_snippets_with_multiple_filters(mock_get_ytfetcher, setup_mock_fetcher, sample_missing_snippets):
     setup_mock_fetcher(mock_get_ytfetcher, sample_missing_snippets)
-    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+    fetcher = YTFetcher.from_channel(channel_handle='channel', options=FetchOptions(filters=[
         min_duration(10000)
-    ])
+    ]))
 
     assert len(fetcher.snippets) == 0
     assert fetcher.snippets == []
 
-    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+    fetcher = YTFetcher.from_channel(channel_handle='channel', options=FetchOptions(filters=[
         min_duration(900)
-    ])
+    ]))
 
     assert len(fetcher.snippets) == 1
     assert fetcher.snippets[0] == sample_missing_snippets[1]
@@ -101,9 +102,9 @@ def test_filter_snippets_with_multiple_filters(mock_get_ytfetcher, setup_mock_fe
 @patch('ytfetcher._core.get_fetcher')
 def test_filter_snippets_with_case_sensitivity(mock_get_ytfetcher, setup_mock_fetcher, sample_snippets):
     setup_mock_fetcher(mock_get_ytfetcher, sample_snippets)
-    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+    fetcher = YTFetcher.from_channel(channel_handle='channel', options=FetchOptions(filters=[
         filter_by_title('NAME')
-    ])
+    ]))
 
     assert len(fetcher.snippets) == 1
     assert fetcher.snippets[0] == sample_snippets[1]
@@ -111,9 +112,9 @@ def test_filter_snippets_with_case_sensitivity(mock_get_ytfetcher, setup_mock_fe
 @patch('ytfetcher._core.get_fetcher')
 def test_filter_snippets_with_boundary_values(mock_get_ytfetcher, setup_mock_fetcher, sample_snippets):
     setup_mock_fetcher(mock_get_ytfetcher, sample_snippets)
-    fetcher = YTFetcher.from_channel(channel_handle='channel', filters=[
+    fetcher = YTFetcher.from_channel(channel_handle='channel', options=FetchOptions(filters=[
         min_duration(900),
         min_views(20)
-    ])
+    ]))
 
     assert len(fetcher.snippets) == 2
