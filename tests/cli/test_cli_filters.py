@@ -1,5 +1,6 @@
 from unittest.mock import patch, Mock
 from ytfetcher._cli import create_parser, YTFetcherCLI
+from ytfetcher.config.fetch_config import FetchOptions
 
 @patch('ytfetcher._cli.YTFetcher')
 def test_run_filter_argument_passed_correctly_to_ytfetcher(mock_ytfetcher):
@@ -18,7 +19,8 @@ def test_run_filter_argument_passed_correctly_to_ytfetcher(mock_ytfetcher):
     cli.run()
 
     args, kwargs = mock_ytfetcher.from_channel.call_args
-    passed_filters = kwargs.get('filters')
+    options = kwargs['options']
+    passed_filters = options.filters
 
     assert passed_filters is not None
     assert len(passed_filters) == 2
