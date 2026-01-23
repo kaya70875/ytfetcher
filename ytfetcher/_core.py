@@ -171,7 +171,7 @@ class YTFetcher:
         
         return self._get_transcript_fetcher().fetch()
 
-    def fetch_snippets(self) -> list[ChannelData] | None:
+    def fetch_snippets(self) -> list[DLSnippet] | None:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 
@@ -204,6 +204,12 @@ class YTFetcher:
             )
         return self._transcript_fetcher
     
+    def _get_video_ids(self) -> list[str]:
+        """
+        Returns list of channel video ids.
+        """
+        return [snippet.video_id for snippet in self.fetch_snippets()]
+    
     @property
     def video_ids(self) -> list[str]:
         """
@@ -224,9 +230,3 @@ class YTFetcher:
             list[DLSnippet] | None: List of Snippet objects containing video metadata.
         """
         return [snippet for snippet in self.fetch_snippets()]
-
-    def _get_video_ids(self) -> list[str]:
-        """
-        Returns list of channel video ids.
-        """
-        return [snippet.video_id for snippet in self.fetch_snippets()]
