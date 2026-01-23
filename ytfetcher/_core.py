@@ -50,7 +50,7 @@ class YTFetcher:
         Create a fetcher that pulls up to max_results from the channel.
         """
         return cls(
-            fetcher=ChannelFetcher(channel_handle=channel_handle, max_results=max_results),
+            youtube_dl_fetcher=ChannelFetcher(channel_handle=channel_handle, max_results=max_results),
             options=options
             )
     
@@ -64,7 +64,7 @@ class YTFetcher:
         Create a fetcher that only fetches from given video ids.
         """
         return cls(
-            fetcher=VideoListFetcher(video_ids=video_ids),
+            youtube_dl_fetcher=VideoListFetcher(video_ids=video_ids),
             options=options
             )
     
@@ -78,7 +78,7 @@ class YTFetcher:
         Create a fetcher that fetches from given playlist id.
         """
         return cls(
-            fetcher=PlaylistFetcher(playlist_id=playlist_id, max_results=max_results),
+            youtube_dl_fetcher=PlaylistFetcher(playlist_id=playlist_id, max_results=max_results),
             options=options
             )
     
@@ -93,7 +93,7 @@ class YTFetcher:
         Create a fetcher that fetches from search query.
         """
         return cls(
-            fetcher=SearchFetcher(query=query, max_results=max_results),
+            youtube_dl_fetcher=SearchFetcher(query=query, max_results=max_results),
             options=options
         )
 
