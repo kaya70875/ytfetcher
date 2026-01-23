@@ -1,6 +1,7 @@
 from ytfetcher._youtube_dl import get_fetcher
 from ytfetcher.models.channel import ChannelData, DLSnippet
 from ytfetcher._transcript_fetcher import TranscriptFetcher
+from ytfetcher._youtube_dl import ChannelFetcher, VideoListFetcher, PlaylistFetcher, SearchFetcher, BaseYoutubeDLFetcher
 from ytfetcher._youtube_dl import CommentFetcher
 from ytfetcher.config.fetch_config import FetchOptions
 from typing import Literal
@@ -28,16 +29,12 @@ class YTFetcher:
     """
     def __init__(
         self,
-        max_results: int | None = None,
-        video_ids: list[str] | None = None,
-        playlist_id: str | None = None,
-        channel_handle: str | None = None,
-        query: str | None = None,
+        youtube_dl_fetcher,
         options: FetchOptions | None = None
         ):
 
+        self._youtube_dl: BaseYoutubeDLFetcher = youtube_dl_fetcher
         self.options = options or FetchOptions()
-        self._youtube_dl = get_fetcher(channel_handle, playlist_id, video_ids, query, max_results)
 
         self._transcript_fetcher: TranscriptFetcher | None = None
         self._snippets: list[DLSnippet] | None = None
@@ -53,8 +50,7 @@ class YTFetcher:
         Create a fetcher that pulls up to max_results from the channel.
         """
         return cls(
-            max_results=max_results,
-            channel_handle=channel_handle,
+            fetcher=ChannelFetcher(channel_handle=channel_handle, max_results=max_results),
             options=options
             )
     
@@ -68,7 +64,7 @@ class YTFetcher:
         Create a fetcher that only fetches from given video ids.
         """
         return cls(
-            video_ids=video_ids,
+            fetcher=VideoListFetcher(video_ids=video_ids),
             options=options
             )
     
@@ -82,8 +78,7 @@ class YTFetcher:
         Create a fetcher that fetches from given playlist id.
         """
         return cls(
-            playlist_id=playlist_id,
-            max_results=max_results,
+            fetcher=PlaylistFetcher(playlist_id=playlist_id, max_results=max_results),
             options=options
             )
     
@@ -98,8 +93,7 @@ class YTFetcher:
         Create a fetcher that fetches from search query.
         """
         return cls(
-            query=query,
-            max_results=max_results,
+            fetcher=SearchFetcher(query=query, max_results=max_results),
             options=options
         )
 
