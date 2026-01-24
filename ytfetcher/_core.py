@@ -25,11 +25,7 @@ class YTFetcher:
     and the `youtube_transcript_api` (with optional proxy support) to fetch transcripts.
 
     Args:
-        max_results (int): Maximum number of videos to fetch.
-        video_ids (list[str]): List of specific video IDs to fetch.
-        playlist_id (str | None) Playlist id to fetch from.
-        channel_handle (str | None): Optional YouTube channel handle (used when fetching from channel).
-        query (str | None): Optional search query to find videos across Youtube.
+        youtube_dl_fetcher (BaseYoutubeDLFetcher) Relevant yt-dlp fetcher for example `ChannelFetcher`.
         options (FetchOptions | None) Optional fetcher options for controlling data and requests.
     """
     def __init__(
