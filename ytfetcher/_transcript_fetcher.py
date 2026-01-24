@@ -49,7 +49,7 @@ class TranscriptFetcher:
         # Initialize client
         self.http_client.headers = http_config.headers
 
-    def fetch(self) -> list[ChannelData]:
+    def fetch(self) -> list[VideoTranscript]:
         """
         Asynchronously fetches transcripts for all provided video IDs.
 
@@ -63,11 +63,11 @@ class TranscriptFetcher:
         with self.executor as executor:
             futures = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
 
-            channel_data = self._build_channel_data(futures)
+            video_transcript = self._collect_results(futures)
             
-            if not channel_data and self.manually_created: logger.error("No manually created transcripts found!")
+            if not video_transcript and self.manually_created: logger.error("No manually created transcripts found!")
 
-            return channel_data
+            return video_transcript
 
     def _fetch_single(self, video_id: str) -> VideoTranscript | None:
         """
@@ -125,27 +125,17 @@ class TranscriptFetcher:
         return self._convert_to_transcript_object(raw_transcripts)
     
     @staticmethod
-    def _build_channel_data(tasks: list[futures.Future]) -> list[ChannelData]:
+    def _collect_results(tasks: list[futures.Future]) -> list[VideoTranscript]:
         """
-        Builds list of `ChannelData` from all tasks from completed thread with progress support.
-        Args:
-            tasks: List of completed tasks.
-        Returns:
-            list[ChannelData]: ChannelData list contains transcripts.
+        Collects successful VideoTranscript objects from futures.
         """
-        channel_data: list[ChannelData] = []
+        results: list[VideoTranscript] = []
 
         for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript', disable=should_disable_progress()):
             result: VideoTranscript = future.result()
             if result:
-                channel_data.append(
-                    ChannelData(
-                        video_id=result.video_id,
-                        transcripts=result.transcripts,
-                        metadata=None
-                    )
-                )
-        return channel_data
+                results.append(result)
+        return results
 
     @staticmethod
     def _clean_transcripts(transcripts: list[Transcript]) -> list[Transcript]:

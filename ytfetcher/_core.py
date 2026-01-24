@@ -1,4 +1,3 @@
-from ytfetcher._youtube_dl import get_fetcher
 from ytfetcher.models.channel import ChannelData, DLSnippet
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import ChannelFetcher, VideoListFetcher, PlaylistFetcher, SearchFetcher, BaseYoutubeDLFetcher
@@ -169,7 +168,15 @@ class YTFetcher:
             list[ChannelData]: Transcripts only with video_id (excluding metadata).
         """
         
-        return self._get_transcript_fetcher().fetch()
+        transcripts = self._get_transcript_fetcher().fetch()
+        return [
+            ChannelData(
+                video_id=transcript.video_id,
+                metadata=None,
+                transcripts=transcript.transcripts
+            )
+            for transcript in transcripts
+        ]
     
     def fetch_snippets(self) -> list[ChannelData]:
         """
