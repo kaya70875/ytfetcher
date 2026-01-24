@@ -112,10 +112,15 @@ class YTFetcher:
         snippets = self._get_snippets()
         transcripts = self._get_transcript_fetcher().fetch()
         
-        for transcript, snippet in zip(transcripts, snippets):
-            transcript.metadata = snippet if transcript.transcripts else None
-        
-        return transcripts
+        return [
+            ChannelData(
+                video_id=snippet.video_id,
+                metadata=snippet,
+                transcripts=transcript.transcripts
+            )
+
+            for snippet, transcript in zip(snippets, transcripts)
+        ]
     
     def fetch_with_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
         """
@@ -134,11 +139,15 @@ class YTFetcher:
         commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
         full_comments = commf.fetch()
 
-        for transcript, snippet, comments in zip(transcripts, snippets, full_comments):
-            transcript.metadata = snippet if transcript.transcripts else None
-            transcript.comments = comments
-        
-        return transcripts
+        return [
+            ChannelData(
+                video_id=snippet.video_id,
+                transcripts=transcript.transcripts,
+                metadata=snippet,
+                comments=comment
+            )
+            for transcript, snippet, comment in zip(transcripts, snippets, full_comments)
+        ]
     
     def fetch_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
         """
