@@ -38,16 +38,13 @@ class TranscriptFetcher:
             ("en") if it fails. Defaults to ["en"].
     """
 
-    def __init__(self, video_ids: list[str], http_config: HTTPConfig = HTTPConfig(), proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",), manually_created: bool = False):
+    def __init__(self, video_ids: list[str], http_config: HTTPConfig | None = None, proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",), manually_created: bool = False):
+        self.http_config = http_config or HTTPConfig()
+        self.proxy_config = proxy_config
         self.video_ids = video_ids
         self.languages = languages
         self.manually_created = manually_created
         self.executor = futures.ThreadPoolExecutor(max_workers=30)
-        self.proxy_config = proxy_config
-        self.http_client = requests.Session()
-
-        # Initialize client
-        self.http_client.headers = http_config.headers
 
     def fetch(self) -> list[VideoTranscript]:
         """
@@ -84,7 +81,9 @@ class TranscriptFetcher:
                          or None if transcript is unavailable.
         """
         try:
-            yt_api = YouTubeTranscriptApi(http_client=self.http_client, proxy_config=self.proxy_config)
+            session = requests.Session()
+            session.headers.update(self.http_config.headers)
+            yt_api = YouTubeTranscriptApi(http_client=session, proxy_config=self.proxy_config)
             transcript: list[Transcript] | None = self._decide_fetch_method(yt_api, video_id)
 
             if not transcript: return None
