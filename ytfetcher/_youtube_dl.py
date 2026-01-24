@@ -9,7 +9,61 @@ from urllib.parse import urlparse, parse_qs
 from typing import Any, cast, Literal
 
 logger = logging.getLogger(__name__)
-class ConcurrentYoutubeDLFetcher(ABC):
+
+class BaseYoutubeDLFetcher(ABC):
+    """
+    Abstract base class for YouTube data fetching using yt_dlp.
+
+    Provides common setup utilities for subclasses that fetch
+    metadata from channels, playlists, or specific videos.
+
+    Attributes:
+        max_results (int): The maximum number of results to fetch.
+    """
+
+    def __init__(self, max_results: int = 50):
+        self.max_results = max_results
+
+    @abstractmethod
+    def fetch(self) -> list[DLSnippet]:
+        """
+        Abstract method to be implemented by subclasses.
+
+        Should contain the logic to fetch data from YouTube.
+        """
+        pass
+
+    def _setup_ydl_opts(self, **extra_opts) -> dict:
+        """
+        Prepare yt_dlp options with safe defaults for metadata extraction.
+
+        Args:
+            **extra_opts: Additional yt_dlp options to override or extend defaults.
+
+        Returns:
+            dict: The complete yt_dlp options dictionary.
+        """
+        base_opts = {
+            "quiet": True,
+            "skip_download": True,
+            "extract_flat": True,
+            "no_warnings": True,
+        }
+        base_opts.update(extra_opts)
+        return base_opts
+
+    def _to_snippets(self, entries: list[dict[str, Any]]) -> list[DLSnippet]:
+        """
+        Convert yt_dlp raw entries into DLSnippet objects.
+
+        Args:
+            entries (list[dict]): List of yt_dlp video entries.
+
+        Returns:
+            list[DLSnippet]: List of structured DLSnippet objects.
+        """
+        return [DLSnippet.model_validate(entry) for entry in entries]
+class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
     def __init__(self, video_ids: list[str], info: str | None = None, description: str | None = None):
         self.video_ids = video_ids
         self.info = info
@@ -81,63 +135,6 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 continue
 
         return comments
-
-
-class BaseYoutubeDLFetcher(ABC):
-    """
-    Abstract base class for YouTube data fetching using yt_dlp.
-
-    Provides common setup utilities for subclasses that fetch
-    metadata from channels, playlists, or specific videos.
-
-    Attributes:
-        max_results (int): The maximum number of results to fetch.
-    """
-
-    def __init__(self, max_results: int = 50):
-        self.max_results = max_results
-
-    @abstractmethod
-    def fetch(self) -> list[DLSnippet]:
-        """
-        Abstract method to be implemented by subclasses.
-
-        Should contain the logic to fetch data from YouTube.
-        """
-        pass
-
-    def _setup_ydl_opts(self, **extra_opts) -> dict:
-        """
-        Prepare yt_dlp options with safe defaults for metadata extraction.
-
-        Args:
-            **extra_opts: Additional yt_dlp options to override or extend defaults.
-
-        Returns:
-            dict: The complete yt_dlp options dictionary.
-        """
-        base_opts = {
-            "quiet": True,
-            "skip_download": True,
-            "extract_flat": True,
-            "no_warnings": True,
-        }
-        base_opts.update(extra_opts)
-        return base_opts
-
-    def _to_snippets(self, entries: list[dict[str, Any]]) -> list[DLSnippet]:
-        """
-        Convert yt_dlp raw entries into DLSnippet objects.
-
-        Args:
-            entries (list[dict]): List of yt_dlp video entries.
-
-        Returns:
-            list[DLSnippet]: List of structured DLSnippet objects.
-        """
-        return [DLSnippet.model_validate(entry) for entry in entries]
-
-
 class ChannelFetcher(BaseYoutubeDLFetcher):
     """
     Fetches recent videos from a YouTube channel.
@@ -300,36 +297,3 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
             if not metadata: return None
 
         return DLSnippet.model_validate(metadata)
-
-def get_fetcher(
-    channel_handle: str | None = None,
-    playlist_id: str | None = None,
-    video_ids: list[str] | None = None,
-    query: str | None = None,
-    max_results: int = 50,
-) -> BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher:
-    """
-    Factory function that returns the correct fetcher
-    based on provided parameters.
-
-    Args:
-        channel_handle (str | None): YouTube channel handle or URL.
-        playlist_id (str | None): YouTube playlist ID or URL.
-        video_ids (list[str] | None): List of specific video IDs.
-        max_results (int): Maximum number of videos to fetch.
-
-    Returns:
-        BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher: An appropriate fetcher subclass instance.
-
-    Raises:
-        ValueError: If no valid input was provided.
-    """
-    if playlist_id:
-        return PlaylistFetcher(playlist_id, max_results)
-    elif channel_handle:
-        return ChannelFetcher(channel_handle, max_results)
-    elif video_ids:
-        return VideoListFetcher(video_ids)
-    elif query:
-        return SearchFetcher(query, max_results)
-    raise ValueError("No YoutubeDLFetcher found.")

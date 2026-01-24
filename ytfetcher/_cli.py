@@ -11,6 +11,7 @@ from ytfetcher.utils.log import log
 from ytfetcher import filters
 from ytfetcher.services._preview import PreviewRenderer
 from ytfetcher.utils.state import RuntimeConfig
+from ytfetcher.config.fetch_config import FetchOptions
 
 from argparse import ArgumentParser, Namespace
 
@@ -64,12 +65,14 @@ class YTFetcherCLI:
         return fetcher.fetch_youtube_data()
 
     def _run_fetcher(self, factory_method: type[YTFetcher], **kwargs) -> None:
-        # Get active filters and inject them info kwargs.
-        kwargs['filters'] = self._get_active_filters()
-
         fetcher = factory_method(
-            http_config=ConfigBuilder.build_http_config(self.args),
-            proxy_config=ConfigBuilder.build_proxy_config(self.args),
+            options=FetchOptions(
+                http_config=ConfigBuilder.build_http_config(self.args),
+                proxy_config=ConfigBuilder.build_proxy_config(self.args),
+                languages=self.args.languages,
+                manually_created=self.args.manually_created,
+                filters=self._get_active_filters()
+            ),
             **kwargs
         )
         data = self._fetch_data(fetcher=fetcher)
@@ -155,8 +158,6 @@ class YTFetcherCLI:
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel,
                     max_results=self.args.max_results,
-                    languages=self.args.languages,
-                    manually_created=self.args.manually_created,
                 )
             
             case 'video':
@@ -164,8 +165,6 @@ class YTFetcherCLI:
                 self._run_fetcher(
                     YTFetcher.from_video_ids,
                     video_ids=self.args.video_ids,
-                    languages=self.args.languages,
-                    manually_created=self.args.manually_created
                 )
             
             case 'playlist':
@@ -174,8 +173,6 @@ class YTFetcherCLI:
                     YTFetcher.from_playlist_id,
                     playlist_id=self.args.playlist_id,
                     max_results=self.args.max_results,
-                    languages=self.args.languages,
-                    manually_created=self.args.manually_created
                 )
             
             case 'search':
@@ -184,8 +181,6 @@ class YTFetcherCLI:
                     YTFetcher.from_search,
                     query=self.args.search,
                     max_results=self.args.max_results,
-                    languages=self.args.languages,
-                    manually_created=self.args.manually_created
                 )
 
             case _:

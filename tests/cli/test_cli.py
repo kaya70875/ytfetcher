@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, Mock
 from ytfetcher._cli import YTFetcherCLI, create_parser
 from ytfetcher.config import HTTPConfig
+from ytfetcher.config.fetch_config import FetchOptions
 from ytfetcher.services.exports import DEFAULT_METADATA
 
 @pytest.fixture
@@ -100,11 +101,13 @@ def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurati
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
         max_results=5,
-        http_config=expected_http_config,
-        proxy_config=expected_proxy_config,
-        languages=["en"],
-        manually_created=False,
-        filters=[]
+        options=FetchOptions(
+            http_config=expected_http_config,
+            proxy_config=expected_proxy_config,
+            languages=["en"],
+            manually_created=False,
+            filters=[]
+        )
     )
 
     mock_fetcher.fetch_with_comments.assert_called_once_with(max_comments=10, sort='new')
@@ -129,11 +132,13 @@ def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_config
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
         max_results=5,
-        http_config=expected_http_config,
-        proxy_config=expected_proxy_config,
-        languages=["en"],
-        manually_created=False,
-        filters=[]
+        options=FetchOptions(
+            http_config=expected_http_config,
+            proxy_config=expected_proxy_config,
+            languages=["en"],
+            manually_created=False,
+            filters=[]
+        )
     )
 
     mock_fetcher.fetch_comments.assert_called_once_with(max_comments=10, sort='top')
@@ -159,11 +164,13 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
         max_results=5,
-        http_config=expected_http_config,
-        proxy_config=expected_proxy_config,
-        languages=["en"],
-        manually_created=False,
-        filters=[]
+        options=FetchOptions(
+            http_config=expected_http_config,
+            proxy_config=expected_proxy_config,
+            languages=["en"],
+            manually_created=False,
+            filters=[]
+        )
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
@@ -189,11 +196,13 @@ def test_run_from_playlist_id_arguments_passed_correctly_to_ytfetcher(mock_ytfet
     mock_ytfetcher.from_playlist_id.assert_called_once_with(
         playlist_id="playlistid",
         max_results=20,
-        http_config=expected_http_config,
-        proxy_config=expected_proxy_config,
-        languages=["en", "de"],
-        manually_created=True,
-        filters=[]
+        options=FetchOptions(
+            http_config=expected_http_config,
+            proxy_config=expected_proxy_config,
+            languages=["en", "de"],
+            manually_created=True,
+            filters=[]
+        )
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
@@ -217,11 +226,13 @@ def test_run_from_video_ids_arguments_passed_correctly_to_ytfetcher(mock_ytfetch
 
     mock_ytfetcher.from_video_ids.assert_called_once_with(
         video_ids=['id1', 'id2'],
-        http_config=expected_http_config,
-        proxy_config=expected_proxy_config,
-        languages=["en", "de"],
-        manually_created=False,
-        filters=[]
+        options=FetchOptions(
+            http_config=expected_http_config,
+            proxy_config=expected_proxy_config,
+            languages=["en", "de"],
+            manually_created=False,
+            filters=[]
+        )
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()
@@ -246,12 +257,14 @@ def test_run_from_search_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher,
 
     mock_ytfetcher.from_search.assert_called_once_with(
         query='query',
-        http_config=expected_http_config,
-        proxy_config=expected_proxy_config,
-        languages=["en", "de"],
         max_results=10,
-        manually_created=False,
-        filters=[]
+        options=FetchOptions(
+            http_config=expected_http_config,
+            proxy_config=expected_proxy_config,
+            languages=["en", "de"],
+            manually_created=False,
+            filters=[]
+        )
     )
 
     mock_fetcher.fetch_youtube_data.assert_called_once()

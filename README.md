@@ -229,12 +229,32 @@ fetcher = YTFetcher.from_search(
 
 ---
 
+## YTFetcher Options
+
+YTFetcher provides a simple interface for customizing your fetching process with several optional parameters:
+
+- **languages**: Specify preferred transcript languages (e.g., `["en", "tr"]`).
+- **filters**: Apply filters to video metadata before transcripts are fetched.
+- **manually_created** Fetch only manually created transcripts for more precise transcripts.
+- **proxy_config** Provide custom proxy settings for preventing bans.
+- **http_config** Define custom http headers and timeouts.
+
+These options can be passed to any of the fetcher methods (`from_channel`, `from_video_ids`, `from_playlist_id`, or `from_search`) to tailor the fetching process for your needs. You can use `FetchOptions` dataclass from `ytfetcher.config` for easily configure your options.
+
+See below for examples of usages.
+
 ## Retreive Different Languages
 
 You can use the `languages` param to retrieve your desired language. (Default en)
 
 ```python
-fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    languages=['tr', 'en']
+)
+
+fetcher = YTFetcher.from_video_ids(video_ids=video_ids, options=options)
 ```
 
 Also here's a quick CLI command for `languages` param.
@@ -267,30 +287,21 @@ Pass a list of filter functions to the `filters` parameter when creating a fetch
 
 ```python
 from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
 from ytfetcher.filters import min_duration, min_views, filter_by_title
 
-fetcher = YTFetcher.from_channel(
-    channel_handle="TheOffice",
-    max_results=50,
+options = FetchOptions(
     filters=[
         min_views(5000),
         min_duration(600),  # At least 10 minutes
         filter_by_title("tutorial")
     ]
 )
-```
 
-Filters also work with `from_video_ids` and `from_playlist_id`:
-
-```python
-fetcher = YTFetcher.from_playlist_id(
-    playlist_id="playlistid1254",
-    filters=[min_views(1000), max_duration(1800)]  # Max 30 minutes
-)
-
-fetcher = YTFetcher.from_video_ids(
-    video_ids=['video1', 'video2', 'video3'],
-    filters=[filter_by_title("python")]
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    options=options
 )
 ```
 
@@ -319,7 +330,13 @@ ytfetcher channel TheOffice -m 50 -f json --min-views 1000 --min-duration 300 --
 `ytfetcher` allows you to fetch **only manually created transcripts** from a channel which allows you to get more precise transcripts.
 
 ```python
-fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True) # Set manually_created flag to True
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    manually_created=True
+)
+fetcher = YTFetcher.from_channel(channel_handle="TEDx", options=options)
 ```
 
 You can also easily enable this feature with `--manually-created` argument in CLI.
@@ -465,12 +482,16 @@ print(data)
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
+from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig, FetchOptions
+
+options = FetchOptions(
+    proxy_config=GenericProxyConfig() | WebshareProxyConfig()
+)
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=3,
-    proxy_config=GenericProxyConfig() | WebshareProxyConfig()
+    options=options
 )
 ```
 
@@ -482,17 +503,21 @@ fetcher = YTFetcher.from_channel(
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import HTTPConfig
+from ytfetcher.config import HTTPConfig, FetchOptions
 
 custom_config = HTTPConfig(
     timeout=4.0,
     headers={"User-Agent": "ytfetcher/1.0"}
 )
 
+options = FetchOptions(
+    http_config=custom_config
+)
+
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=10,
-    http_config=custom_config
+    options=options
 )
 ```
 
