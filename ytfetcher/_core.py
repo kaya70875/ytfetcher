@@ -1,7 +1,13 @@
 from ytfetcher.models.channel import ChannelData, DLSnippet
 from ytfetcher._transcript_fetcher import TranscriptFetcher
-from ytfetcher._youtube_dl import ChannelFetcher, VideoListFetcher, PlaylistFetcher, SearchFetcher, BaseYoutubeDLFetcher
-from ytfetcher._youtube_dl import CommentFetcher
+from ytfetcher._youtube_dl import (
+    ChannelFetcher,
+    VideoListFetcher,
+    PlaylistFetcher,
+    SearchFetcher,
+    CommentFetcher,
+    BaseYoutubeDLFetcher
+)
 from ytfetcher.config.fetch_config import FetchOptions
 from typing import Literal
 
