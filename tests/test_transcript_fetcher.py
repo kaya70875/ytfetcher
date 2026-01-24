@@ -42,10 +42,9 @@ def test_fetch_method_returns_correct_data(mocker: MockerFixture, mock_video_ids
     
     results = fetcher.fetch()
 
-    assert isinstance(results[0], ChannelData)
+    assert isinstance(results[0], VideoTranscript)
     assert results[0].transcripts[0].text == 'text1'
     assert results[0].video_id == 'video_id'
-    assert results[0].metadata == None
 
 def test_fetch_single_returns_correct_data(mocker: MockerFixture, mock_video_ids):
     fetcher = TranscriptFetcher(mock_video_ids)
