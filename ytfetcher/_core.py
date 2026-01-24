@@ -58,7 +58,7 @@ class YTFetcher:
     @classmethod
     def from_video_ids(
         cls,
-        video_ids: list[str] | None = None,
+        video_ids: list[str],
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
