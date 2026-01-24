@@ -224,7 +224,7 @@ class YTFetcher:
 
     def _get_transcript_fetcher(self) -> TranscriptFetcher:
         if self._transcript_fetcher is None:
-            video_ids = [s.video_id for s in self._get_snippets()]
+            video_ids = self._get_video_ids()
             self._transcript_fetcher = TranscriptFetcher(
                 video_ids,
                 http_config=self.options.http_config,
