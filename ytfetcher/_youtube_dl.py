@@ -9,7 +9,61 @@ from urllib.parse import urlparse, parse_qs
 from typing import Any, cast, Literal
 
 logger = logging.getLogger(__name__)
-class ConcurrentYoutubeDLFetcher(ABC):
+
+class BaseYoutubeDLFetcher(ABC):
+    """
+    Abstract base class for YouTube data fetching using yt_dlp.
+
+    Provides common setup utilities for subclasses that fetch
+    metadata from channels, playlists, or specific videos.
+
+    Attributes:
+        max_results (int): The maximum number of results to fetch.
+    """
+
+    def __init__(self, max_results: int = 50):
+        self.max_results = max_results
+
+    @abstractmethod
+    def fetch(self) -> list[DLSnippet]:
+        """
+        Abstract method to be implemented by subclasses.
+
+        Should contain the logic to fetch data from YouTube.
+        """
+        pass
+
+    def _setup_ydl_opts(self, **extra_opts) -> dict:
+        """
+        Prepare yt_dlp options with safe defaults for metadata extraction.
+
+        Args:
+            **extra_opts: Additional yt_dlp options to override or extend defaults.
+
+        Returns:
+            dict: The complete yt_dlp options dictionary.
+        """
+        base_opts = {
+            "quiet": True,
+            "skip_download": True,
+            "extract_flat": True,
+            "no_warnings": True,
+        }
+        base_opts.update(extra_opts)
+        return base_opts
+
+    def _to_snippets(self, entries: list[dict[str, Any]]) -> list[DLSnippet]:
+        """
+        Convert yt_dlp raw entries into DLSnippet objects.
+
+        Args:
+            entries (list[dict]): List of yt_dlp video entries.
+
+        Returns:
+            list[DLSnippet]: List of structured DLSnippet objects.
+        """
+        return [DLSnippet.model_validate(entry) for entry in entries]
+class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
     def __init__(self, video_ids: list[str], info: str | None = None, description: str | None = None):
         self.video_ids = video_ids
         self.info = info
@@ -81,63 +135,6 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 continue
 
         return comments
-
-
-class BaseYoutubeDLFetcher(ABC):
-    """
-    Abstract base class for YouTube data fetching using yt_dlp.
-
-    Provides common setup utilities for subclasses that fetch
-    metadata from channels, playlists, or specific videos.
-
-    Attributes:
-        max_results (int): The maximum number of results to fetch.
-    """
-
-    def __init__(self, max_results: int = 50):
-        self.max_results = max_results
-
-    @abstractmethod
-    def fetch(self) -> list[DLSnippet]:
-        """
-        Abstract method to be implemented by subclasses.
-
-        Should contain the logic to fetch data from YouTube.
-        """
-        pass
-
-    def _setup_ydl_opts(self, **extra_opts) -> dict:
-        """
-        Prepare yt_dlp options with safe defaults for metadata extraction.
-
-        Args:
-            **extra_opts: Additional yt_dlp options to override or extend defaults.
-
-        Returns:
-            dict: The complete yt_dlp options dictionary.
-        """
-        base_opts = {
-            "quiet": True,
-            "skip_download": True,
-            "extract_flat": True,
-            "no_warnings": True,
-        }
-        base_opts.update(extra_opts)
-        return base_opts
-
-    def _to_snippets(self, entries: list[dict[str, Any]]) -> list[DLSnippet]:
-        """
-        Convert yt_dlp raw entries into DLSnippet objects.
-
-        Args:
-            entries (list[dict]): List of yt_dlp video entries.
-
-        Returns:
-            list[DLSnippet]: List of structured DLSnippet objects.
-        """
-        return [DLSnippet.model_validate(entry) for entry in entries]
-
-
 class ChannelFetcher(BaseYoutubeDLFetcher):
     """
     Fetches recent videos from a YouTube channel.
