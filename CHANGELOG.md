@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added pre-fetch filters for `ytfetcher`.
 
 ### Changed
+- Removed deprecated `Exporter` class.
 - No more **network requests in __init__**.
 - `YTFetcher` now initializes correct `BaseYoutubeDLFetcher` inside classmethods.
 - `TranscriptFetcher` creates `Session` per thread for thread safety.
