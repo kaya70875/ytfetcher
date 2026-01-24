@@ -6,46 +6,12 @@ from typing import Literal, Sequence, get_args, Any
 import json
 import csv
 import logging
-import warnings
 
 logger = logging.getLogger(__name__)
 
 METADATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails', 'uploader_url']
 
 DEFAULT_METADATA = get_args(METADATA_LIST)
-
-class Exporter:
-    """
-    DEPRECATED: Use TXTExporter, JSONExporter, or CSVExporter instead.\n
-    This class is kept for backward compatibility and will be removed in a future versions.
-
-    Parameters:
-        channel_data (list[ChannelData]): The transcript and metadata to export.
-        allowed_metadata_list (list): Metadata fields to include (e.g., ['title', 'description']).
-        timing (bool): Whether to include start/duration timing in exports.
-        filename (str): Output filename without extension.
-        output_dir (str | None): Directory to export files into. Defaults to current working directory.
-
-    Raises:
-        NoDataToExport: If no data is provided.
-        OutputDirectoryNotFoundError: If specified path cannot found.
-    """
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            "The 'Exporter' class is deprecated and will be removed in future versions. Use TXTExporter, JSONExporter, or CSVExporter instead.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        self.args = args
-        self.kwargs = kwargs
-
-    def export_as_txt(self) -> None:
-        return TXTExporter(*self.args, **self.kwargs).write()
-    def export_as_json(self) -> None:
-        return JSONExporter(*self.args, **self.kwargs).write()
-    def export_as_csv(self) -> None:
-        return CSVExporter(*self.args, **self.kwargs).write()
-
 class BaseExporter(ABC):
     """
     Handles exporting YouTube transcript and metadata to various formats: TXT, JSON, and CSV.
