@@ -65,7 +65,6 @@ def test_fetch_single_returns_correct_data(mocker: MockerFixture, mock_video_ids
     assert results.transcripts[0].text == 'text'
 
 def test_concurrent_fetching(mocker, mock_video_ids):
-    # Mock the YouTube API to simulate delayed responses
     mock_fetch = mocker.patch.object(
         YouTubeTranscriptApi, 
         "fetch",
@@ -74,29 +73,35 @@ def test_concurrent_fetching(mocker, mock_video_ids):
         )
     )
     
-    # Create a fetcher with 2 video IDs
     fetcher = TranscriptFetcher(mock_video_ids)
     
-    # Time the execution (should be ~1s, not 2s if parallel)
     start_time = time.time()
     results = fetcher.fetch()
     elapsed = time.time() - start_time
     
     assert len(results) == 2
-    assert elapsed < 1.5  # Should complete in ~1s if parallel
+    assert elapsed < 1.5
     assert mock_fetch.call_count == 2
 
-def test_custom_ytt_api_client_initialized_correctly():
-    fetcher = TranscriptFetcher(mock_video_ids, http_config=HTTPConfig(timeout=4.0), proxy_config=GenericProxyConfig(
-        http_url='http://test:800'
-    ))
-    ytt_api = YouTubeTranscriptApi(http_client=fetcher.http_client, proxy_config=fetcher.proxy_config)
-    
-    print(ytt_api._fetcher._http_client.proxies)
+def test_custom_ytt_api_client_initialized_correctly(mocker):
+    mock_api = mocker.patch("ytfetcher._transcript_fetcher.YouTubeTranscriptApi")
 
-    assert ytt_api._fetcher._http_client.headers.get('User-Agent') is not None
-    assert ytt_api._fetcher._http_client.headers.get("Referer") is not None
-    assert ytt_api._fetcher._http_client.proxies == {'http': 'http://test:800', 'https': 'http://test:800'}
+    fetcher = TranscriptFetcher(
+        mock_video_ids,
+        http_config=HTTPConfig(timeout=4.0),
+        proxy_config=GenericProxyConfig(http_url="http://test:800"),
+    )
+
+    fetcher._fetch_single("video123")
+
+    mock_api.assert_called_once()
+
+    assert fetcher.http_config.headers.get('User-Agent') is not None
+    assert fetcher.http_config.headers.get('Referer') is not None
+    assert fetcher.proxy_config.to_requests_dict() == {
+        "http": "http://test:800",
+        "https": "http://test:800",
+    }
 
 def test_clean_transcripts():
 
