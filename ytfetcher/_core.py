@@ -208,7 +208,7 @@ class YTFetcher:
             for snippet in snippets
         ]
 
-    def _get_snippets(self) -> list[DLSnippet] | None:
+    def _get_snippets(self) -> list[DLSnippet]:
         if self._snippets is None:
             snippets = self._youtube_dl.fetch()
 
@@ -252,7 +252,7 @@ class YTFetcher:
         return self._get_video_ids()
 
     @property
-    def metadata(self) -> list[DLSnippet] | None:
+    def metadata(self) -> list[DLSnippet]:
         """
         Metadata for each video, such as title, duration, and description.
 
