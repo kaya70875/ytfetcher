@@ -297,36 +297,3 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
             if not metadata: return None
 
         return DLSnippet.model_validate(metadata)
-
-def get_fetcher(
-    channel_handle: str | None = None,
-    playlist_id: str | None = None,
-    video_ids: list[str] | None = None,
-    query: str | None = None,
-    max_results: int = 50,
-) -> BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher:
-    """
-    Factory function that returns the correct fetcher
-    based on provided parameters.
-
-    Args:
-        channel_handle (str | None): YouTube channel handle or URL.
-        playlist_id (str | None): YouTube playlist ID or URL.
-        video_ids (list[str] | None): List of specific video IDs.
-        max_results (int): Maximum number of videos to fetch.
-
-    Returns:
-        BaseYoutubeDLFetcher | ConcurrentYoutubeDLFetcher: An appropriate fetcher subclass instance.
-
-    Raises:
-        ValueError: If no valid input was provided.
-    """
-    if playlist_id:
-        return PlaylistFetcher(playlist_id, max_results)
-    elif channel_handle:
-        return ChannelFetcher(channel_handle, max_results)
-    elif video_ids:
-        return VideoListFetcher(video_ids)
-    elif query:
-        return SearchFetcher(query, max_results)
-    raise ValueError("No YoutubeDLFetcher found.")
