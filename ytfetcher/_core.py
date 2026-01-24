@@ -34,7 +34,7 @@ class YTFetcher:
     """
     def __init__(
         self,
-        youtube_dl_fetcher,
+        youtube_dl_fetcher: BaseYoutubeDLFetcher,
         options: FetchOptions | None = None
         ):
 
