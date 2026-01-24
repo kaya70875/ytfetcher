@@ -148,7 +148,13 @@ YTFetcher provides **flexible transcript fetching with support for multiple lang
 You can use the `languages` param to **retrieve your desired language.** (Default en)
 
 ```py
-fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    languages=["tr", "en"]
+)
+fetcher = YTFetcher.from_video_ids(video_ids=video_ids, options=options)
 ```
 
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
@@ -157,7 +163,9 @@ fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
 
 `ytfetcher` allows you to fetch only manually created transcripts from a channel which allows you to get more precise transcripts.
 ```py
-fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True)
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+fetcher = YTFetcher.from_channel(channel_handle="TEDx", options=FetchOptions(manually_created=True))
 ```
 
 !!! Note
@@ -187,29 +195,20 @@ Pass a list of filter functions to the `filters` parameter when creating a fetch
 ```python
 from ytfetcher import YTFetcher
 from ytfetcher.filters import min_duration, min_views, filter_by_title
+from ytfetcher.config import FetchOptions
 
-fetcher = YTFetcher.from_channel(
-    channel_handle="TheOffice",
-    max_results=50,
+options = FetchOptions(
     filters=[
         min_views(5000),
         min_duration(600),  # At least 10 minutes
         filter_by_title("tutorial")
     ]
 )
-```
 
-Filters also work with `from_video_ids` and `from_playlist_id`:
-
-```python
-fetcher = YTFetcher.from_playlist_id(
-    playlist_id="playlistid1254",
-    filters=[min_views(1000), max_duration(1800)]  # Max 30 minutes
-)
-
-fetcher = YTFetcher.from_video_ids(
-    video_ids=['video1', 'video2', 'video3'],
-    filters=[filter_by_title("python")]
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    options=options
 )
 ```
 
@@ -284,7 +283,7 @@ Use custom HTTP/HTTPS proxy servers with `GenericProxyConfig`:
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import GenericProxyConfig
+from ytfetcher.config import GenericProxyConfig, FetchOptions
 
 proxy_config = GenericProxyConfig(
     http_url="http://user:pass@host:port",
@@ -294,7 +293,9 @@ proxy_config = GenericProxyConfig(
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=50,
-    proxy_config=proxy_config
+    options=FetchOptions(
+        proxy_config=proxy_config
+    )
 )
 ```
 
@@ -304,7 +305,7 @@ For Webshare proxy service users, use `WebshareProxyConfig`:
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import WebshareProxyConfig
+from ytfetcher.config import WebshareProxyConfig, FetchOptions
 
 proxy_config = WebshareProxyConfig(
     proxy_username="your_webshare_username",
@@ -314,7 +315,9 @@ proxy_config = WebshareProxyConfig(
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=50,
-    proxy_config=proxy_config
+    options=FetchOptions(
+        proxy_config=proxy_config
+    )
 )
 ```
 
@@ -327,7 +330,7 @@ YTFetcher automatically uses realistic browser-like headers to mimic real browse
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import HTTPConfig
+from ytfetcher.config import HTTPConfig, FetchOptions
 
 http_config = HTTPConfig(
     timeout=4.0,  # Request timeout in seconds
@@ -337,7 +340,9 @@ http_config = HTTPConfig(
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=10,
-    http_config=http_config
+    options=FetchOptions(
+        http_config=http_config
+    )
 )
 ```
 
