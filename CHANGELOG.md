@@ -6,18 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+- Introduced a new `FetchOptions` data class for defining fetcher options like `languages`, `filters` etc.
 - Added a `--sort` argument for choosing **top or new** comments with CLI.
 - Added `from_search` method for both Python API and CLI. This method allows user to fetch based on a `query`, similar to Youtube search.
 - Added a `--quiet` tag for CLI.
 - Added pre-fetch filters for `ytfetcher`.
 
 ### Changed
+- No more **network requests in __init__**.
+- `YTFetcher` now initializes correct `BaseYoutubeDLFetcher` inside classmethods.
+- `TranscriptFetcher` creates `Session` per thread for thread safety.
+- `TranscripFetcher` now returns `VideoTranscript` instead of returning `ChannelData`.
 - `Exporter` class now **do not write `None` values** to file which reduces total file size and noise.
 - Changed main CLI arguments for easier usage and user experience.
 - Python API for `ytfetcher` is now completely silent as default. Logs and progress informations are only visible in CLI or by enabling `verbose` mode.
 - Changed `ytfetcher` to be completely **sync**.
 
 ### Fixed
+- Fixed `HTTPConfig` class `InvalidHeader` check.
 - Fixed VideoListFetcher performance issue with implementing `ThreadPoolExecutor`.
 - Fixed `CommentFetcher` doesn't fetch top comments.
 ---
