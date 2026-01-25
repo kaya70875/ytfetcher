@@ -132,8 +132,8 @@ class YTFetcher:
         transcripts = self._get_transcript_fetcher().fetch()
         snippets = self._get_snippets()
         
-        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
-        full_comments = commf.fetch()
+        comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
+        full_comments = comment_fetcher.fetch()
 
         return [
             ChannelData(
