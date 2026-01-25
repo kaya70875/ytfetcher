@@ -1,12 +1,11 @@
 from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import ProxyConfig
-from ytfetcher.models.channel import ChannelData, VideoTranscript, Transcript
+from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
-from ytfetcher.utils.log import log
 from ytfetcher.utils.state import should_disable_progress
 from concurrent import futures
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 from typing import Iterable
 import requests
 import logging
@@ -44,7 +43,6 @@ class TranscriptFetcher:
         self.video_ids = video_ids
         self.languages = languages
         self.manually_created = manually_created
-        self.executor = futures.ThreadPoolExecutor(max_workers=30)
 
     def fetch(self) -> list[VideoTranscript]:
         """
@@ -57,14 +55,14 @@ class TranscriptFetcher:
             list[VideoTranscript]: A list of successful transcripts from list of videos with video_id information.
         """
 
-        with self.executor as executor:
-            futures = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
-
-            video_transcript = self._collect_results(futures)
+        with futures.ThreadPoolExecutor(max_workers=30) as executor:
+            tasks = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
+            video_transcript = self._collect_results(tasks)
             
-            if not video_transcript and self.manually_created: logger.error("No manually created transcripts found!")
+        if not video_transcript and self.manually_created: 
+            logger.error("No manually created transcripts found!")
 
-            return video_transcript
+        return video_transcript
 
     def _fetch_single(self, video_id: str) -> VideoTranscript | None:
         """
