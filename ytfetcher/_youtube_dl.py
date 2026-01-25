@@ -260,7 +260,7 @@ class SearchFetcher(BaseYoutubeDLFetcher):
         self.query = query
 
     def fetch(self) -> list[DLSnippet]:
-        ydl_opts = self._setup_ydl_opts(default_search='ytsearch', no_playlist='True')
+        ydl_opts = self._setup_ydl_opts(default_search='ytsearch', no_playlist=True)
 
         search_query = f"ytsearch{self.max_results}:{self.query}"
 
