@@ -85,31 +85,60 @@ preview.render(data=channel_data, limit=4)
 This will preview the first 4 results of the data in a **beautifully formatted terminal view, including metadata, transcript snippets, and comments**.
 
 ## Using Different Fetchers
-`ytfetcher` supports different fetchers so you can fetch with using `channel_handle`, custom `video_ids` or from a `playlist_id` directly.
 
-### Fetching From Playlist ID
+`ytfetcher` supports various fetching options that includes:
 
-Here's how you can fetch bulk transcripts from a specific `playlist_id` using `ytfetcher`.
-```py
+- Fetching from a playlist id with `from_playlist_id` method.
+- Fetching from video id's with `from_video_ids` method.
+- Fetching from a search query with `from_search` method.
+
+### Fetching from Playlist ID
+
+Use `from_playlist_id` to retrieve metadata and transcripts for every video within a public or unlisted YouTube playlist.
+
+```python
 from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_playlist_id(
     playlist_id="playlistid1254"
 )
 
-data = fetcher.fetch_youtube_data()
+# Rest is same ...
+```
 
 ### Fetching With Custom Video IDs
-Initialize `ytfetcher` with custom video IDs using `from_video_ids` method:
-```py
+
+If you already have specific video identifiers, `from_video_ids` allows you to target them directly.
+This is the most efficient way to fetch data when you have an external list of URLs or IDs.
+
+```python
 from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_video_ids(
     video_ids=['video1', 'video2', 'video3']
 )
 
-data = fetcher.fetch_youtube_data()
+# Rest is same ...
 ```
+
+### Fetching With Search Query
+
+The `from_search` method allows you to discover videos based on a keyword or phrase, similar to using the YouTube search bar. You can control the breadth of the search using the `max_results` parameter.
+
+```py
+from ytfetcher import YTFetcher
+
+# Searches for the top 10 videos matching 'Artificial Intelligence'
+fetcher = YTFetcher.from_search(
+    query="Artificial Intelligence",
+    max_results=10
+)
+```
+
+!!! Tip
+    When using `from_search` with generic keywords (e.g., "son", "gato", "gift"), YouTube prioritizes results based on your geographic location (IP address). This can lead to transcripts in languages you didn't expect.
+    To ensure you get the right content ensure your `YTFetcher` initialization includes the correct `language` parameter to match the expected transcript availability.
+
 
 ## Transcript Options
 
@@ -119,7 +148,13 @@ YTFetcher provides **flexible transcript fetching with support for multiple lang
 You can use the `languages` param to **retrieve your desired language.** (Default en)
 
 ```py
-fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    languages=["tr", "en"]
+)
+fetcher = YTFetcher.from_video_ids(video_ids=video_ids, options=options)
 ```
 
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
@@ -128,7 +163,9 @@ fetcher = YTFetcher.from_video_ids(video_ids=video_ids, languages=["tr", "en"])
 
 `ytfetcher` allows you to fetch only manually created transcripts from a channel which allows you to get more precise transcripts.
 ```py
-fetcher = YTFetcher.from_channel(channel_handle="TEDx", manually_created=True)
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+fetcher = YTFetcher.from_channel(channel_handle="TEDx", options=FetchOptions(manually_created=True))
 ```
 
 !!! Note
@@ -158,29 +195,20 @@ Pass a list of filter functions to the `filters` parameter when creating a fetch
 ```python
 from ytfetcher import YTFetcher
 from ytfetcher.filters import min_duration, min_views, filter_by_title
+from ytfetcher.config import FetchOptions
 
-fetcher = YTFetcher.from_channel(
-    channel_handle="TheOffice",
-    max_results=50,
+options = FetchOptions(
     filters=[
         min_views(5000),
         min_duration(600),  # At least 10 minutes
         filter_by_title("tutorial")
     ]
 )
-```
 
-Filters also work with `from_video_ids` and `from_playlist_id`:
-
-```python
-fetcher = YTFetcher.from_playlist_id(
-    playlist_id="playlistid1254",
-    filters=[min_views(1000), max_duration(1800)]  # Max 30 minutes
-)
-
-fetcher = YTFetcher.from_video_ids(
-    video_ids=['video1', 'video2', 'video3'],
-    filters=[filter_by_title("python")]
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    options=options
 )
 ```
 
@@ -195,7 +223,7 @@ To fetch comments alongside with transcripts and metadata you can use `fetch_wit
 
 ```py
 fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
-comments = fetcher.fetch_with_comments(max_comments=10)
+comments = fetcher.fetch_with_comments(max_comments=10, sort='top') # or new if you want latest comments
 ```
 
 This will simply fetch **top 10 comments for every video** alongside with transcript data.
@@ -255,7 +283,7 @@ Use custom HTTP/HTTPS proxy servers with `GenericProxyConfig`:
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import GenericProxyConfig
+from ytfetcher.config import GenericProxyConfig, FetchOptions
 
 proxy_config = GenericProxyConfig(
     http_url="http://user:pass@host:port",
@@ -265,7 +293,9 @@ proxy_config = GenericProxyConfig(
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=50,
-    proxy_config=proxy_config
+    options=FetchOptions(
+        proxy_config=proxy_config
+    )
 )
 ```
 
@@ -275,7 +305,7 @@ For Webshare proxy service users, use `WebshareProxyConfig`:
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import WebshareProxyConfig
+from ytfetcher.config import WebshareProxyConfig, FetchOptions
 
 proxy_config = WebshareProxyConfig(
     proxy_username="your_webshare_username",
@@ -285,7 +315,9 @@ proxy_config = WebshareProxyConfig(
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=50,
-    proxy_config=proxy_config
+    options=FetchOptions(
+        proxy_config=proxy_config
+    )
 )
 ```
 
@@ -298,7 +330,7 @@ YTFetcher automatically uses realistic browser-like headers to mimic real browse
 
 ```python
 from ytfetcher import YTFetcher
-from ytfetcher.config import HTTPConfig
+from ytfetcher.config import HTTPConfig, FetchOptions
 
 http_config = HTTPConfig(
     timeout=4.0,  # Request timeout in seconds
@@ -308,7 +340,9 @@ http_config = HTTPConfig(
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
     max_results=10,
-    http_config=http_config
+    options=FetchOptions(
+        http_config=http_config
+    )
 )
 ```
 

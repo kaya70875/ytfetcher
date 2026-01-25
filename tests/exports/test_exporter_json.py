@@ -78,7 +78,6 @@ def test_export_with_json_writes_file_with_correct_structure(mocker: MockerFixtu
         "url": "https://youtube.com/videoid",
         "duration": 25.4,
         "view_count": 2000,
-        "thumbnails": None,
         "transcript": [
             {
                 "start": 1.11,
@@ -105,7 +104,6 @@ def test_export_with_json_writes_comments(mocker: MockerFixture, mock_transcript
         "url": "https://youtube.com/videoid",
         "duration": 25.4,
         "view_count": 2000,
-        "thumbnails": None,
         "transcript": [
             {
                 "start": 1.11,

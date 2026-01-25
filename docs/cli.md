@@ -9,7 +9,7 @@ Retrieve video transcripts and metadata from YouTube channels using the command-
 Fetch 50 video transcripts + metadata from a channel and save as JSON:
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 50 -f json
+ytfetcher channel TheOffice -m 50 -f json
 ```
 
 ## CLI Overview
@@ -22,9 +22,10 @@ ytfetcher -h
 
 YTFetcher supports three main commands:
 
-- `from_channel` - Fetch data from a YouTube channel handle
-- `from_video_ids` - Fetch data from custom video IDs
-- `from_playlist_id` - Fetch data from a specific playlist ID
+- `channel` - Fetch data from a YouTube channel handle
+- `video` - Fetch data from custom video IDs
+- `playlist` - Fetch data from a specific playlist ID
+- `search` - Fetch data based on a search query, similar to youtube search bar.
 
 ---
 
@@ -35,12 +36,12 @@ YTFetcher supports three main commands:
 Fetch transcripts and metadata from a YouTube channel:
 
 ```bash
-ytfetcher from_channel -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
+ytfetcher channel <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ```
 
 **Required Arguments:**
 
-- `-c`, `--channel_handle` - YouTube channel handle (e.g., `TheOffice`)
+-`channel` - YouTube channel handle (e.g., `TheOffice`)
 
 **Optional Arguments:**
 
@@ -49,7 +50,7 @@ ytfetcher from_channel -c <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 **Example:**
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 20 -f json
+ytfetcher channel TheOffice -m 20 -f json
 ```
 
 !!! Note
@@ -60,13 +61,13 @@ ytfetcher from_channel -c TheOffice -m 20 -f json
 Fetch transcripts and metadata from specific video IDs:
 
 ```bash
-ytfetcher from_video_ids -v video_id1 video_id2 video_id3 -f <FORMAT>
+ytfetcher video video_id1 video_id2 video_id3 -f <FORMAT>
 ```
 
 **Example:**
 
 ```bash
-ytfetcher from_video_ids -v dQw4w9WgXcQ jNQXAC9IVRw -f csv
+ytfetcher video dQw4w9WgXcQ jNQXAC9IVRw -f csv
 ```
 
 ### Fetching from Playlist ID
@@ -74,14 +75,32 @@ ytfetcher from_video_ids -v dQw4w9WgXcQ jNQXAC9IVRw -f csv
 Fetch transcripts and metadata from a YouTube playlist:
 
 ```bash
-ytfetcher from_playlist_id -p <PLAYLIST_ID> -f <FORMAT>
+ytfetcher playlist <PLAYLIST_ID> -f <FORMAT>
 ```
 
 **Example:**
 
 ```bash
-ytfetcher from_playlist_id -p PLrAXtmRdnEQy6nuLMH7Pj4Lb3zY9gK8kK -f json -m 25
+ytfetcher playlist PLrAXtmRdnEQy6nuLMH7Pj4Lb3zY9gK8kK -f json -m 25
 ```
+
+### Fetching With Search Method
+
+Fetch transcripts and metadata based on a search query, similar to Youtube search.
+
+```bash
+ytfetcher search <QUERY> -m <MAX_RESULTS>
+```
+
+**Example**
+
+```bash
+ytfetcher search "AI Getting Jobs" -m 20 -f json
+```
+
+!!! Tip
+    When using `search` method with generic keywords (e.g., "son", "gato", "gift"), YouTube prioritizes results based on your geographic location (IP address). This can lead to transcripts in languages you didn't expect.
+    To ensure you get the right content include `--languages` parameter to CLI with your desired languages.
 
 ---
 
@@ -94,38 +113,48 @@ All commands support the following common options:
 **`--no-timing`**
 
 - Exclude transcript timing information (start time and duration)
-- Example: `ytfetcher from_channel -c TheOffice -f json --no-timing`
+- Example: `ytfetcher channel TheOffice -f json --no-timing`
 
 **`--languages`**
 
 - Specify language codes in priority order (space-separated)
 - Default: `en`
-- Example: `ytfetcher from_channel -c TheOffice -m 50 -f csv --languages tr en`
+- Example: `ytfetcher channel TheOffice -m 50 -f csv --languages tr en`
 - YTFetcher will try Turkish first, then fall back to English if unavailable
 
 **`--manually-created`**
 
 - Fetch only videos with manually created transcripts (more accurate)
 - Useful for channels like TEDx that have high-quality manual transcripts
-- Example: `ytfetcher from_channel -c TEDx -f csv --manually-created`
+- Example: `ytfetcher channel TEDx -f csv --manually-created`
 
 **`--stdout`**
 
 - Print data directly to console instead of exporting to file
-- Example: `ytfetcher from_channel -c TheOffice --stdout`
+- Example: `ytfetcher channel TheOffice --stdout`
+
+**`--quiet`**
+
+- Supress CLI logs and progress informations.
+- Example: `ytfetcher channel TEDx --quiet`
 
 ### Comment Options
 
 **`--comments <NUMBER>`**
 
 - Fetch top N comments alongside transcripts and metadata
-- Example: `ytfetcher from_channel -c TheOffice -m 20 --comments 10 -f json`
+- Example: `ytfetcher channel TheOffice -m 20 --comments 10 -f json`
 - This fetches top 10 comments for each video along with transcripts
 
 **`--comments-only <NUMBER>`**
 
 - Fetch only comments with metadata (no transcripts)
-- Example: `ytfetcher from_channel -c TheOffice -m 20 --comments-only 10 -f json`
+- Example: `ytfetcher channel TheOffice -m 20 --comments-only 10 -f json`
+
+**`--sort` <`top`, `new`>**
+
+- Sort comments with top or newest ones (default to `top`).
+- Example: `ytfetcher channel TheOffice -m 10 -c --sort new`
 
 !!! Warning
     Comment fetching is resource-intensive. Performance depends on your internet connection and the volume of comments being retrieved.
@@ -137,19 +166,19 @@ Filters are applied **before** fetching transcripts, allowing you to focus on sp
 **`--min-views <NUMBER>`**
 
 - Filter videos with view count greater than or equal to the specified number
-- Example: `ytfetcher from_channel -c TheOffice -m 50 -f json --min-views 1000`
+- Example: `ytfetcher channel TheOffice -m 50 -f json --min-views 1000`
 - Only processes videos with at least 1000 views
 
 **`--min-duration <SECONDS>`**
 
 - Filter videos with duration greater than or equal to the specified seconds
-- Example: `ytfetcher from_channel -c TheOffice -m 50 -f csv --min-duration 300`
+- Example: `ytfetcher channel TheOffice -m 50 -f csv --min-duration 300`
 - Only processes videos that are at least 5 minutes (300 seconds) long
 
 **`--includes-title <STRING>`**
 
 - Filter videos whose title contains the specified string (case-insensitive)
-- Example: `ytfetcher from_channel -c TheOffice -m 50 -f json --includes-title "episode"`
+- Example: `ytfetcher channel TheOffice -m 50 -f json --includes-title "episode"`
 - Only processes videos with "episode" in the title
 
 **Combining Multiple Filters**
@@ -157,7 +186,7 @@ Filters are applied **before** fetching transcripts, allowing you to focus on sp
 You can combine multiple filters to create more specific criteria:
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 50 -f json \
+ytfetcher channel TheOffice -m 50 -f json \
   --min-views 1000 \
   --min-duration 300 \
   --includes-title "tutorial"
@@ -177,50 +206,50 @@ This command only processes videos that:
 **`-f`, `--format`**
 
 - Export format: `txt`, `json`, or `csv`
-- Example: `ytfetcher from_channel -c TheOffice -f csv`
+- Example: `ytfetcher channel TheOffice -f csv`
 
 **`--metadata`**
 
 - Specify which metadata fields to include (space-separated)
 - Available options: `title`, `description`, `url`, `duration`, `view_count`, `thumbnails`
 - Default: All metadata fields
-- Example: `ytfetcher from_channel -c TheOffice -m 20 -f json --metadata title description`
+- Example: `ytfetcher channel TheOffice -m 20 -f json --metadata title description`
 
 **`-o`, `--output-dir`**
 
 - Output directory for exported files
 - Default: Current directory (`.`)
-- Example: `ytfetcher from_channel -c TheOffice -f json -o ./exports`
+- Example: `ytfetcher channel TheOffice -f json -o ./exports`
 
 **`--filename`**
 
 - Custom filename for exported data
 - Default: `data`
-- Example: `ytfetcher from_channel -c TheOffice -f json --filename my_videos`
+- Example: `ytfetcher channel TheOffice -f json --filename my_videos`
 
 ### Proxy Options
 
 **`--http-proxy`** and **`--https-proxy`**
 
 - Use custom HTTP/HTTPS proxy servers
-- Example: `ytfetcher from_channel -c TheOffice -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"`
+- Example: `ytfetcher channel TheOffice -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"`
 
 **`--webshare-proxy-username`** and **`--webshare-proxy-password`**
 
 - Use Webshare proxy service
 - Get credentials from [Webshare Dashboard](https://dashboard.webshare.io/proxy/settings)
-- Example: `ytfetcher from_channel -c TheOffice -f json --webshare-proxy-username "your_username" --webshare-proxy-password "your_password"`
+- Example: `ytfetcher channel TheOffice -f json --webshare-proxy-username "your_username" --webshare-proxy-password "your_password"`
 
 **`--http-timeout`**
 
 - HTTP request timeout in seconds
 - Default: `4.0`
-- Example: `ytfetcher from_channel -c TheOffice --http-timeout 6.0`
+- Example: `ytfetcher channel TheOffice --http-timeout 6.0`
 
 **`--http-headers`**
 
 - Custom HTTP headers (Python dictionary format)
-- Example: `ytfetcher from_channel -c TheOffice --http-headers "{'User-Agent': 'Custom-Agent/1.0'}"`
+- Example: `ytfetcher channel TheOffice --http-headers "{'User-Agent': 'Custom-Agent/1.0'}"`
 
 ---
 
@@ -229,7 +258,7 @@ This command only processes videos that:
 ### Basic Export with Custom Metadata
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 20 -f json --no-timing --metadata title description
+ytfetcher channel TheOffice -m 20 -f json --no-timing --metadata title description
 ```
 
 This command:
@@ -242,7 +271,7 @@ This command:
 ### Fetch Comments with Transcripts
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 10 --comments 5 -f csv -o ./data
+ytfetcher channel TheOffice -m 10 --comments 5 -f csv -o ./data
 ```
 
 This command:
@@ -255,7 +284,7 @@ This command:
 ### Multi-language Transcripts
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 50 -f json --languages es en fr
+ytfetcher channel TheOffice -m 50 -f json --languages es en fr
 ```
 
 This command:
@@ -267,7 +296,7 @@ This command:
 ### Using Proxy for Rate Limit Avoidance
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 100 -f json \
+ytfetcher channel TheOffice -m 100 -f json \
   --webshare-proxy-username "your_username" \
   --webshare-proxy-password "your_password"
 ```
@@ -277,7 +306,7 @@ This command uses Webshare proxy to avoid rate limits when fetching large amount
 ### Export Only Comments
 
 ```bash
-ytfetcher from_channel -c TheOffice -m 20 --comments-only 15 -f json --filename comments_only
+ytfetcher channel TheOffice -m 20 --comments-only 15 -f json --filename comments_only
 ```
 
 This command fetches only comments (no transcripts) and saves them to `comments_only.json`.

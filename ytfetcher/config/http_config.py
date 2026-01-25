@@ -22,5 +22,5 @@ class HTTPConfig:
         self.timeout = httpx.Timeout(timeout=timeout) or httpx.Timeout()
         self.headers = headers or get_realistic_headers()
 
-        if not isinstance(headers, dict | None):
+        if headers is not None and not isinstance(headers, dict):
             raise InvalidHeaders("Invalid headers.")
