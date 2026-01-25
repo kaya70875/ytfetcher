@@ -227,14 +227,20 @@ class CSVExporter(BaseExporter):
 
             writer.writerow(row)
     
-    def _build_metadata(self) -> list | None:
+    def _build_metadata(self) -> list[str]:
         """
-        Builds metadata list by excluding fields that are None in the first record.
+        Builds metadata list by including fields that are present (not None) 
+        in AT LEAST ONE record, preventing data loss from empty first records.
         """
-        snippet = self.channel_data[0].metadata
-        if not snippet:
-            return None
+        if not self.channel_data:
+            return []
 
-        valid_data = snippet.model_dump(exclude_none=True)
+        present_fields: set[str] = set()
+        for data in self.channel_data:
+            if data.metadata:
+                present_fields.update(data.metadata.model_dump(exclude_none=True).keys())
 
-        return [field for field in self.allowed_metadata_list if field in valid_data]
+        return [
+            field for field in self.allowed_metadata_list 
+            if field in present_fields
+        ]
