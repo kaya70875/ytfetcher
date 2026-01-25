@@ -1,4 +1,4 @@
-from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled
+from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled, AgeRestricted
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.models.channel import VideoTranscript, Transcript
@@ -92,8 +92,8 @@ class TranscriptFetcher:
                 video_id=video_id,
                 transcripts=cleaned_transcript
             )
-        except (NoTranscriptFound, VideoUnavailable, TranscriptsDisabled) as e:
-            logger.warning(e)
+        except (NoTranscriptFound, VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
+            logger.warning(str(e).replace(e.GITHUB_REFERRAL, ''))
             return None
         except Exception as e:
             logger.warning(f'Error while fetching transcript from video: {video_id} ', e)
