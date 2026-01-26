@@ -1,4 +1,4 @@
-from ytfetcher.models.channel import ChannelData, DLSnippet
+from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import (
     ChannelFetcher,
@@ -133,7 +133,7 @@ class YTFetcher:
         snippets = self._get_snippets()
         
         comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
-        full_comments = comment_fetcher.fetch()
+        full_comments: list[VideoComments] = comment_fetcher.fetch()
 
         return [
             ChannelData(
@@ -156,8 +156,8 @@ class YTFetcher:
         Returns:
             list[ChannelData]: A list of objects containing only comments.
         """
-        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
-        full_comments = commf.fetch()
+        comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
+        full_comments: list[VideoComments] = comment_fetcher.fetch()
 
         snippets = self._get_snippets()
 
