@@ -209,7 +209,7 @@ class CSVExporter(BaseExporter):
     def _write_comments(self, data: ChannelData, writer, base_info: dict[str, Any]) -> None:
         if not data.comments: return
         
-        for comment in data.comments:
+        for comment in data.comments.comments:
             row = {
                 **base_info,
                 'comment': comment.text,
