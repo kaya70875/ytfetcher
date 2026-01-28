@@ -46,7 +46,7 @@ class TranscriptFetcher:
 
     def fetch(self) -> list[VideoTranscript]:
         """
-        Asynchronously fetches transcripts for all provided video IDs.
+        Synchronously fetches transcripts for all provided video IDs.
 
         Transcripts are fetched using threads wrapped in ThreadPoolExecutor. Results are streamed as they are completed,
         and errors like `NoTranscriptFound`, `TranscriptsDisabled`, or `VideoUnavailable` are silently handled.
