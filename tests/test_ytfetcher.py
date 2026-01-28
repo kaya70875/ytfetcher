@@ -4,6 +4,7 @@ from ytfetcher.models.channel import (
     ChannelData,
     DLSnippet,
     Transcript,
+    VideoTranscript
 )
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config.fetch_config import FetchOptions
@@ -75,10 +76,9 @@ def mock_search_fetcher_class(mocker, sample_snippet):
 @pytest.fixture
 def mock_transcript_fetcher(mocker: MockerFixture, sample_transcripts):
     mock_transcript_fetcher = mocker.patch.object(TranscriptFetcher, 'fetch', return_value=[
-        ChannelData(
-            video_id="video_1",
+        VideoTranscript(
+            video_id="id1",
             transcripts=sample_transcripts,
-            metadata=None
         )
     ])
 
@@ -116,6 +116,8 @@ def test_fetch_youtube_data_from_video_ids(
 ):
     fetcher = initialize_ytfetcher_with_video_ids
     results = fetcher.fetch_youtube_data()
+
+    print('res', results)
     
     assert len(results) == 1
     assert isinstance(results[0], ChannelData)
@@ -157,7 +159,7 @@ def test_fetch_transcripts_method_with_channel_name(mock_transcript_fetcher, ini
     assert len(results) == 1
     assert isinstance(results[0], ChannelData)
     assert isinstance(results[0].transcripts[0], Transcript)
-    assert results[0].video_id == 'video_1'
+    assert results[0].video_id == 'id1'
     assert results[0].transcripts[0].text == 'text1'
     assert results[0].metadata == None
 
@@ -176,7 +178,7 @@ def test_fetch_transcripts_method_with_video_ids(mock_transcript_fetcher, initia
     assert len(results) == 1
     assert isinstance(results[0], ChannelData)
     assert isinstance(results[0].transcripts[0], Transcript)
-    assert results[0].video_id == 'video_1'
+    assert results[0].video_id == 'id1'
     assert results[0].transcripts[0].text == 'text1'
     assert results[0].metadata == None
 
