@@ -103,7 +103,7 @@ class TXTExporter(BaseExporter):
     def _write_comments(self, file, data: ChannelData) -> None:
         if not data.comments: return
 
-        for comment in data.comments:
+        for comment in data.comments.comments:
             file.write(f"Comments for {data.video_id}\nComment --> {comment.text}\nAuthor --> {comment.author}\nLikes --> {comment.like_count}\nTime Text --> {comment.time_text}")
         file.write("\n")
 
@@ -154,7 +154,7 @@ class JSONExporter(BaseExporter):
                 "time_text": comment.time_text,
                 "like_count": comment.like_count
             }
-            for comment in data.comments
+            for comment in data.comments.comments
         ]
 
 class CSVExporter(BaseExporter):
