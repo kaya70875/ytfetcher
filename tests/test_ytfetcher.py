@@ -116,8 +116,6 @@ def test_fetch_youtube_data_from_video_ids(
 ):
     fetcher = initialize_ytfetcher_with_video_ids
     results = fetcher.fetch_youtube_data()
-
-    print('res', results)
     
     assert len(results) == 1
     assert isinstance(results[0], ChannelData)
