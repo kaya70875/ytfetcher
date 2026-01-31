@@ -6,46 +6,12 @@ from typing import Literal, Sequence, get_args, Any
 import json
 import csv
 import logging
-import warnings
 
 logger = logging.getLogger(__name__)
 
-METEDATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails']
+METADATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails', 'uploader_url']
 
-DEFAULT_METADATA = get_args(METEDATA_LIST)
-
-class Exporter:
-    """
-    DEPRECATED: Use TXTExporter, JSONExporter, or CSVExporter instead.\n
-    This class is kept for backward compatibility and will be removed in a future versions.
-
-    Parameters:
-        channel_data (list[ChannelData]): The transcript and metadata to export.
-        allowed_metadata_list (list): Metadata fields to include (e.g., ['title', 'description']).
-        timing (bool): Whether to include start/duration timing in exports.
-        filename (str): Output filename without extension.
-        output_dir (str | None): Directory to export files into. Defaults to current working directory.
-
-    Raises:
-        NoDataToExport: If no data is provided.
-        OutputDirectoryNotFoundError: If specified path cannot found.
-    """
-    def __init__(self, *args, **kwargs):
-        warnings.warn(
-            "The 'Exporter' class is deprecated and will be removed in future versions. Use TXTExporter, JSONExporter, or CSVExporter instead.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        self.args = args
-        self.kwargs = kwargs
-
-    def export_as_txt(self) -> None:
-        return TXTExporter(*self.args, **self.kwargs).write()
-    def export_as_json(self) -> None:
-        return JSONExporter(*self.args, **self.kwargs).write()
-    def export_as_csv(self) -> None:
-        return CSVExporter(*self.args, **self.kwargs).write()
-
+DEFAULT_METADATA = get_args(METADATA_LIST)
 class BaseExporter(ABC):
     """
     Handles exporting YouTube transcript and metadata to various formats: TXT, JSON, and CSV.
@@ -63,7 +29,7 @@ class BaseExporter(ABC):
         NoDataToExport: If no data is provided.
         OutputDirectoryNotFoundError: If specified path cannot found.
     """
-    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METEDATA_LIST] = DEFAULT_METADATA, timing: bool = True, filename: str = 'data', output_dir: str | None = None):
+    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METADATA_LIST] = DEFAULT_METADATA, timing: bool = True, filename: str = 'data', output_dir: str | None = None):
         self.channel_data = channel_data
         self.allowed_metadata_list = allowed_metadata_list
         self.timing = timing
@@ -87,7 +53,23 @@ class BaseExporter(ABC):
         logger.info(f"Writing as {export_type} file, output path: {output_path}")
 
         return output_path
+    
+    def _get_clean_metadata(self, data: ChannelData):
+        """
+        Ensures None values are filtered.
+        """
 
+        clean_meta: dict[str, str] = {}
+
+        if not data.metadata:
+            return clean_meta
+        
+        for field in self.allowed_metadata_list:
+            value = getattr(data.metadata, field, None)
+            if value is not None:
+                clean_meta[field] = value
+        
+        return clean_meta
 class TXTExporter(BaseExporter):
     """
     Exports the data as a plain text file, including transcript and metadata.
@@ -101,13 +83,12 @@ class TXTExporter(BaseExporter):
             for data in self.channel_data:
                 file.write(f"Transcript for {data.video_id}:\n")
 
-                for metadata in self.allowed_metadata_list:
-                    if data.metadata:
-                        file.write(f'{metadata} --> {getattr(data.metadata, metadata)}\n')
+                clean_meta = self._get_clean_metadata(data)
+                for key, value in clean_meta.items():
+                    file.write(f'{key} --> {value}\n')
                 
-                
+        
                 self._write_transcripts(file=file, data=data)
-
                 self._write_comments(file=file, data=data)
     
     def _write_transcripts(self, file, data: ChannelData) -> None:
@@ -141,11 +122,10 @@ class JSONExporter(BaseExporter):
             for data in self.channel_data:
                 video_data = {
                     "video_id": data.video_id,
-                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
+                    **self._get_clean_metadata(data)
                 }
 
                 self._write_transcripts(data=data, video_data=video_data)
-
                 self._write_comments(data=data, video_data=video_data)
 
                 export_data.append(video_data)
@@ -189,7 +169,7 @@ class CSVExporter(BaseExporter):
 
         t = ['start', 'duration']
         comments = ['comment', 'comment_author', 'comment_like_count', 'comment_time_text']
-        metadata = [*self.allowed_metadata_list]
+        metadata = self._build_metadata()
         fieldnames = ['index', 'video_id', 'text']
         fieldnames += t if self.timing else []
         fieldnames += metadata if any(d.metadata for d in self.channel_data) else []
@@ -205,8 +185,7 @@ class CSVExporter(BaseExporter):
                 base_info = {
                     'index': i,
                     'video_id': data.video_id,
-                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
-                    **{field: getattr(data.metadata, field) for field in self.allowed_metadata_list if data.metadata and hasattr(data.metadata, field)},
+                    **self._get_clean_metadata(data)
                 }
 
                 self._write_comments(data=data, writer=writer, base_info=base_info)
@@ -247,3 +226,21 @@ class CSVExporter(BaseExporter):
                     })  
 
             writer.writerow(row)
+    
+    def _build_metadata(self) -> list[str]:
+        """
+        Builds metadata list by including fields that are present (not None) 
+        in AT LEAST ONE record, preventing data loss from empty first records.
+        """
+        if not self.channel_data:
+            return []
+
+        present_fields: set[str] = set()
+        for data in self.channel_data:
+            if data.metadata:
+                present_fields.update(data.metadata.model_dump(exclude_none=True).keys())
+
+        return [
+            field for field in self.allowed_metadata_list 
+            if field in present_fields
+        ]

@@ -1,13 +1,13 @@
 from pytest_mock import MockerFixture
 from unittest.mock import mock_open, call
 from ytfetcher.services.exports import TXTExporter
-from ytfetcher.models.channel import ChannelData, DLSnippet, Comment
+from ytfetcher.models.channel import ChannelData, DLSnippet, Comment, VideoComments
 import pytest
 
 @pytest.fixture
 def sample_snippet():
     return DLSnippet(
-        video_id='videoid1',
+        video_id='id1',
         title="channelname1",
         description="description1",
         url='https://youtube.com/videoid',
@@ -19,11 +19,11 @@ def sample_snippet():
 def sample_comments():
     return [
         Comment(
-        id='commentid',
-        text='This is a comment',
-        like_count=20,
-        author='author1',
-        time_text='01.01.2025'
+            id='commentid',
+            text='This is a comment',
+            like_count=20,
+            author='author1',
+            time_text='01.01.2025'
         )
     ]
 
@@ -31,7 +31,7 @@ def sample_comments():
 def mock_transcript_response(sample_snippet):
     return [
         ChannelData(
-            video_id="video1",
+            video_id="id1",
             transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
             metadata=sample_snippet,
         )
@@ -41,7 +41,7 @@ def mock_transcript_response(sample_snippet):
 def mock_transcript_response_with_comments(sample_snippet, sample_comments):
     return [
         ChannelData(
-            video_id="video1",
+            video_id="id1",
             transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
             metadata=sample_snippet,
             comments=sample_comments
@@ -59,13 +59,12 @@ def test_export_with_txt_writes_file_with_correct_structure(mocker: MockerFixtur
 
     handle = m()
     expected_calls = [
-        call.write('Transcript for video1:\n'),
+        call.write('Transcript for id1:\n'),
         call.write('title --> channelname1\n'),
         call.write('description --> description1\n'),
         call.write('url --> https://youtube.com/videoid\n'),
         call.write('duration --> 25.4\n'),
         call.write('view_count --> 2000\n'),
-        call.write('thumbnails --> None\n'),
         call.write('1.11 --> 3.33\n'),
         call.write('text1\n'),
         call.write('\n')
@@ -81,18 +80,17 @@ def test_export_with_txt_writes_comments(mocker: MockerFixture, mock_transcript_
 
     handle = m()
     expected_calls = [
-        call.write('Transcript for video1:\n'),
+        call.write('Transcript for id1:\n'),
         call.write('title --> channelname1\n'),
         call.write('description --> description1\n'),
         call.write('url --> https://youtube.com/videoid\n'),
         call.write('duration --> 25.4\n'),
         call.write('view_count --> 2000\n'),
-        call.write('thumbnails --> None\n'),
         call.write('1.11 --> 3.33\n'),
         call.write('text1\n'),
         call.write('\n'),
 
-        call.write('Comments for video1\nComment --> This is a comment\nAuthor --> author1\nLikes --> 20\nTime Text --> 01.01.2025'),
+        call.write('Comments for id1\nComment --> This is a comment\nAuthor --> author1\nLikes --> 20\nTime Text --> 01.01.2025'),
         call.write('\n')
     ]
     handle.write.assert_has_calls(expected_calls)
@@ -115,7 +113,7 @@ def test_export_with_txt_custom_metadata(mocker: MockerFixture, mock_transcript_
     exporter.write()
 
     expected_calls = [
-        call.write('Transcript for video1:\n'),
+        call.write('Transcript for id1:\n'),
         call.write('title --> channelname1\n'),
         call.write('text1\n'),
         call.write('\n')

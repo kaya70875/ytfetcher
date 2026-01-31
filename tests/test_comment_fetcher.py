@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from ytfetcher._youtube_dl import CommentFetcher
-from ytfetcher.models.channel import Comment
+from ytfetcher.models.channel import Comment, VideoComments
 
 @pytest.fixture
 def mock_comment_data():
@@ -40,11 +40,12 @@ def test_fetch_single_success(mock_ydl_class, mock_comment_data):
     fetcher = CommentFetcher(video_ids=['video123', 'video1234'])
     results = fetcher.fetch_single(video_id='video123')
     
-    assert len(results) == 2
-    assert isinstance(results[0], Comment)
-    assert results[0].id == 'c1'
-    assert results[0].author == 'User A'
-    assert results[1].text == 'Thanks for sharing'
+    assert len(results.comments) == 2
+    assert isinstance(results, VideoComments)
+    assert isinstance(results.comments[0], Comment)
+    assert results.comments[0].id == 'c1'
+    assert results.comments[0].author == 'User A'
+    assert results.comments[1].text == 'Thanks for sharing'
     
     mock_ydl_instance.extract_info.assert_called_once_with(
         'https://www.youtube.com/watch?v=video123', 
@@ -76,4 +77,4 @@ def test_fetch_single_empty_comments(mocker, mock_comment_data):
     fetcher = CommentFetcher(["no_comments_vid"])
     results = fetcher.fetch_single('')
     
-    assert results == []
+    assert results == VideoComments(video_id='', comments=[])
