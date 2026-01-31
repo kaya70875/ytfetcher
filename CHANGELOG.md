@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Changed `ytfetcher` to be completely **sync**.
 
 ### Fixed
+- Fixed a very critical bug that **metadata, transcripts and comments** are not aligned.
 - Fixed `HTTPConfig` class `InvalidHeader` check.
 - Fixed VideoListFetcher performance issue with implementing `ThreadPoolExecutor`.
 - Fixed `CommentFetcher` doesn't fetch top comments.
