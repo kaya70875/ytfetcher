@@ -82,3 +82,59 @@ def test_bulk_fetch_alignment_for_comments(mocker: MockerFixture, initialized_fe
     assert results[1].video_id == 'vid_2'
     assert results[1].transcripts[0].text == 'Text for 2'
     assert results[1].comments[0].text == 'comment_2'
+
+def test_partial_data_failures(mocker: MockerFixture, initialized_fetcher):
+    """
+    Critical: Verifies alignment when some videos are MISSING transcripts or comments.
+    Scenario:
+        - Video 1: Has everything.
+        - Video 2: Has NO transcript (failed fetch).
+        - Video 3: Has NO comments (disabled).
+    """
+    partial_transcripts = [
+        VideoTranscript(video_id="vid_1", transcripts=[Transcript(text="Text 1", start=0, duration=1)]),
+        VideoTranscript(video_id="vid_3", transcripts=[Transcript(text="Text 3", start=0, duration=1)]),
+    ]
+    
+    partial_comments = [
+        VideoComments(video_id='vid_1', comments=[Comment(id='c1', text='Comment 1')]),
+        VideoComments(video_id='vid_2', comments=[Comment(id='c2', text='Comment 2')]),
+    ]
+
+    mocker.patch.object(TranscriptFetcher, 'fetch', return_value=partial_transcripts)
+    mocker.patch.object(CommentFetcher, 'fetch', return_value=partial_comments)
+
+    results = initialized_fetcher.fetch_with_comments()
+    
+    assert len(results) == 3
+
+    assert results[0].video_id == "vid_1"
+    assert results[0].transcripts is not None
+    assert results[0].comments is not None
+
+    assert results[1].video_id == "vid_2"
+    assert results[1].transcripts is None
+    assert results[1].comments is not None
+
+    assert results[2].video_id == "vid_3"
+    assert results[2].transcripts is not None
+    assert results[2].comments is None
+
+def test_ignores_ghost_data(mocker: MockerFixture, initialized_fetcher):
+    """
+    Verifies that transcripts for videos NOT in the snippet list are ignored.
+    """
+    weird_transcripts = [
+        VideoTranscript(video_id="vid_1", transcripts=[Transcript(text="Text 1", start=0, duration=1)]),
+        VideoTranscript(video_id="vid_ghost", transcripts=[Transcript(text="Ghost Text", start=0, duration=1)]),
+    ]
+
+    mocker.patch.object(TranscriptFetcher, 'fetch', return_value=weird_transcripts)
+
+    results = initialized_fetcher.fetch_youtube_data()
+
+    assert len(results) == 3
+    
+    ids = [r.video_id for r in results]
+    assert "vid_ghost" not in ids
+    assert "vid_1" in ids
