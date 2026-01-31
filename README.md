@@ -51,7 +51,7 @@ pip install ytfetcher
 Fetch 50 video transcripts + metadata from a channel and save as JSON:
 
 ```bash
-ytfetcher channel -c TheOffice -m 50 -f json
+ytfetcher channel TheOffice -m 50 -f json
 ```
 
 ---
