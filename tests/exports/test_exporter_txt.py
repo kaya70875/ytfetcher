@@ -17,18 +17,15 @@ def sample_snippet():
 
 @pytest.fixture
 def sample_comments():
-    return VideoComments(
-        video_id='id1',
-        comments=[
-            Comment(
-                id='commentid',
-                text='This is a comment',
-                like_count=20,
-                author='author1',
-                time_text='01.01.2025'
-            )
-        ]
-    )
+    return [
+        Comment(
+            id='commentid',
+            text='This is a comment',
+            like_count=20,
+            author='author1',
+            time_text='01.01.2025'
+        )
+    ]
 
 @pytest.fixture
 def mock_transcript_response(sample_snippet):
