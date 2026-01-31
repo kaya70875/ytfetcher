@@ -94,7 +94,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
         self.max_comments = max_comments
         self.sort = sort
             
-    def fetch_single(self, video_id: str) -> VideoComments:
+    def fetch_single(self, video_id: str) -> VideoComments | None:
         video_url = f'https://www.youtube.com/watch?v={video_id}'
         
         ydl_opts_deep = {
@@ -125,7 +125,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
         
         except Exception as e:
             logger.warning(f"Failed to fetch comments for {video_id}: {e}")
-            return []
+            return None
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
         """
