@@ -50,7 +50,7 @@ class ChannelData(BaseModel):
     video_id: str
     transcripts: list[Transcript] | None = None
     metadata: DLSnippet | None = None
-    comments: VideoComments | None = None
+    comments: list[Comment] | None = None
 
     def to_dict(self) -> dict:
         return self.model_dump(exclude_none=True)
