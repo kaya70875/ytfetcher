@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Fixed
+
+---
+
+## [2.0] - 2026-01-31
+### Added
 - Introduced a new `FetchOptions` data class for defining fetcher options like `languages`, `filters` etc.
 - Added a `--sort` argument for choosing **top or new** comments with CLI.
 - Added `from_search` method for both Python API and CLI. This method allows user to fetch based on a `query`, similar to Youtube search.
@@ -28,6 +37,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed `HTTPConfig` class `InvalidHeader` check.
 - Fixed VideoListFetcher performance issue with implementing `ThreadPoolExecutor`.
 - Fixed `CommentFetcher` doesn't fetch top comments.
+
 ---
 
 ## [1.5.3] - 2026-01-01
