@@ -1,4 +1,4 @@
-from ytfetcher.models.channel import ChannelData, DLSnippet
+from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import (
     ChannelFetcher,
@@ -108,15 +108,10 @@ class YTFetcher:
         snippets = self._get_snippets()
         transcripts = self._get_transcript_fetcher().fetch()
         
-        return [
-            ChannelData(
-                video_id=snippet.video_id,
-                metadata=snippet,
-                transcripts=transcript.transcripts
-            )
-
-            for snippet, transcript in zip(snippets, transcripts)
-        ]
+        return self._build_response(
+            snippets=snippets,
+            transcripts=transcripts
+        )
     
     def fetch_with_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
         """
@@ -133,17 +128,13 @@ class YTFetcher:
         snippets = self._get_snippets()
         
         comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
-        full_comments = comment_fetcher.fetch()
+        full_comments: list[VideoComments] = comment_fetcher.fetch()
 
-        return [
-            ChannelData(
-                video_id=snippet.video_id,
-                transcripts=transcript.transcripts,
-                metadata=snippet,
-                comments=comment
-            )
-            for transcript, snippet, comment in zip(transcripts, snippets, full_comments)
-        ]
+        return self._build_response(
+            transcripts=transcripts,
+            snippets=snippets,
+            comments=full_comments
+        )
     
     def fetch_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
         """
@@ -156,20 +147,15 @@ class YTFetcher:
         Returns:
             list[ChannelData]: A list of objects containing only comments.
         """
-        commf = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
-        full_comments = commf.fetch()
+        comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
+        full_comments: list[VideoComments] = comment_fetcher.fetch()
 
         snippets = self._get_snippets()
 
-        return [
-            ChannelData(
-                video_id=snippet.video_id,
-                transcripts=None,
-                metadata=snippet,
-                comments=comments
-            )
-            for snippet, comments in zip(snippets, full_comments)
-        ]
+        return self._build_response(
+            snippets=snippets,
+            comments=full_comments
+        )
     
     def fetch_transcripts(self) -> list[ChannelData]:
         """
@@ -239,6 +225,39 @@ class YTFetcher:
         Returns list of channel video ids.
         """
         return [snippet.video_id for snippet in self._get_snippets()]
+    
+    def _build_response(
+            self,
+            snippets: list[DLSnippet],
+            transcripts: list[VideoTranscript] | None = None,
+            comments: list[VideoComments] | None = None
+    ) -> list[ChannelData]:
+        """
+        Safely aligns data sources using 'video_id' as the key.
+        Prevents misalignment if some transcripts/comments fail to fetch.
+        """
+
+        transcript_map = {t.video_id: t.transcripts for t in transcripts} if transcripts else {}
+        comments_map = {c.video_id: c.comments for c in comments} if comments else {}
+
+        results: list[ChannelData] = []
+
+        for snippet in snippets:
+            vid = snippet.video_id
+
+            vid_transcripts = transcript_map.get(vid)
+            vid_comments = comments_map.get(vid)
+
+            results.append(
+                ChannelData(
+                    video_id=vid,
+                    metadata=snippet,
+                    transcripts=vid_transcripts,
+                    comments=vid_comments
+                )
+            )
+
+        return results
     
     @property
     def video_ids(self) -> list[str]:

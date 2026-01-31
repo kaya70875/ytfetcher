@@ -42,6 +42,10 @@ class VideoTranscript(BaseModel):
     def to_dict(self) -> dict:
         return self.model_dump()
 
+class VideoComments(BaseModel):
+    video_id: str
+    comments: list[Comment]
+
 class ChannelData(BaseModel):
     video_id: str
     transcripts: list[Transcript] | None = None

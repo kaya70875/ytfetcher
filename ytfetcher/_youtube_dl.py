@@ -1,7 +1,7 @@
 import yt_dlp
 import concurrent.futures
 import logging
-from ytfetcher.models.channel import DLSnippet, Comment
+from ytfetcher.models.channel import DLSnippet, Comment, VideoComments
 from ytfetcher.utils.state import should_disable_progress
 from tqdm import tqdm
 from abc import ABC, abstractmethod
@@ -94,7 +94,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
         self.max_comments = max_comments
         self.sort = sort
             
-    def fetch_single(self, video_id: str) -> list[Comment]:
+    def fetch_single(self, video_id: str) -> VideoComments | None:
         video_url = f'https://www.youtube.com/watch?v={video_id}'
         
         ydl_opts_deep = {
@@ -116,11 +116,16 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
             with yt_dlp.YoutubeDL(ydl_opts_deep) as ydl: #type: ignore[arg-type]
                 info_dict = ydl.extract_info(video_url, download=False)
                 data = cast(list[dict[str, Any]], info_dict.get('comments', None) or [])
-                return self._safe_validate_comments(data)
+                validated_comments = self._safe_validate_comments(raw_comments=data)
+
+                return VideoComments(
+                    video_id=video_id,
+                    comments=validated_comments
+                )
         
         except Exception as e:
             logger.warning(f"Failed to fetch comments for {video_id}: {e}")
-            return []
+            return None
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
         """
