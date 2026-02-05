@@ -44,7 +44,7 @@ class YTFetcher:
     def from_channel(
         cls,
         channel_handle: str,
-        max_results: int = 50,
+        max_results: int | None = 50,
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
