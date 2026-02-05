@@ -100,7 +100,7 @@ def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurati
 
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
-        max_results=5,
+        max_results=20,
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
@@ -131,7 +131,7 @@ def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_config
 
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
-        max_results=5,
+        max_results=20,
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
@@ -163,7 +163,7 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
 
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
-        max_results=5,
+        max_results=20,
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
