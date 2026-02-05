@@ -194,7 +194,7 @@ def create_parser() -> argparse.ArgumentParser:
     # From Channel parsers
     parser_channel = subparsers.add_parser("channel", help="Fetch data from channel handle with max_results.")
     parser_channel.add_argument("channel", help="The Channel Handle or ID (e.g. @PewDiePie)")
-    parser_channel.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
+    parser_channel.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch")
     _create_common_arguments(parser_channel)
 
     # From Video Ids parsers

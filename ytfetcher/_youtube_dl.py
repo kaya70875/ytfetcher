@@ -21,7 +21,7 @@ class BaseYoutubeDLFetcher(ABC):
         max_results (int): The maximum number of results to fetch.
     """
 
-    def __init__(self, max_results: int = 50):
+    def __init__(self, max_results: int = 20):
         self.max_results = max_results
 
     @abstractmethod
@@ -148,10 +148,10 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
     and full channel URLs.
     Args:
         channel_handle (str): The channel handle or URL.
-        max_results (int | None = 50): Maximum number of videos to fetch. Define as `None` if you want to fetch all videos from a channel.
+        max_results (int | None = 20): Maximum number of videos to fetch. Define as `None` if you want to fetch all videos from a channel.
     """
 
-    def __init__(self, channel_handle: str, max_results: int | None = 50):
+    def __init__(self, channel_handle: str, max_results: int | None = 20):
         super().__init__(max_results)
         self.channel_handle = channel_handle
 
@@ -211,7 +211,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         max_results (int): Maximum number of videos to fetch.
     """
 
-    def __init__(self, playlist_id: str, max_results: int = 50):
+    def __init__(self, playlist_id: str, max_results: int = 20):
         super().__init__(max_results)
         self.playlist_id = playlist_id
 
@@ -262,7 +262,7 @@ class SearchFetcher(BaseYoutubeDLFetcher):
     """
     Fetches video snippets via yt-dlp search.
     """
-    def __init__(self, query: str, max_results: int = 50):
+    def __init__(self, query: str, max_results: int = 20):
         super().__init__(max_results)
         self.query = query
 
