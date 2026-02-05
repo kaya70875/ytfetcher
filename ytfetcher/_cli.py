@@ -157,7 +157,7 @@ class YTFetcherCLI:
                 self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel,
-                    max_results=self.args.max_results,
+                    max_results=self.args.max_results if not self.args.all else None,
                 )
             
             case 'video':
@@ -195,6 +195,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser_channel = subparsers.add_parser("channel", help="Fetch data from channel handle with max_results.")
     parser_channel.add_argument("channel", help="The Channel Handle or ID (e.g. @PewDiePie)")
     parser_channel.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch")
+    parser_channel.add_argument("--all", action="store_true", help="Fetch ALL videos from a channel.")
     _create_common_arguments(parser_channel)
 
     # From Video Ids parsers
