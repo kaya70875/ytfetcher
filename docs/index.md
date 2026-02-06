@@ -37,6 +37,9 @@ print(channel_data)
 
 ```
 
+!!! Tip
+    Use `max_results=None` if you want to fetch all videos from a channel.
+
 !!! Note
     `ytfetcher` handles **full channel url** and channel handles without `@` symbol. So you can pass a full url like `https://www.youtube.com/@TheOffice` directly to terminal or to `channel_handle` parameter.
 

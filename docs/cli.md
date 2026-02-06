@@ -46,6 +46,7 @@ ytfetcher channel <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 **Optional Arguments:**
 
 - `-m`, `--max-results` - Maximum number of videos to fetch (default: 5)
+- `--all` - Fetch ALL videos from a channel.
 
 **Example:**
 
