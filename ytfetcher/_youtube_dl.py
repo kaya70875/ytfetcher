@@ -21,7 +21,7 @@ class BaseYoutubeDLFetcher(ABC):
         max_results (int): The maximum number of results to fetch.
     """
 
-    def __init__(self, max_results: int = 20):
+    def __init__(self, max_results: int | None = 20):
         self.max_results = max_results
 
     @abstractmethod
