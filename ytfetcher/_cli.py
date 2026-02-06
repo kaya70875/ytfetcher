@@ -153,11 +153,11 @@ class YTFetcherCLI:
     def run(self):
         match self.args.command:
             case 'channel':
-                log(f'Starting to fetch from channel: {self.args.channel}')
+                log(f"Starting to fetch from channel: {self.args.channel}")
                 self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel,
-                    max_results=self.args.max_results if not self.args.all else None,
+                    max_results=None if self.args.all else self.args.max_results
                 )
             
             case 'video':
