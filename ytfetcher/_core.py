@@ -72,7 +72,7 @@ class YTFetcher:
     @classmethod
     def from_playlist_id(
         cls,playlist_id: str,
-        max_results: int = 20,
+        max_results: int | None = 20,
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
