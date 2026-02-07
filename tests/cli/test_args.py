@@ -5,7 +5,6 @@ def test_initialize_http_and_proxy_config():
     args = parser.parse_args([
         "channel",
         "TestChannel",
-        "--http-timeout", "4.2",
         "--http-headers", "{'key': 'value'}",
         "--http-proxy", "testhttp:proxy",
         "--https-proxy", "testhttps:proxy"
@@ -13,7 +12,6 @@ def test_initialize_http_and_proxy_config():
 
     cli = YTFetcherCLI(args=args)
 
-    assert cli.args.http_timeout == 4.2
     assert cli.args.http_headers == {'key': 'value'}
 
     assert cli.args.http_proxy == 'testhttp:proxy'

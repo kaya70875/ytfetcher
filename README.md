@@ -119,7 +119,7 @@ from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
-    max_results=2
+    max_results=2 # use max_results=None if you want to fetch all videos from videos tab.
 )
 
 channel_data = fetcher.fetch_youtube_data()
@@ -237,7 +237,7 @@ YTFetcher provides a simple interface for customizing your fetching process with
 - **filters**: Apply filters to video metadata before transcripts are fetched.
 - **manually_created** Fetch only manually created transcripts for more precise transcripts.
 - **proxy_config** Provide custom proxy settings for preventing bans.
-- **http_config** Define custom http headers and timeouts.
+- **http_config** Define custom http headers.
 
 These options can be passed to any of the fetcher methods (`from_channel`, `from_video_ids`, `from_playlist_id`, or `from_search`) to tailor the fetching process for your needs. You can use `FetchOptions` dataclass from `ytfetcher.config` for easily configure your options.
 
@@ -300,7 +300,7 @@ options = FetchOptions(
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
-    max_results=50,
+    max_results=50, 
     options=options
 )
 ```
@@ -506,7 +506,6 @@ from ytfetcher import YTFetcher
 from ytfetcher.config import HTTPConfig, FetchOptions
 
 custom_config = HTTPConfig(
-    timeout=4.0,
     headers={"User-Agent": "ytfetcher/1.0"}
 )
 
@@ -563,7 +562,7 @@ ytfetcher <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --h
 ### Using Custom HTTP Config
 
 ```bash
-ytfetcher <CHANNEL_HANDLE> --http-timeout 4.2 --http-headers "{'key': 'value'}"
+ytfetcher <CHANNEL_HANDLE> --http-headers "{'key': 'value'}"
 ```
 
 ---
