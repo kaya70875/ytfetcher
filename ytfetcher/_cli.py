@@ -153,11 +153,11 @@ class YTFetcherCLI:
     def run(self):
         match self.args.command:
             case 'channel':
-                log(f'Starting to fetch from channel: {self.args.channel}')
+                log(f"Starting to fetch from channel: {self.args.channel}")
                 self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel,
-                    max_results=self.args.max_results,
+                    max_results=None if self.args.all else self.args.max_results
                 )
             
             case 'video':
@@ -172,7 +172,7 @@ class YTFetcherCLI:
                 self._run_fetcher(
                     YTFetcher.from_playlist_id,
                     playlist_id=self.args.playlist_id,
-                    max_results=self.args.max_results,
+                    max_results=None if self.args.all else self.args.max_results,
                 )
             
             case 'search':
@@ -194,7 +194,8 @@ def create_parser() -> argparse.ArgumentParser:
     # From Channel parsers
     parser_channel = subparsers.add_parser("channel", help="Fetch data from channel handle with max_results.")
     parser_channel.add_argument("channel", help="The Channel Handle or ID (e.g. @PewDiePie)")
-    parser_channel.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
+    parser_channel.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch")
+    parser_channel.add_argument("--all", action="store_true", help="Fetch ALL videos from a channel.")
     _create_common_arguments(parser_channel)
 
     # From Video Ids parsers
@@ -206,7 +207,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser_playlist_id = subparsers.add_parser("playlist", help="Fetch data from a specific playlist id.")
     parser_playlist_id.add_argument("playlist_id", type=str, help='Playlist id to be fetch from.')
     parser_playlist_id.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch.")
-
+    parser_playlist_id.add_argument("--all", action="store_true", help="Fetch ALL videos from a playlist.")
     _create_common_arguments(parser_playlist_id)
 
     # From search parsers

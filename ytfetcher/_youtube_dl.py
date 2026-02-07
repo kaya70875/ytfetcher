@@ -21,7 +21,7 @@ class BaseYoutubeDLFetcher(ABC):
         max_results (int): The maximum number of results to fetch.
     """
 
-    def __init__(self, max_results: int = 50):
+    def __init__(self, max_results: int | None = 20):
         self.max_results = max_results
 
     @abstractmethod
@@ -148,10 +148,10 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
     and full channel URLs.
     Args:
         channel_handle (str): The channel handle or URL.
-        max_results (int): Maximum number of videos to fetch.
+        max_results (int | None = 20): Maximum number of videos to fetch. Define as `None` if you want to fetch all videos from a channel.
     """
 
-    def __init__(self, channel_handle: str, max_results: int = 50):
+    def __init__(self, channel_handle: str, max_results: int | None = 20):
         super().__init__(max_results)
         self.channel_handle = channel_handle
 
@@ -159,7 +159,9 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
             self.channel_handle = self._find_channel_handle_from_url(channel_handle)
 
     def fetch(self) -> list[DLSnippet]:
-        ydl_opts = self._setup_ydl_opts(playlistend=self.max_results)
+        ydl_opts = self._setup_ydl_opts()
+        if self.max_results is not None:
+            ydl_opts["playlistend"] = self.max_results
         url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/videos"
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
@@ -206,10 +208,10 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
     Supports both playlist IDs and full playlist URLs.
     Args:
         playlist_id (str): The playlist ID or full URL.
-        max_results (int): Maximum number of videos to fetch.
+        max_results (int | None = 20): Maximum number of videos to fetch. Define as `None` if you want to fetch all videos from a channel.
     """
 
-    def __init__(self, playlist_id: str, max_results: int = 50):
+    def __init__(self, playlist_id: str, max_results: int | None = 20):
         super().__init__(max_results)
         self.playlist_id = playlist_id
 
@@ -217,7 +219,9 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
             self.playlist_id = self._find_playlist_id_from_url(url=playlist_id)
 
     def fetch(self) -> list[DLSnippet]:
-        ydl_opts = self._setup_ydl_opts(playlistend=self.max_results)
+        ydl_opts = self._setup_ydl_opts()
+        if self.max_results is not None:
+            ydl_opts["playlistend"] = self.max_results
         url = f"https://www.youtube.com/playlist?list={self.playlist_id.strip()}"
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
@@ -260,7 +264,7 @@ class SearchFetcher(BaseYoutubeDLFetcher):
     """
     Fetches video snippets via yt-dlp search.
     """
-    def __init__(self, query: str, max_results: int = 50):
+    def __init__(self, query: str, max_results: int = 20):
         super().__init__(max_results)
         self.query = query
 

@@ -119,7 +119,7 @@ from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
-    max_results=2
+    max_results=2 # use max_results=None if you want to fetch all videos from videos tab.
 )
 
 channel_data = fetcher.fetch_youtube_data()
@@ -300,7 +300,7 @@ options = FetchOptions(
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
-    max_results=50,
+    max_results=50, 
     options=options
 )
 ```
