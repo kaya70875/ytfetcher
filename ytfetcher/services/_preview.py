@@ -109,7 +109,7 @@ class PreviewRenderer:
             
             header = Text()
             header.append(f"{author}", style="bold yellow")
-            if likes:
+            if likes is not None:
                 header.append(f" • {likes} likes", style="dim")
             if hasattr(c, "time_text") and c.time_text:
                 header.append(f" • {c.time_text}", style="dim")
