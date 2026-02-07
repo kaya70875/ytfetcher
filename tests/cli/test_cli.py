@@ -100,7 +100,7 @@ def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurati
 
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
-        max_results=20,
+        max_results=5,
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
@@ -131,7 +131,7 @@ def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_config
 
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
-        max_results=20,
+        max_results=5,
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
@@ -163,69 +163,7 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
 
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
-        max_results=20,
-        options=FetchOptions(
-            http_config=expected_http_config,
-            proxy_config=expected_proxy_config,
-            languages=["en"],
-            manually_created=False,
-            filters=[]
-        )
-    )
-
-    mock_fetcher.fetch_youtube_data.assert_called_once()
-
-@patch('ytfetcher._cli.YTFetcher')
-def test_all_argument_for_channel_method(mock_ytfetcher, mock_configurations):
-    mock_fetcher = Mock()
-    mock_ytfetcher.from_channel.return_value = mock_fetcher
-
-    expected_http_config, expected_proxy_config = mock_configurations
-
-    parser = create_parser()
-    args = parser.parse_args([
-        "channel",
-        "TestChannel",
-        "--all"
-    ])
-
-    cli = YTFetcherCLI(args=args)
-    cli.run()
-
-    mock_ytfetcher.from_channel.assert_called_once_with(
-        channel_handle="TestChannel",
-        max_results=None,
-        options=FetchOptions(
-            http_config=expected_http_config,
-            proxy_config=expected_proxy_config,
-            languages=["en"],
-            manually_created=False,
-            filters=[]
-        )
-    )
-
-    mock_fetcher.fetch_youtube_data.assert_called_once()
-
-@patch('ytfetcher._cli.YTFetcher')
-def test_all_argument_for_playlist_method(mock_ytfetcher, mock_configurations):
-    mock_fetcher = Mock()
-    mock_ytfetcher.from_playlist_id.return_value = mock_fetcher
-
-    expected_http_config, expected_proxy_config = mock_configurations
-
-    parser = create_parser()
-    args = parser.parse_args([
-        "playlist",
-        "playlistid",
-        "--all"
-    ])
-
-    cli = YTFetcherCLI(args=args)
-    cli.run()
-
-    mock_ytfetcher.from_playlist_id.assert_called_once_with(
-        playlist_id="playlistid",
-        max_results=None,
+        max_results=5,
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,

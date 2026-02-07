@@ -18,6 +18,7 @@ classifiers = [
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "requests (>=2.32.4,<3.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "youtube-transcript-api (>=1.1.1,<2.0.0)",
     "fake-useragent (>=2.2.0,<3.0.0)",
@@ -26,6 +27,7 @@ dependencies = [
     "yt-dlp (>=2025.8.11,<2026.0.0)",
     "colorama (>=0.4.6,<0.5.0)",
     "rich (>=14.2.0,<15.0.0)",
+    "mkdocs-material (>=9.7.1,<10.0.0)",
 ]
 
 
@@ -56,5 +58,4 @@ mypy = "^1.17.0"
 pytest-cov = "^6.2.1"
 types-colorama = "^0.4.15.20250801"
 types-tqdm = "^4.67.0.20250809"
-mkdocs-material = "^9.7.1"
 
