@@ -71,7 +71,9 @@ class YTFetcherCLI:
                 proxy_config=ConfigBuilder.build_proxy_config(self.args),
                 languages=self.args.languages,
                 manually_created=self.args.manually_created,
-                filters=self._get_active_filters()
+                filters=self._get_active_filters(),
+                cache_enabled=self.args.cache,
+                cache_path=self.args.cache_path,
             ),
             **kwargs
         )
@@ -255,6 +257,10 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     net_group.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
     net_group.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
     net_group.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
+
+    cache_group = parser.add_argument_group("Cache Options")
+    cache_group.add_argument("--cache", action="store_true", help="Enable SQLite cache for transcripts.")
+    cache_group.add_argument("--cache-path", default=".ytfetcher_cache.sqlite3", help="Path to sqlite cache database.")
 
     output_group = parser.add_argument_group("Output Options")
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")

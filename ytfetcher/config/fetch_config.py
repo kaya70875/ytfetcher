@@ -11,3 +11,5 @@ class FetchOptions:
     languages: Iterable[str] = ("en", )
     manually_created: bool = False
     filters: list[Callable[[DLSnippet], bool]] | None = None
+    cache_enabled: bool = False
+    cache_path: str = ".ytfetcher_cache.sqlite3"
