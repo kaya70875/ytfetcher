@@ -18,7 +18,6 @@ classifiers = [
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "requests (>=2.32.4,<3.0.0)",
-    "httpx (>=0.28.1,<0.29.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "youtube-transcript-api (>=1.1.1,<2.0.0)",
     "fake-useragent (>=2.2.0,<3.0.0)",
