@@ -7,11 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 - Added CLI argument for channel fetcher and playlist fetcher; `--all` argument now fetches ALL videos from a channel or playlist.
+- Added necessary tests for `PreviewRenderer` class.
 
 ### Changed
 - Changed `max_results` parameter to be optionally None which leads to fetch all videos from a channel if explicitly set.
+- Removed `timeout` parameter from `HTTPConfig` class.
+- Removed `httpx` library since it is unused.
 
 ### Fixed
+- Fixed `PreviewRenderer` fails if metadata values are None.
 
 ---
 
