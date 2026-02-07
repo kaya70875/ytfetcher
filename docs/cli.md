@@ -258,12 +258,6 @@ This command only processes videos that:
 - Get credentials from [Webshare Dashboard](https://dashboard.webshare.io/proxy/settings)
 - Example: `ytfetcher channel TheOffice -f json --webshare-proxy-username "your_username" --webshare-proxy-password "your_password"`
 
-**`--http-timeout`**
-
-- HTTP request timeout in seconds
-- Default: `4.0`
-- Example: `ytfetcher channel TheOffice --http-timeout 6.0`
-
 **`--http-headers`**
 
 - Custom HTTP headers (Python dictionary format)

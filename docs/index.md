@@ -329,14 +329,13 @@ fetcher = YTFetcher.from_channel(
 
 ### HTTP Configuration
 
-YTFetcher automatically uses realistic browser-like headers to mimic real browser behavior. However, you can customize HTTP settings including timeout and custom headers:
+YTFetcher automatically uses realistic browser-like headers to mimic real browser behavior. However, you can customize HTTP settings including custom headers:
 
 ```python
 from ytfetcher import YTFetcher
 from ytfetcher.config import HTTPConfig, FetchOptions
 
 http_config = HTTPConfig(
-    timeout=4.0,  # Request timeout in seconds
     headers={"User-Agent": "Custom-Agent/1.0"}  # Custom headers
 )
 
