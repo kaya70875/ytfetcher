@@ -67,9 +67,12 @@ class PreviewRenderer:
         grid.add_column(style="bold cyan", justify="right")
         grid.add_column(style="white")
 
+        views = f"[green]{meta.view_count:,}[/]" if meta.view_count is not None else "[dim]N/A[/]"
+        url = f"[link={meta.url}]{meta.url}[/link]" if meta.url else "[dim]N/A[/]"
+
         grid.add_row("Duration:", self._format_time(meta.duration))
-        grid.add_row("Views:", f"[green]{meta.view_count:,}[/]")
-        grid.add_row("URL:", f"[link={meta.url}]{meta.url}[/link]")
+        grid.add_row("Views:", views)
+        grid.add_row("URL:", url)
         
         desc_preview = (meta.description[:100].replace("\n", " ") + "...") if meta.description else "[dim]No description[/]"
         grid.add_row("Description:", desc_preview)
