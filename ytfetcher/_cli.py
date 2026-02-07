@@ -37,8 +37,8 @@ class ConfigBuilder:
     
     @staticmethod
     def build_http_config(args: Namespace) -> HTTPConfig:
-        if args.http_timeout or args.http_headers:
-            http_config = HTTPConfig(timeout=args.http_timeout, headers=args.http_headers)
+        if args.http_headers:
+            http_config = HTTPConfig(headers=args.http_headers)
             return http_config
 
         return HTTPConfig()
@@ -250,7 +250,6 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     export_group.add_argument("--filename", default="data", help="Decide filename to be exported.")
 
     net_group = parser.add_argument_group("Network Options")
-    net_group.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
     net_group.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
     net_group.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
     net_group.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
