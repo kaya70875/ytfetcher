@@ -111,7 +111,7 @@ class PreviewRenderer:
             header.append(f"{author}", style="bold yellow")
             if likes is not None:
                 header.append(f" • {likes} likes", style="dim")
-            if hasattr(c, "time_text") and c.time_text:
+            if c.time_text is not None:
                 header.append(f" • {c.time_text}", style="dim")
 
             text_content = c.text.replace("\n", " ").strip()
