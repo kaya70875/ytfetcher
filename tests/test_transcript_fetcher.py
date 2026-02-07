@@ -88,7 +88,7 @@ def test_custom_ytt_api_client_initialized_correctly(mocker):
 
     fetcher = TranscriptFetcher(
         mock_video_ids,
-        http_config=HTTPConfig(),
+        http_config=HTTPConfig(timeout=4.0),
         proxy_config=GenericProxyConfig(http_url="http://test:800"),
     )
 

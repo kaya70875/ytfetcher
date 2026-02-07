@@ -44,7 +44,7 @@ class YTFetcher:
     def from_channel(
         cls,
         channel_handle: str,
-        max_results: int | None = 20,
+        max_results: int = 50,
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
@@ -72,7 +72,7 @@ class YTFetcher:
     @classmethod
     def from_playlist_id(
         cls,playlist_id: str,
-        max_results: int | None = 20,
+        max_results: int = 50,
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
@@ -87,7 +87,7 @@ class YTFetcher:
     def from_search(
         cls,
         query: str,
-        max_results: int = 20,
+        max_results: int = 50,
         options: FetchOptions | None = None
     ) -> "YTFetcher":
         """
