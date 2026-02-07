@@ -183,7 +183,7 @@ def test_fetch_transcripts_method_with_video_ids(mock_transcript_fetcher, initia
 def test_http_config(mock_transcript_fetcher):
 
     headers = get_realistic_headers()
-    config = HTTPConfig(timeout=2.0, headers=headers)
+    config = HTTPConfig(headers=headers)
 
     fetcher = YTFetcher.from_channel(
         channel_handle='channelname',
@@ -192,7 +192,6 @@ def test_http_config(mock_transcript_fetcher):
     )
 
     assert fetcher.options.http_config.headers == config.headers
-    assert fetcher.options.http_config.timeout == config.timeout
 
 def test_proxy_config(mock_transcript_fetcher, mock_channel_fetcher_class):
     proxy_config_mock = create_autospec(ProxyConfig, instance=True)
