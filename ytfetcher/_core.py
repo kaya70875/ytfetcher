@@ -219,6 +219,36 @@ class YTFetcher:
         if not self._cache:
             return self._get_transcript_fetcher().fetch()
 
+        return self._get_cached_transcripts(video_ids=video_ids)
+
+    def _get_transcript_fetcher(self) -> TranscriptFetcher:
+        if self._transcript_fetcher is None:
+            video_ids = self._get_video_ids()
+            self._transcript_fetcher = TranscriptFetcher(
+                video_ids,
+                http_config=self.options.http_config,
+                proxy_config=self.options.proxy_config,
+                languages=self.options.languages,
+                manually_created=self.options.manually_created,
+            )
+        return self._transcript_fetcher
+    
+    def _get_video_ids(self) -> list[str]:
+        """
+        Returns list of channel video ids.
+        """
+        return [snippet.video_id for snippet in self._get_snippets()]
+
+    def _get_cached_transcripts(self, video_ids: list[str]) -> list[dict[str, VideoTranscript]]:
+        """
+        Fetches transcripts from cache and merges with freshly fetched transcripts for missing video IDs.
+        
+        Args:
+            video_ids: List of video IDs to fetch transcripts for.
+            
+        Returns:
+            list[VideoTranscript]: A list of VideoTranscript objects, with cached and freshly fetched transcripts merged.
+        """
         cache_key = SQLiteCache.build_transcript_cache_key(
             languages=list(self.options.languages),
             manually_created=self.options.manually_created,
@@ -246,24 +276,6 @@ class YTFetcher:
             **{transcript.video_id: transcript for transcript in fetched_transcripts},
         }
         return [merged_map[video_id] for video_id in video_ids if video_id in merged_map]
-
-    def _get_transcript_fetcher(self) -> TranscriptFetcher:
-        if self._transcript_fetcher is None:
-            video_ids = self._get_video_ids()
-            self._transcript_fetcher = TranscriptFetcher(
-                video_ids,
-                http_config=self.options.http_config,
-                proxy_config=self.options.proxy_config,
-                languages=self.options.languages,
-                manually_created=self.options.manually_created,
-            )
-        return self._transcript_fetcher
-    
-    def _get_video_ids(self) -> list[str]:
-        """
-        Returns list of channel video ids.
-        """
-        return [snippet.video_id for snippet in self._get_snippets()]
     
     def _build_response(
             self,
