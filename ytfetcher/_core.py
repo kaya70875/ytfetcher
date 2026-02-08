@@ -249,6 +249,9 @@ class YTFetcher:
         Returns:
             list[VideoTranscript]: A list of VideoTranscript objects, with cached and freshly fetched transcripts merged.
         """
+
+        assert self._cache is not None
+
         cache_key = SQLiteCache.build_transcript_cache_key(
             languages=list(self.options.languages),
             manually_created=self.options.manually_created,
