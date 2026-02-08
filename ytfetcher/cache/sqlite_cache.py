@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 from ytfetcher.models.channel import VideoTranscript
 
-
 class SQLiteCache:
     def __init__(self, db_path: str):
         self.db_path = db_path
