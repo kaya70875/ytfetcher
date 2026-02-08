@@ -219,9 +219,7 @@ class YTFetcher:
         if not self._cache:
             return self._get_transcript_fetcher().fetch()
 
-        s = self._get_cached_transcripts(video_ids=video_ids)
-        print(s)
-        return s
+        return self._get_cached_transcripts(video_ids=video_ids)
 
     def _get_transcript_fetcher(self) -> TranscriptFetcher:
         if self._transcript_fetcher is None:
