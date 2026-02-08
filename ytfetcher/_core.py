@@ -219,7 +219,9 @@ class YTFetcher:
         if not self._cache:
             return self._get_transcript_fetcher().fetch()
 
-        return self._get_cached_transcripts(video_ids=video_ids)
+        s = self._get_cached_transcripts(video_ids=video_ids)
+        print(s)
+        return s
 
     def _get_transcript_fetcher(self) -> TranscriptFetcher:
         if self._transcript_fetcher is None:
@@ -239,7 +241,7 @@ class YTFetcher:
         """
         return [snippet.video_id for snippet in self._get_snippets()]
 
-    def _get_cached_transcripts(self, video_ids: list[str]) -> list[dict[str, VideoTranscript]]:
+    def _get_cached_transcripts(self, video_ids: list[str]) -> list[VideoTranscript]:
         """
         Fetches transcripts from cache and merges with freshly fetched transcripts for missing video IDs.
         
