@@ -1,4 +1,5 @@
 from ytfetcher._cli import create_parser, YTFetcherCLI
+from ytfetcher.config.fetch_config import default_cache_path
 
 def test_initialize_http_and_proxy_config():
     parser = create_parser()
@@ -84,3 +85,27 @@ def test_comments_argument_default():
     cli = YTFetcherCLI(args=args)
 
     assert cli.args.comments == 0
+
+def test_cache_path_argument_default():
+    parser = create_parser()
+    args = parser.parse_args([
+        "channel",
+        "TestChannel",
+    ])
+
+    cli = YTFetcherCLI(args=args)
+
+    assert cli.args.cache_path == default_cache_path()
+
+
+def test_cache_path_argument_custom():
+    parser = create_parser()
+    args = parser.parse_args([
+        "channel",
+        "TestChannel",
+        "--cache-path", "/tmp/custom-cache.sqlite3",
+    ])
+
+    cli = YTFetcherCLI(args=args)
+
+    assert cli.args.cache_path == "/tmp/custom-cache.sqlite3"
