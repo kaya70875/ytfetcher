@@ -4,8 +4,8 @@ import sys
 from typing import Union, Callable
 from ytfetcher._core import YTFetcher
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
-from ytfetcher.config.http_config import HTTPConfig
-from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
+from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig, HTTPConfig
+from ytfetcher.config.fetch_config import default_cache_path
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
 from ytfetcher import filters
@@ -73,7 +73,7 @@ class YTFetcherCLI:
                 manually_created=self.args.manually_created,
                 filters=self._get_active_filters(),
                 cache_enabled=not self.args.no_cache,
-                cache_path=self.args.cache_path,
+                cache_path=self.args.cache_path
             ),
             **kwargs
         )
@@ -260,19 +260,18 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
 
     cache_group = parser.add_argument_group("Cache Options")
     cache_group.add_argument("--no-cache", action="store_true", help="Disable SQLite cache for transcripts.")
-    cache_group.add_argument("--cache-path", default=".ytfetcher_cache.sqlite3", help="Path to sqlite cache database.")
+    cache_group.add_argument("--cache-path", default=default_cache_path(), help="Path to ytfetcher cache file.")
 
     output_group = parser.add_argument_group("Output Options")
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
     output_group.add_argument("--quiet", action="store_true", help="Supress output logs and progress informations.")
-
 
 def main():
     args = parse_args(sys.argv[1:])
 
     if not args.quiet:
         RuntimeConfig.enable_verbose()
-
+        
     cli = YTFetcherCLI(args=args)
     cli.run()
 
