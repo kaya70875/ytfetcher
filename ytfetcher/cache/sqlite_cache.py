@@ -4,15 +4,21 @@ from pathlib import Path
 from ytfetcher.models.channel import VideoTranscript
 
 class SQLiteCache:
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+    def __init__(self, cache_dir: str):
+        self.cache_dir = Path(cache_dir)
+        self.db_file = self.cache_dir / "cache.sqlite3"
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
-        return sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_file)
+
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA synchronous=NORMAL;")
+        
+        return conn
 
     def _initialize(self) -> None:
-        Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         with self._connect() as conn:
             conn.execute(
@@ -26,6 +32,10 @@ class SQLiteCache:
                 )
                 """
             )
+    
+    def clear(self) -> None:
+        with self._connect() as conn:
+            conn.execute("DELETE from transcript_cache")
 
     def get_transcripts(self, video_ids: list[str], cache_key: str) -> list[VideoTranscript]:
         if not video_ids:
