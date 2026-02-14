@@ -2,6 +2,7 @@ import argparse
 import ast
 import sys
 from typing import Union, Callable
+from pathlib import Path
 from ytfetcher._core import YTFetcher
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
 from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig, HTTPConfig
@@ -271,7 +272,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
     output_group.add_argument("--quiet", action="store_true", help="Supress output logs and progress informations.")
 
-def _clear_cache(cache_path: str | None) -> None:
+def _clear_cache(cache_path: Path | None) -> None:
     from ytfetcher.cache.sqlite_cache import SQLiteCache
 
     resolved_path = cache_path or default_cache_path()

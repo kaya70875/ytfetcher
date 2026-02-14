@@ -25,4 +25,4 @@ class FetchOptions:
     manually_created: bool = False
     filters: list[Callable[[DLSnippet], bool]] | None = None
     cache_enabled: bool = True
-    cache_path: str = field(default_factory=default_cache_path)
+    cache_path: Path = field(default_factory=default_cache_path)

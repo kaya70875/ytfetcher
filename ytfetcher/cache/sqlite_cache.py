@@ -4,8 +4,8 @@ from pathlib import Path
 from ytfetcher.models.channel import VideoTranscript
 
 class SQLiteCache:
-    def __init__(self, cache_dir: str):
-        self.cache_dir = Path(cache_dir)
+    def __init__(self, cache_dir: Path):
+        self.cache_dir = cache_dir
         self.db_file = self.cache_dir / "cache.sqlite3"
         self._initialize()
 
