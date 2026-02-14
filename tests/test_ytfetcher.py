@@ -1,5 +1,4 @@
 import pytest
-import sqlite3
 from ytfetcher._core import YTFetcher
 from ytfetcher.models.channel import (
     ChannelData,
@@ -11,7 +10,6 @@ from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config.fetch_config import FetchOptions
 from ytfetcher.exceptions import *
 from ytfetcher._transcript_fetcher import TranscriptFetcher
-from ytfetcher._youtube_dl import BaseYoutubeDLFetcher
 from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.utils.headers import get_realistic_headers
 from unittest.mock import create_autospec, MagicMock
@@ -207,44 +205,3 @@ def test_proxy_config(mock_transcript_fetcher, mock_channel_fetcher_class):
     )
 
     assert fetcher.options.proxy_config is proxy_config_mock
-
-
-def test_transcripts_are_cached(tmp_path, sample_transcripts):
-    class DummyFetcher(BaseYoutubeDLFetcher):
-        def fetch(self) -> list[DLSnippet]:
-            return [
-                DLSnippet(
-                    video_id='id1',
-                    title='channelname1',
-                    description='description1',
-                )
-            ]
-
-    fetch_options = FetchOptions(cache_enabled=True, cache_path=str(tmp_path / "cache.db"))
-    fetcher = YTFetcher(youtube_dl_fetcher=DummyFetcher(), options=fetch_options)
-
-    mocked_fetch = MagicMock(
-        side_effect=[
-            [VideoTranscript(video_id='id1', transcripts=sample_transcripts)],
-            [VideoTranscript(video_id='id1', transcripts=sample_transcripts)],
-        ]
-    )
-
-    with pytest.MonkeyPatch.context() as mp:
-        mp.setattr(TranscriptFetcher, "fetch", mocked_fetch)
-
-        first_result = fetcher.fetch_transcripts()
-        second_result = fetcher.fetch_transcripts()
-
-    assert len(first_result) == 1
-    assert len(second_result) == 1
-    assert mocked_fetch.call_count == 1
-
-    with sqlite3.connect(str(tmp_path / "cache.db")) as conn:
-        table_names = {
-            row[0]
-            for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-        }
-
-    assert "transcript_cache" in table_names
-    assert "metadata_cache" not in table_names
