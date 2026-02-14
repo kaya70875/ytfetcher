@@ -221,6 +221,40 @@ fetcher = YTFetcher.from_channel(
 !!! Note
     **Performance:** Comment fetching is a resource-intensive process. The speed of extraction depends significantly on the user's internet connection and the total volume of comments being retrieved.
 
+## SQLite Cache
+
+`ytfetcher` includes a built-in SQLite transcript cache to speed up repeated fetches.
+
+- Enabled by default.
+- Default location: `~/.cache/ytfetcher/cache.sqlite3`.
+- Cache entries are keyed by `video_id` and transcript settings (`languages`, `manually_created`).
+
+### Python API
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    cache_enabled=True,
+    cache_path="./.ytfetcher_cache"
+)
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=20,
+    options=options,
+)
+```
+
+Disable cache:
+
+```python
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(cache_enabled=False)
+```
+
 ### Fetch Comments With Transcripts And Metadata
 To fetch comments alongside with transcripts and metadata you can use `fetch_with_comments` method.
 

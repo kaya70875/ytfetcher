@@ -1,5 +1,6 @@
 import pytest
 from ytfetcher._core import YTFetcher, CommentFetcher
+from ytfetcher.config import FetchOptions
 from ytfetcher.models.channel import DLSnippet, VideoTranscript, Transcript, VideoComments, Comment
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from pytest_mock import MockerFixture
@@ -47,7 +48,8 @@ def mock_dependencies(mocker: MockerFixture, bulk_snippets, bulk_transcripts_shu
 
 @pytest.fixture
 def initialized_fetcher(mock_dependencies):
-    return YTFetcher.from_channel(channel_handle="test_channel", max_results=3)
+    opts = FetchOptions(cache_enabled=False)
+    return YTFetcher.from_channel(channel_handle="test_channel", max_results=3, options=opts)
 
 def test_bulk_fetch_alignment_is_correct(initialized_fetcher):
     """

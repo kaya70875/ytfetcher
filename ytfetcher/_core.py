@@ -9,6 +9,7 @@ from ytfetcher._youtube_dl import (
     BaseYoutubeDLFetcher
 )
 from ytfetcher.config.fetch_config import FetchOptions
+from ytfetcher.cache import SQLiteCache
 from typing import Literal
 
 class YTFetcher:
@@ -39,6 +40,11 @@ class YTFetcher:
 
         self._transcript_fetcher: TranscriptFetcher | None = None
         self._snippets: list[DLSnippet] | None = None
+        self._cache: SQLiteCache | None = (
+            SQLiteCache(self.options.cache_path)
+            if self.options.cache_enabled
+            else None
+        )
             
     @classmethod
     def from_channel(
@@ -106,7 +112,7 @@ class YTFetcher:
             list[ChannelData]: A list of objects containing transcript text and associated metadata.
         """
         snippets = self._get_snippets()
-        transcripts = self._get_transcript_fetcher().fetch()
+        transcripts = self._get_transcripts()
         
         return self._build_response(
             snippets=snippets,
@@ -124,7 +130,7 @@ class YTFetcher:
             list[ChannelData]: A list objects containing transcript text, metadata and comments.
         """
 
-        transcripts = self._get_transcript_fetcher().fetch()
+        transcripts = self._get_transcripts()
         snippets = self._get_snippets()
         
         comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
@@ -165,7 +171,7 @@ class YTFetcher:
             list[ChannelData]: Transcripts only with video_id (excluding metadata).
         """
         
-        transcripts = self._get_transcript_fetcher().fetch()
+        transcripts = self._get_transcripts()
         return [
             ChannelData(
                 video_id=transcript.video_id,
@@ -205,8 +211,15 @@ class YTFetcher:
                     ]
 
             self._snippets = snippets
-        
+
         return self._snippets
+
+    def _get_transcripts(self) -> list[VideoTranscript]:
+        video_ids = self._get_video_ids()
+        if not self._cache:
+            return self._get_transcript_fetcher().fetch()
+
+        return self._get_cached_transcripts(video_ids=video_ids)
 
     def _get_transcript_fetcher(self) -> TranscriptFetcher:
         if self._transcript_fetcher is None:
@@ -225,6 +238,47 @@ class YTFetcher:
         Returns list of channel video ids.
         """
         return [snippet.video_id for snippet in self._get_snippets()]
+
+    def _get_cached_transcripts(self, video_ids: list[str]) -> list[VideoTranscript]:
+        """
+        Fetches transcripts from cache and merges with freshly fetched transcripts for missing video IDs.
+        
+        Args:
+            video_ids: List of video IDs to fetch transcripts for.
+            
+        Returns:
+            list[VideoTranscript]: A list of VideoTranscript objects, with cached and freshly fetched transcripts merged.
+        """
+
+        assert self._cache is not None
+
+        cache_key = SQLiteCache.build_transcript_cache_key(
+            languages=list(self.options.languages),
+            manually_created=self.options.manually_created,
+        )
+        cached_transcripts = self._cache.get_transcripts(video_ids, cache_key)
+        cached_transcripts_map = {
+            transcript.video_id: transcript for transcript in cached_transcripts
+        }
+
+        missing_video_ids = [video_id for video_id in video_ids if video_id not in cached_transcripts_map]
+        fetched_transcripts: list[VideoTranscript] = []
+
+        if missing_video_ids:
+            fetched_transcripts = TranscriptFetcher(
+                missing_video_ids,
+                http_config=self.options.http_config,
+                proxy_config=self.options.proxy_config,
+                languages=self.options.languages,
+                manually_created=self.options.manually_created,
+            ).fetch()
+            self._cache.upsert_transcripts(fetched_transcripts, cache_key)
+
+        merged_map = {
+            **cached_transcripts_map,
+            **{transcript.video_id: transcript for transcript in fetched_transcripts},
+        }
+        return [merged_map[video_id] for video_id in video_ids if video_id in merged_map]
     
     def _build_response(
             self,
