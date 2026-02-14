@@ -275,7 +275,12 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
 def _clear_cache(cache_path: str | None) -> None:
     from ytfetcher.cache.sqlite_cache import SQLiteCache
 
-    resolved_path = cache_path or default_cache_path()
+    resolved_path = Path(cache_path or default_cache_path())
+    db_file = resolved_path / "cache.sqlite3"
+
+    if not db_file.exists():
+        print(f"No cache found at: {db_file}")
+
     cache = SQLiteCache(resolved_path)
     cache.clear()
 
