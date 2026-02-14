@@ -215,6 +215,20 @@ fetcher = YTFetcher.from_channel(
 )
 ```
 
+## Converting ChannelData to Rows
+
+If you want a flat, row-based structure for ML workflows (Pandas, HuggingFace datasets, JSON/Parquet), use the helper in `ytfetcher.utils` to join transcript segments. Comments are only included if you fetched them with `fetch_with_comments` or `fetch_comments`.
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.utils import channel_data_to_rows
+
+fetcher = YTFetcher.from_channel(channel_handle="TheOffice", max_results=2)
+channel_data = fetcher.fetch_with_comments(max_comments=5)
+
+rows = channel_data_to_rows(channel_data, include_comments=True)
+```
+
 ## Fetching Comments
 `ytfetcher` allows you fetch comments in bulk **with additional metadata and transcripts** or **just comments alone.**
 

@@ -21,6 +21,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Using Different Fetchers](#using-different-fetchers)
 - [Retreive Different Languages](#retreive-different-languages)
 - [Filtering](#filtering)
+- [Converting ChannelData to Rows](#converting-channeldata-to-rows)
 - [SQLite Cache](#sqlite-cache)
 - [Fetching Only Manually Created Transcripts](#fetching-only-manually-created-transcripts)
 - [Exporting](#exporting)
@@ -324,6 +325,22 @@ ytfetcher channel TheOffice -m 50 -f json --includes-title "episode"
 
 # Combine multiple filters
 ytfetcher channel TheOffice -m 50 -f json --min-views 1000 --min-duration 300 --includes-title "tutorial"
+```
+
+---
+
+## Converting ChannelData to Rows
+
+If you want a flat, row-based structure for ML workflows (Pandas, HuggingFace datasets, JSON/Parquet), you can use the helper in `ytfetcher.utils` to join transcript segments. Comments are only included if you fetched them with `fetch_with_comments` or `fetch_comments`.
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.utils import channel_data_to_rows
+
+fetcher = YTFetcher.from_channel(channel_handle="TheOffice", max_results=2)
+channel_data = fetcher.fetch_with_comments(max_comments=5)
+
+rows = channel_data_to_rows(channel_data, include_comments=True)
 ```
 
 ---
