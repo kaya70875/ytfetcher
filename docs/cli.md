@@ -65,10 +65,6 @@ Fetch transcripts and metadata from specific video IDs:
 ytfetcher video video_id1 video_id2 video_id3 -f <FORMAT>
 ```
 
-**Required Arguments:**
-
--`video` - List of video id's.
-
 **Example:**
 
 ```bash
@@ -105,10 +101,6 @@ Fetch transcripts and metadata based on a search query, similar to Youtube searc
 ```bash
 ytfetcher search <QUERY> -m <MAX_RESULTS>
 ```
-
-**Required Arguments:**
-
--`search` - Search query.
 
 **Example**
 
@@ -277,6 +269,12 @@ This command only processes videos that:
 - Use Webshare proxy service
 - Get credentials from [Webshare Dashboard](https://dashboard.webshare.io/proxy/settings)
 - Example: `ytfetcher channel TheOffice -f json --webshare-proxy-username "your_username" --webshare-proxy-password "your_password"`
+
+**`--http-timeout`**
+
+- HTTP request timeout in seconds
+- Default: `4.0`
+- Example: `ytfetcher channel TheOffice --http-timeout 6.0`
 
 **`--http-headers`**
 

@@ -121,7 +121,7 @@ from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
-    max_results=2 # use max_results=None if you want to fetch all videos from videos tab.
+    max_results=2
 )
 
 channel_data = fetcher.fetch_youtube_data()
@@ -304,7 +304,7 @@ options = FetchOptions(
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
-    max_results=50, 
+    max_results=50,
     options=options
 )
 ```
@@ -584,6 +584,7 @@ from ytfetcher import YTFetcher
 from ytfetcher.config import HTTPConfig, FetchOptions
 
 custom_config = HTTPConfig(
+    timeout=4.0,
     headers={"User-Agent": "ytfetcher/1.0"}
 )
 
@@ -640,7 +641,7 @@ ytfetcher <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --h
 ### Using Custom HTTP Config
 
 ```bash
-ytfetcher <CHANNEL_HANDLE> --http-headers "{'key': 'value'}"
+ytfetcher <CHANNEL_HANDLE> --http-timeout 4.2 --http-headers "{'key': 'value'}"
 ```
 
 ---
