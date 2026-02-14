@@ -4,6 +4,13 @@ from pathlib import Path
 from ytfetcher.models.channel import VideoTranscript
 
 class SQLiteCache:
+    """
+    SQLite-based cache for storing and retrieving video transcripts.
+    
+    This class manages a SQLite database for caching video transcript data,
+    providing methods to store, retrieve, and manage transcript entries
+    with support for multiple cache keys and language configurations.
+    """
     def __init__(self, cache_dir: Path):
         self.cache_dir = cache_dir
         self.db_file = self.cache_dir / "cache.sqlite3"
