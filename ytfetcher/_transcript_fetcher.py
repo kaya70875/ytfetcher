@@ -14,30 +14,57 @@ import re
 logger = logging.getLogger(__name__)
 class TranscriptFetcher:
     """
-    Synchronously fetches transcripts for a list of YouTube video IDs 
+    Synchronously fetches transcripts for a list of YouTube video IDs
     using the YouTube Transcript API.
 
-    Transcripts are fetched concurrently using threads, while optionally 
+    Transcripts are fetched concurrently using threads, while optionally
     supporting proxy configurations and custom HTTP settings.
 
+    When `manually_created=True`, the fetcher only retrieves manually created
+    transcripts and skips auto-generated ones. This is useful for videos where
+    you only want creator-provided transcripts and not AI-generated ones.
+
     Args:
-        video_ids (list[str]): 
+        video_ids (list[str]):
             List of YouTube video IDs to fetch transcripts for.
 
-        http_config (HTTPConfig): 
+        http_config (HTTPConfig):
             Optional HTTP configuration (e.g., headers, timeout).
 
-        proxy_config (ProxyConfig | None): 
+        proxy_config (ProxyConfig | None):
             Optional proxy configuration for the YouTube Transcript API.
 
-        languages (Iterable[str]): 
-            A list of language codes in descending priority. 
-            For example, if this is set to ["de", "en"], it will first try 
-            to fetch the German transcript ("de") and then the English one 
+        languages (Iterable[str]):
+            A list of language codes in descending priority.
+            For example, if this is set to ["de", "en"], it will first try
+            to fetch the German transcript ("de") and then the English one
             ("en") if it fails. Defaults to ["en"].
+
+        manually_created (bool):
+            If True, only fetch manually created transcripts (skips auto-generated).
+            If False, fetches auto-generated transcripts. Defaults to False.
     """
 
-    def __init__(self, video_ids: list[str], http_config: HTTPConfig | None = None, proxy_config: ProxyConfig | None = None, languages: Iterable[str] = ("en",), manually_created: bool = False):
+    def __init__(
+        self,
+        video_ids: list[str],
+        http_config: HTTPConfig | None = None,
+        proxy_config: ProxyConfig | None = None,
+        languages: Iterable[str] = ("en",),
+        manually_created: bool = False
+    ):
+        """
+        Initialize the TranscriptFetcher.
+
+        Args:
+            video_ids: List of YouTube video IDs to fetch transcripts for.
+            http_config: Optional HTTP configuration (e.g., headers, timeout).
+            proxy_config: Optional proxy configuration for the YouTube Transcript API.
+            languages: List of language codes in descending priority. Defaults to ("en",).
+            manually_created: If True, only fetch manually created transcripts
+                and skip auto-generated ones. When True and no manual transcripts
+                are found, logs an error. Defaults to False.
+        """
         self.http_config = http_config or HTTPConfig()
         self.proxy_config = proxy_config
         self.video_ids = video_ids
@@ -101,14 +128,20 @@ class TranscriptFetcher:
     
     def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
         """
-        Decides correct fetch method based on manually created flag.
+        Decides the correct fetch method based on the manually_created flag.
+
+        When manually_created is True, this method attempts to fetch only
+        manually created transcripts. When False, it fetches auto-generated
+        transcripts. Returns None if no matching transcript is found.
+
         Args:
-            yt_api(YouTubeTranscriptApi): Ytt api instance.
-            video_id(str): Video id for current video.
+            yt_api: YouTubeTranscriptApi instance configured with HTTP settings.
+            video_id: YouTube video ID to fetch transcripts for.
+
         Returns:
-            Optional[list[Transcript]]:
-                A list of transcript entries as dictionaries if available, 
-                otherwise `None` when no transcript is found.
+            A list of Transcript objects if a matching transcript is found,
+            otherwise None when no transcript is available (logs a warning for
+            manual transcript failures).
         """
         if self.manually_created:
             try:
@@ -124,7 +157,18 @@ class TranscriptFetcher:
     @staticmethod
     def _collect_results(tasks: list[futures.Future]) -> list[VideoTranscript]:
         """
-        Collects successful VideoTranscript objects from futures.
+        Collects successful VideoTranscript objects from completed futures.
+
+        Iterates over completed futures from the thread pool, extracts
+        non-None results, and returns them as a list. Progress is displayed
+        using a tqdm progress bar unless disabled.
+
+        Args:
+            tasks: List of Future objects representing in-progress transcript
+                fetch operations.
+
+        Returns:
+            List of successfully fetched VideoTranscript objects.
         """
         results: list[VideoTranscript] = []
 
@@ -159,6 +203,20 @@ class TranscriptFetcher:
     
     @staticmethod
     def _convert_to_transcript_object(transcript_dict: list[dict]) -> list[Transcript]:
+        """
+        Converts raw transcript dictionaries to Transcript model objects.
+
+        Uses Pydantic model validation to ensure each dictionary conforms to
+        the Transcript model schema. Assumes all input dictionaries are valid
+        and complete.
+
+        Args:
+            transcript_dict: List of dictionaries containing raw transcript data
+                with fields like text, start, and duration.
+
+        Returns:
+            List of validated Transcript model objects.
+        """
         # No need for exception handling, transcripts should be complete.
         return [Transcript.model_validate(transcript) for transcript in transcript_dict]
 
