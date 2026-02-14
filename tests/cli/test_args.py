@@ -109,3 +109,13 @@ def test_cache_path_argument_custom():
     cli = YTFetcherCLI(args=args)
 
     assert cli.args.cache_path == "/tmp/custom-cache.sqlite3"
+
+def test_cache_clean_argument():
+    parser = create_parser()
+    args = parser.parse_args([
+        "cache",
+        "--clean"
+    ])
+
+    assert args.command == "cache"
+    assert args.clean is True
