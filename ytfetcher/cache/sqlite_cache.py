@@ -11,8 +11,8 @@ class SQLiteCache:
     providing methods to store, retrieve, and manage transcript entries
     with support for multiple cache keys and language configurations.
     """
-    def __init__(self, cache_dir: Path):
-        self.cache_dir = cache_dir
+    def __init__(self, cache_dir: str):
+        self.cache_dir = Path(cache_dir)
         self.db_file = self.cache_dir / "cache.sqlite3"
         self._initialize()
 

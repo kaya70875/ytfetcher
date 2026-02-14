@@ -5,7 +5,7 @@ from ytfetcher.config import HTTPConfig
 from ytfetcher.models import DLSnippet
 from youtube_transcript_api.proxies import ProxyConfig
 
-def default_cache_path() -> Path:
+def default_cache_path() -> str:
     """Get the default cache path for ytfetcher.
     
     Returns the path to the default SQLite cache database file located
@@ -15,7 +15,7 @@ def default_cache_path() -> Path:
         Path: Directory containing cache.sqlite3
     """
     cache_dir = Path.home() / ".cache" / "ytfetcher"
-    return cache_dir
+    return str(cache_dir)
 
 @dataclass
 class FetchOptions:
@@ -25,4 +25,4 @@ class FetchOptions:
     manually_created: bool = False
     filters: list[Callable[[DLSnippet], bool]] | None = None
     cache_enabled: bool = True
-    cache_path: Path = field(default_factory=default_cache_path)
+    cache_path: str = field(default_factory=default_cache_path)
