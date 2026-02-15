@@ -74,7 +74,8 @@ class YTFetcherCLI:
                 manually_created=self.args.manually_created,
                 filters=self._get_active_filters(),
                 cache_enabled=not self.args.no_cache,
-                cache_path=self.args.cache_path
+                cache_path=self.args.cache_path,
+                cache_ttl=self.args.cache_ttl
             ),
             **kwargs
         )
@@ -267,6 +268,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     cache_group = parser.add_argument_group("Cache Options")
     cache_group.add_argument("--no-cache", action="store_true", help="Disable SQLite cache for transcripts.")
     cache_group.add_argument("--cache-path", default=default_cache_path(), help="Path to ytfetcher cache file.")
+    cache_group.add_argument("--cache-ttl", type=int, default=7, help="Cache TTL in days. Use 0 to disable expiration.")
 
     output_group = parser.add_argument_group("Output Options")
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
