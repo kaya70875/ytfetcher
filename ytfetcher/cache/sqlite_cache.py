@@ -1,7 +1,10 @@
 import sqlite3
 import json
+import logging
 from pathlib import Path
 from ytfetcher.models.channel import VideoTranscript
+
+logger = logging.getLogger(__name__)
 
 class SQLiteCache:
     """
@@ -11,9 +14,10 @@ class SQLiteCache:
     providing methods to store, retrieve, and manage transcript entries
     with support for multiple cache keys and language configurations.
     """
-    def __init__(self, cache_dir: str):
+    def __init__(self, cache_dir: str, ttl: int = 7):
         self.cache_dir = Path(cache_dir).expanduser()
         self.db_file = self.cache_dir / "cache.sqlite3"
+        self.ttl = ttl
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
@@ -39,10 +43,32 @@ class SQLiteCache:
                 )
                 """
             )
-    
+
+        if self.ttl > 0:
+            removed_rows = self.purge_expired()
+            logger.info(f'Removed records older than {self.ttl} days. Total rows removed: {removed_rows}')
+
     def clear(self) -> None:
         with self._connect() as conn:
             conn.execute("DELETE from transcript_cache")
+    
+    def purge_expired(self) -> int:
+        """
+        Remove rows older than ttl days.
+        Returns the number of rows deleted.
+        """
+
+        if self.ttl <= 0:
+            return 0
+        
+        sql = f"DELETE FROM transcript_cache WHERE updated_at <= datetime('now', '-{int(self.ttl)} days')"
+
+        with self._connect() as conn:
+            cur = conn.execute(sql)
+            deleted = cur.rowcount if hasattr(cur, "rowcount") else 0
+            conn.commit()
+        
+        return deleted
 
     def get_transcripts(self, video_ids: list[str], cache_key: str) -> list[VideoTranscript]:
         if not video_ids:
