@@ -16,6 +16,10 @@ class SQLiteCache:
     """
     def __init__(self, cache_dir: str, ttl: int = 7):
         self.cache_dir = Path(cache_dir).expanduser()
+
+        if self.cache_dir.exists() and not self.cache_dir.is_dir():
+            raise ValueError('cache_dir must be a directory.')
+        
         self.db_file = self.cache_dir / "cache.sqlite3"
         self.ttl = ttl
         self._initialize()
