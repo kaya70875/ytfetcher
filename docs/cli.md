@@ -45,7 +45,8 @@ ytfetcher channel <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 
 **Optional Arguments:**
 
-- `-m`, `--max-results` - Maximum number of videos to fetch (default: 5)
+- `-m`, `--max-results` - Maximum number of videos to fetch (default: 20)
+- `--all` - Fetch ALL videos from a channel.
 
 **Example:**
 
@@ -77,6 +78,15 @@ Fetch transcripts and metadata from a YouTube playlist:
 ```bash
 ytfetcher playlist <PLAYLIST_ID> -f <FORMAT>
 ```
+
+**Required Arguments:**
+
+-`playlist` - YouTube playlist id.
+
+**Optional Arguments:**
+
+- `-m`, `--max-results` - Maximum number of videos to fetch (default: 20)
+- `--all` - Fetch ALL videos from a channel.
 
 **Example:**
 
@@ -200,6 +210,33 @@ This command only processes videos that:
 
 !!! Note
     Filters work on video metadata retrieved before transcript fetching. If a video's metadata is missing (e.g., `duration=None`), it will be excluded by duration filters.
+
+### Cache Options
+
+**`--no-cache`**
+
+- Disable SQLite transcript cache for this run
+- Useful when you explicitly want fresh transcript fetches
+- Example: `ytfetcher channel TheOffice -m 20 --no-cache -f json`
+
+**`--cache-path`**
+
+- Set custom cache directory (the file `cache.sqlite3` is created inside this directory)
+- Default: `~/.cache/ytfetcher`
+- Example: `ytfetcher channel TheOffice -m 20 --cache-path ./my_cache -f json`
+
+**`--cache-ttl`**
+
+- Cache expiration time in days
+- Default: `7`
+- Use `0` to disable automatic expiration
+- Example: `ytfetcher channel TheOffice -m 20 --cache-ttl 3 -f json`
+
+**`ytfetcher cache --clean`**
+
+- Clear all cached transcript rows
+- Example: `ytfetcher cache --clean`
+- Custom path example: `ytfetcher cache --clean --cache-path ./my_cache`
 
 ### Export Options
 

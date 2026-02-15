@@ -2,10 +2,11 @@ import argparse
 import ast
 import sys
 from typing import Union, Callable
+from pathlib import Path
 from ytfetcher._core import YTFetcher
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
-from ytfetcher.config.http_config import HTTPConfig
-from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig
+from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig, HTTPConfig
+from ytfetcher.config.fetch_config import default_cache_path
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
 from ytfetcher import filters
@@ -37,8 +38,8 @@ class ConfigBuilder:
     
     @staticmethod
     def build_http_config(args: Namespace) -> HTTPConfig:
-        if args.http_timeout or args.http_headers:
-            http_config = HTTPConfig(timeout=args.http_timeout, headers=args.http_headers)
+        if args.http_headers:
+            http_config = HTTPConfig(headers=args.http_headers)
             return http_config
 
         return HTTPConfig()
@@ -71,7 +72,10 @@ class YTFetcherCLI:
                 proxy_config=ConfigBuilder.build_proxy_config(self.args),
                 languages=self.args.languages,
                 manually_created=self.args.manually_created,
-                filters=self._get_active_filters()
+                filters=self._get_active_filters(),
+                cache_enabled=not self.args.no_cache,
+                cache_path=self.args.cache_path,
+                cache_ttl=self.args.cache_ttl
             ),
             **kwargs
         )
@@ -153,11 +157,11 @@ class YTFetcherCLI:
     def run(self):
         match self.args.command:
             case 'channel':
-                log(f'Starting to fetch from channel: {self.args.channel}')
+                log(f"Starting to fetch from channel: {self.args.channel}")
                 self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel,
-                    max_results=self.args.max_results,
+                    max_results=None if self.args.all else self.args.max_results
                 )
             
             case 'video':
@@ -172,7 +176,7 @@ class YTFetcherCLI:
                 self._run_fetcher(
                     YTFetcher.from_playlist_id,
                     playlist_id=self.args.playlist_id,
-                    max_results=self.args.max_results,
+                    max_results=None if self.args.all else self.args.max_results,
                 )
             
             case 'search':
@@ -194,7 +198,8 @@ def create_parser() -> argparse.ArgumentParser:
     # From Channel parsers
     parser_channel = subparsers.add_parser("channel", help="Fetch data from channel handle with max_results.")
     parser_channel.add_argument("channel", help="The Channel Handle or ID (e.g. @PewDiePie)")
-    parser_channel.add_argument("-m", "--max-results", type=int, default=5, help="Maximum videos to fetch")
+    parser_channel.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch")
+    parser_channel.add_argument("--all", action="store_true", help="Fetch ALL videos from a channel.")
     _create_common_arguments(parser_channel)
 
     # From Video Ids parsers
@@ -206,7 +211,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser_playlist_id = subparsers.add_parser("playlist", help="Fetch data from a specific playlist id.")
     parser_playlist_id.add_argument("playlist_id", type=str, help='Playlist id to be fetch from.')
     parser_playlist_id.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch.")
-
+    parser_playlist_id.add_argument("--all", action="store_true", help="Fetch ALL videos from a playlist.")
     _create_common_arguments(parser_playlist_id)
 
     # From search parsers
@@ -214,6 +219,11 @@ def create_parser() -> argparse.ArgumentParser:
     parser_search.add_argument("search", type=str, help="The query to search from Youtube.")
     parser_search.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch.")
     _create_common_arguments(parser_search)
+
+    # Cache parsers
+    parser_cache = subparsers.add_parser("cache", help="Cache Options")
+    parser_cache.add_argument("--clean", action="store_true", help="Clean cache file.")
+    parser_cache.add_argument("--cache-path", default=default_cache_path(), help="Custom cache file path.")
 
     return parser
 
@@ -249,24 +259,47 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     export_group.add_argument("--filename", default="data", help="Decide filename to be exported.")
 
     net_group = parser.add_argument_group("Network Options")
-    net_group.add_argument("--http-timeout", type=float, default=4.0, help="HTTP timeout for requests.")
     net_group.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
     net_group.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
     net_group.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')
     net_group.add_argument("--http-proxy", default="", metavar="URL", help="Use the specified HTTP proxy.")
     net_group.add_argument("--https-proxy", default="", metavar="URL", help="Use the specified HTTPS proxy.")
 
+    cache_group = parser.add_argument_group("Cache Options")
+    cache_group.add_argument("--no-cache", action="store_true", help="Disable SQLite cache for transcripts.")
+    cache_group.add_argument("--cache-path", default=default_cache_path(), help="Path to ytfetcher cache file.")
+    cache_group.add_argument("--cache-ttl", type=int, default=7, help="Cache TTL in days. Use 0 to disable expiration.")
+
     output_group = parser.add_argument_group("Output Options")
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
     output_group.add_argument("--quiet", action="store_true", help="Supress output logs and progress informations.")
 
+def _clear_cache(cache_path: str | None) -> None:
+    from ytfetcher.cache.sqlite_cache import SQLiteCache
+
+    resolved_path = Path(cache_path or default_cache_path()).expanduser()
+    db_file = resolved_path / "cache.sqlite3"
+
+    if not db_file.exists():
+        print(f"No cache found at: {db_file}")
+        return
+
+    cache = SQLiteCache(str(resolved_path))
+    cache.clear()
+
+    print(f"Cache cleared at: {cache.db_file}")
 
 def main():
     args = parse_args(sys.argv[1:])
 
+    if args.command == 'cache':
+        if args.clean:
+            _clear_cache(cache_path=args.cache_path)
+        return
+
     if not args.quiet:
         RuntimeConfig.enable_verbose()
-
+        
     cli = YTFetcherCLI(args=args)
     cli.run()
 

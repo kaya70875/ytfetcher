@@ -147,6 +147,32 @@ def test_fetch_empty_results(MockYDL):
     vlf = VideoListFetcher(video_ids=['id1', 'id2']).fetch()
     assert vlf == []
 
+@patch("yt_dlp.YoutubeDL")
+def test_channel_fetcher_omits_playlistend_when_max_results_none(MockYDL):
+    mock_instance = MockYDL.return_value.__enter__.return_value
+    mock_instance.extract_info.return_value = {"entries": []}
+
+    ChannelFetcher("fakechannel", max_results=None).fetch() # explicitly set max_results None
+
+    MockYDL.assert_called_once()
+    args, kwargs = MockYDL.call_args
+
+    ydl_opts = args[0]
+    assert "playlistend" not in ydl_opts
+
+@patch("yt_dlp.YoutubeDL")
+def test_playlist_fetcher_omits_playlistend_when_max_results_none(MockYDL):
+    mock_instance = MockYDL.return_value.__enter__.return_value
+    mock_instance.extract_info.return_value = {"entries": []}
+
+    PlaylistFetcher("playlistid", max_results=None).fetch() # explicitly set max_results None
+
+    MockYDL.assert_called_once()
+    args, kwargs = MockYDL.call_args
+
+    ydl_opts = args[0]
+    assert "playlistend" not in ydl_opts
+
 ## --> TEST STATIC METHODS FOR FETCHERS <--
 
 def test_playlist_fetcher_extracts_channel_id():

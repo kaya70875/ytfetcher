@@ -37,6 +37,9 @@ print(channel_data)
 
 ```
 
+!!! Tip
+    Use `max_results=None` if you want to fetch all videos from a channel.
+
 !!! Note
     `ytfetcher` handles **full channel url** and channel handles without `@` symbol. So you can pass a full url like `https://www.youtube.com/@TheOffice` directly to terminal or to `channel_handle` parameter.
 
@@ -212,11 +215,71 @@ fetcher = YTFetcher.from_channel(
 )
 ```
 
+## Converting ChannelData to Rows
+
+If you want a flat, row-based structure for ML workflows (Pandas, HuggingFace datasets, JSON/Parquet), use the helper in `ytfetcher.utils` to join transcript segments. Comments are only included if you fetched them with `fetch_with_comments` or `fetch_comments`.
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.utils import channel_data_to_rows
+
+fetcher = YTFetcher.from_channel(channel_handle="TheOffice", max_results=2)
+channel_data = fetcher.fetch_with_comments(max_comments=5)
+
+rows = channel_data_to_rows(channel_data, include_comments=True)
+```
+
 ## Fetching Comments
 `ytfetcher` allows you fetch comments in bulk **with additional metadata and transcripts** or **just comments alone.**
 
 !!! Note
     **Performance:** Comment fetching is a resource-intensive process. The speed of extraction depends significantly on the user's internet connection and the total volume of comments being retrieved.
+
+## SQLite Cache
+
+`ytfetcher` includes a built-in SQLite transcript cache to speed up repeated fetches.
+
+- Enabled by default.
+- Default location: `~/.cache/ytfetcher/cache.sqlite3`.
+- Cache entries are keyed by `video_id` and transcript settings (`languages`, `manually_created`).
+
+### Python API
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    cache_enabled=True,
+    cache_path="./.ytfetcher_cache"
+)
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=20,
+    options=options,
+)
+```
+
+Disable cache:
+
+```python
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(cache_enabled=False)
+```
+
+Control cache expiration with TTL (days):
+
+```python
+from ytfetcher.config import FetchOptions
+
+# Keep cached transcripts for 3 days
+options = FetchOptions(cache_ttl=3)
+
+# Disable expiration
+options = FetchOptions(cache_ttl=0)
+```
 
 ### Fetch Comments With Transcripts And Metadata
 To fetch comments alongside with transcripts and metadata you can use `fetch_with_comments` method.
@@ -326,14 +389,13 @@ fetcher = YTFetcher.from_channel(
 
 ### HTTP Configuration
 
-YTFetcher automatically uses realistic browser-like headers to mimic real browser behavior. However, you can customize HTTP settings including timeout and custom headers:
+YTFetcher automatically uses realistic browser-like headers to mimic real browser behavior. However, you can customize HTTP settings including custom headers:
 
 ```python
 from ytfetcher import YTFetcher
 from ytfetcher.config import HTTPConfig, FetchOptions
 
 http_config = HTTPConfig(
-    timeout=4.0,  # Request timeout in seconds
     headers={"User-Agent": "Custom-Agent/1.0"}  # Custom headers
 )
 

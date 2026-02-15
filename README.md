@@ -21,6 +21,8 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Using Different Fetchers](#using-different-fetchers)
 - [Retreive Different Languages](#retreive-different-languages)
 - [Filtering](#filtering)
+- [Converting ChannelData to Rows](#converting-channeldata-to-rows)
+- [SQLite Cache](#sqlite-cache)
 - [Fetching Only Manually Created Transcripts](#fetching-only-manually-created-transcripts)
 - [Exporting](#exporting)
 - [Comments](#Fetching-Comments)
@@ -237,7 +239,9 @@ YTFetcher provides a simple interface for customizing your fetching process with
 - **filters**: Apply filters to video metadata before transcripts are fetched.
 - **manually_created** Fetch only manually created transcripts for more precise transcripts.
 - **proxy_config** Provide custom proxy settings for preventing bans.
-- **http_config** Define custom http headers and timeouts.
+- **http_config** Define custom http headers.
+- **cache_enabled** Enable or disable SQLite transcript cache. Enabled by default.
+- **cache_path** Choose where cache file (`cache.sqlite3`) is stored.
 
 These options can be passed to any of the fetcher methods (`from_channel`, `from_video_ids`, `from_playlist_id`, or `from_search`) to tailor the fetching process for your needs. You can use `FetchOptions` dataclass from `ytfetcher.config` for easily configure your options.
 
@@ -321,6 +325,98 @@ ytfetcher channel TheOffice -m 50 -f json --includes-title "episode"
 
 # Combine multiple filters
 ytfetcher channel TheOffice -m 50 -f json --min-views 1000 --min-duration 300 --includes-title "tutorial"
+```
+
+---
+
+## Converting ChannelData to Rows
+
+If you want a flat, row-based structure for ML workflows (Pandas, HuggingFace datasets, JSON/Parquet), you can use the helper in `ytfetcher.utils` to join transcript segments. Comments are only included if you fetched them with `fetch_with_comments` or `fetch_comments`.
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.utils import channel_data_to_rows
+
+fetcher = YTFetcher.from_channel(channel_handle="TheOffice", max_results=2)
+channel_data = fetcher.fetch_with_comments(max_comments=5)
+
+rows = channel_data_to_rows(channel_data, include_comments=True)
+```
+
+---
+
+## SQLite Cache
+
+`ytfetcher` now uses a local SQLite cache for transcripts. This significantly speeds up repeated fetches by reusing transcripts that were already fetched with the same transcript options.
+
+### Python API cache options
+
+```python
+sfrom ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    cache_enabled=True,
+    cache_path="./.ytfetcher_cache"
+)
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=20,
+    options=options,
+)
+```
+
+Disable cache when needed:
+
+```python
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(cache_enabled=False)
+```
+
+Control cache expiration with TTL (days):
+
+```python
+from ytfetcher.config import FetchOptions
+
+# Keep cached transcripts for 3 days
+options = FetchOptions(cache_ttl=3)
+
+# Disable expiration entirely
+options = FetchOptions(cache_ttl=0)
+```
+
+### CLI cache options
+
+Use `--no-cache` to skip reading/writing cache for a command:
+
+```bash
+ytfetcher channel TheOffice -m 20 --no-cache -f json
+```
+
+Set a custom cache directory:
+
+```bash
+ytfetcher channel TheOffice -m 20 --cache-path ./my_cache -f json
+```
+
+Set cache TTL in days (`0` disables expiration):
+
+```bash
+ytfetcher channel TheOffice -m 20 --cache-ttl 3 -f json
+```
+
+Clear cached transcripts:
+
+```bash
+ytfetcher cache --clean
+```
+
+Or clear a custom cache path:
+
+```bash
+ytfetcher cache --clean --cache-path ./my_cache
 ```
 
 ---
