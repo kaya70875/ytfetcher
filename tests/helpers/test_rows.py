@@ -20,6 +20,7 @@ def test_channel_data_to_rows_with_comments_and_metadata():
                 description="Desc",
                 duration=120.0,
                 view_count=42,
+                url="https://youtube.com/watch?v=abc123",
             ),
         )
     ]
