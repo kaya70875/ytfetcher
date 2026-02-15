@@ -65,10 +65,13 @@ class SQLiteCache:
         if self.ttl <= 0:
             return 0
         
-        sql = f"DELETE FROM transcript_cache WHERE updated_at <= datetime('now', '-{int(self.ttl)} days')"
+        sql = """
+        DELETE FROM transcript_cache
+        WHERE updated_at <= datetime('now', ?)
+        """
 
         with self._connect() as conn:
-            cur = conn.execute(sql)
+            cur = conn.execute(sql, (f"-{self.ttl} days",))
             deleted = cur.rowcount if hasattr(cur, "rowcount") else 0
             conn.commit()
         
