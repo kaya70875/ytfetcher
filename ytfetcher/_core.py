@@ -41,7 +41,7 @@ class YTFetcher:
         self._transcript_fetcher: TranscriptFetcher | None = None
         self._snippets: list[DLSnippet] | None = None
         self._cache: SQLiteCache | None = (
-            SQLiteCache(self.options.cache_path)
+            SQLiteCache(cache_dir=self.options.cache_path, ttl=self.options.cache_ttl)
             if self.options.cache_enabled
             else None
         )
