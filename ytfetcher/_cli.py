@@ -281,7 +281,7 @@ def _clear_cache(cache_path: str | None) -> None:
     if not db_file.exists():
         print(f"No cache found at: {db_file}")
 
-    cache = SQLiteCache(resolved_path)
+    cache = SQLiteCache(str(resolved_path))
     cache.clear()
 
     print(f"Cache cleared at: {cache.db_file}")
