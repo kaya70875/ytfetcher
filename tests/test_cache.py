@@ -234,7 +234,7 @@ def test_ttl_purges_on_initialize(tmp_path):
         """)
         conn.execute(
             "INSERT INTO transcript_cache VALUES (?, ?, ?, ?)",
-            ("old", "k", "{}", "2000-01-01 00:00:00")
+            ("old", "k", "{}", "2000-30-11 00:00:00")
         )
 
     cache = SQLiteCache(cache_dir, ttl=1)
