@@ -375,6 +375,18 @@ from ytfetcher.config import FetchOptions
 options = FetchOptions(cache_enabled=False)
 ```
 
+Control cache expiration with TTL (days):
+
+```python
+from ytfetcher.config import FetchOptions
+
+# Keep cached transcripts for 3 days
+options = FetchOptions(cache_ttl=3)
+
+# Disable expiration entirely
+options = FetchOptions(cache_ttl=0)
+```
+
 ### CLI cache options
 
 Use `--no-cache` to skip reading/writing cache for a command:
@@ -387,6 +399,12 @@ Set a custom cache directory:
 
 ```bash
 ytfetcher channel TheOffice -m 20 --cache-path ./my_cache -f json
+```
+
+Set cache TTL in days (`0` disables expiration):
+
+```bash
+ytfetcher channel TheOffice -m 20 --cache-ttl 3 -f json
 ```
 
 Clear cached transcripts:

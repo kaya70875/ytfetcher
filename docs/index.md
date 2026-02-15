@@ -269,6 +269,18 @@ from ytfetcher.config import FetchOptions
 options = FetchOptions(cache_enabled=False)
 ```
 
+Control cache expiration with TTL (days):
+
+```python
+from ytfetcher.config import FetchOptions
+
+# Keep cached transcripts for 3 days
+options = FetchOptions(cache_ttl=3)
+
+# Disable expiration
+options = FetchOptions(cache_ttl=0)
+```
+
 ### Fetch Comments With Transcripts And Metadata
 To fetch comments alongside with transcripts and metadata you can use `fetch_with_comments` method.
 

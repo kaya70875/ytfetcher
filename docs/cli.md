@@ -225,6 +225,13 @@ This command only processes videos that:
 - Default: `~/.cache/ytfetcher`
 - Example: `ytfetcher channel TheOffice -m 20 --cache-path ./my_cache -f json`
 
+**`--cache-ttl`**
+
+- Cache expiration time in days
+- Default: `7`
+- Use `0` to disable automatic expiration
+- Example: `ytfetcher channel TheOffice -m 20 --cache-ttl 3 -f json`
+
 **`ytfetcher cache --clean`**
 
 - Clear all cached transcript rows
