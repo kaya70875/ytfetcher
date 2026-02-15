@@ -26,3 +26,4 @@ class FetchOptions:
     filters: list[Callable[[DLSnippet], bool]] | None = None
     cache_enabled: bool = True
     cache_path: str = field(default_factory=default_cache_path)
+    cache_ttl: int = 7
