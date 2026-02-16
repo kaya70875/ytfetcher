@@ -46,12 +46,26 @@ ytfetcher channel <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 **Optional Arguments:**
 
 - `-m`, `--max-results` - Maximum number of videos to fetch (default: 20)
+- `-t`, `--tab` - Choose the channel tab to fetch from: `videos`, `shorts`, `streams` (default: `videos`)
 - `--all` - Fetch ALL videos from a channel.
 
 **Example:**
 
 ```bash
 ytfetcher channel TheOffice -m 20 -f json
+```
+
+**Channel Tab Examples:**
+
+```bash
+# Regular uploads (default)
+ytfetcher channel TheOffice -m 20 --tab videos -f json
+
+# Shorts feed
+ytfetcher channel TheOffice -m 20 --tab shorts -f json
+
+# Live/Streams feed
+ytfetcher channel TheOffice -m 20 --tab streams -f json
 ```
 
 !!! Note

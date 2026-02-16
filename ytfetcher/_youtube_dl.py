@@ -149,11 +149,13 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
     Args:
         channel_handle (str): The channel handle or URL.
         max_results (int | None = 20): Maximum number of videos to fetch. Define as `None` if you want to fetch all videos from a channel.
+        tab (Literal['videos', 'shorts', 'streams']): The channel tab to fetch from ('videos' or 'shorts' or 'streams'). Defaults to 'videos'.
     """
 
-    def __init__(self, channel_handle: str, max_results: int | None = 20):
+    def __init__(self, channel_handle: str, max_results: int | None = 20, tab: Literal['videos', 'shorts', 'streams'] = ('videos')):
         super().__init__(max_results)
         self.channel_handle = channel_handle
+        self.tab = tab
 
         if "https://" in channel_handle:
             self.channel_handle = self._find_channel_handle_from_url(channel_handle)
@@ -162,7 +164,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts()
         if self.max_results is not None:
             ydl_opts["playlistend"] = self.max_results
-        url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/videos"
+        url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/{self.tab}"
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)

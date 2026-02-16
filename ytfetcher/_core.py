@@ -51,13 +51,14 @@ class YTFetcher:
         cls,
         channel_handle: str,
         max_results: int | None = 20,
+        tab: Literal['videos', 'shorts', 'streams'] = ('videos'),
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
         Create a fetcher that pulls up to max_results from the channel.
         """
         return cls(
-            youtube_dl_fetcher=ChannelFetcher(channel_handle=channel_handle, max_results=max_results),
+            youtube_dl_fetcher=ChannelFetcher(channel_handle=channel_handle, max_results=max_results, tab=tab),
             options=options
             )
     
