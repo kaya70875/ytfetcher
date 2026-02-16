@@ -149,10 +149,10 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
     Args:
         channel_handle (str): The channel handle or URL.
         max_results (int | None = 20): Maximum number of videos to fetch. Define as `None` if you want to fetch all videos from a channel.
-        tab (Literal['videos', 'shorts']): The channel tab to fetch from ('videos' or 'shorts'). Defaults to 'videos'.
+        tab (Literal['videos', 'shorts', 'streams']): The channel tab to fetch from ('videos' or 'shorts' or 'streams'). Defaults to 'videos'.
     """
 
-    def __init__(self, channel_handle: str, max_results: int | None = 20, tab: Literal['videos', 'shorts'] = ('videos')):
+    def __init__(self, channel_handle: str, max_results: int | None = 20, tab: Literal['videos', 'shorts', 'streams'] = ('videos')):
         super().__init__(max_results)
         self.channel_handle = channel_handle
         self.tab = tab

@@ -51,7 +51,7 @@ class YTFetcher:
         cls,
         channel_handle: str,
         max_results: int | None = 20,
-        tab: Literal['videos', 'shorts'] = ('videos'),
+        tab: Literal['videos', 'shorts', 'streams'] = ('videos'),
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
