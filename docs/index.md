@@ -29,7 +29,8 @@ from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
-    max_results=2
+    max_results=2,
+    tab="videos" # or "shorts" / "streams"
 )
 
 channel_data = fetcher.fetch_youtube_data()
