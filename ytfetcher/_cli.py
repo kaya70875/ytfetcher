@@ -239,7 +239,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     """
     transcript_group = parser.add_argument_group("Transcript Options")
     transcript_group.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
-    transcript_group.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
+    transcript_group.add_argument("--languages", nargs="+", default=None, help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
     transcript_group.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
 
     comments_group = parser.add_argument_group("Comment Options")
