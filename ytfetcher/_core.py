@@ -254,7 +254,11 @@ class YTFetcher:
         assert self._cache is not None
 
         cache_key = SQLiteCache.build_transcript_cache_key(
-            languages=list(self.options.languages),
+            languages= (
+                tuple(self.options.languages)
+                if self.options.languages
+                else ("__auto__") # __auto__ means first available language if not defined by user.
+            ),
             manually_created=self.options.manually_created,
         )
         cached_transcripts = self._cache.get_transcripts(video_ids, cache_key)
