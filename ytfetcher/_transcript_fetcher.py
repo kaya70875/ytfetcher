@@ -4,6 +4,7 @@ from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.utils.state import should_disable_progress
+from ytfetcher.utils import log
 from concurrent import futures
 from tqdm import tqdm
 from typing import Iterable
@@ -34,11 +35,11 @@ class TranscriptFetcher:
         proxy_config (ProxyConfig | None):
             Optional proxy configuration for the YouTube Transcript API.
 
-        languages (Iterable[str]):
+        languages (Iterable[str] | None):
             A list of language codes in descending priority.
             For example, if this is set to ["de", "en"], it will first try
             to fetch the German transcript ("de") and then the English one
-            ("en") if it fails. Defaults to ["en"].
+            ("en") if it fails. Defaults to None.
 
         manually_created (bool):
             If True, only fetch manually created transcripts (skips auto-generated).
@@ -50,7 +51,7 @@ class TranscriptFetcher:
         video_ids: list[str],
         http_config: HTTPConfig | None = None,
         proxy_config: ProxyConfig | None = None,
-        languages: Iterable[str] = ("en",),
+        languages: Iterable[str] | None = None,
         manually_created: bool = False
     ):
         """
@@ -71,6 +72,11 @@ class TranscriptFetcher:
         self.languages = languages
         self.manually_created = manually_created
 
+        if manually_created and not languages:
+            raise ValueError(
+                "You must provide a language when using manually_created."
+            )
+
     def fetch(self) -> list[VideoTranscript]:
         """
         Synchronously fetches transcripts for all provided video IDs.
@@ -87,6 +93,7 @@ class TranscriptFetcher:
             video_transcript = self._collect_results(tasks)
             
         if not video_transcript and self.manually_created: 
+            log(f'No manually created transcripts found for requested languages: {self.languages}', level='WARNING')
             logger.error("No manually created transcripts found!")
 
         return video_transcript
@@ -123,7 +130,7 @@ class TranscriptFetcher:
             logger.warning(str(e).replace(e.GITHUB_REFERRAL, ''))
             return None
         except Exception as e:
-            logger.warning(f'Error while fetching transcript from video: {video_id} ', e)
+            logger.exception(f'Error while fetching transcript from video: {video_id}')
             return None
     
     def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
@@ -151,7 +158,13 @@ class TranscriptFetcher:
                 logger.info(f"Couldn't found manually created transcript for {video_id}")
                 return None
         
-        raw_transcripts = yt_api.fetch(video_id, languages=self.languages).to_raw_data()
+        elif not self.languages:
+            transcript_list = yt_api.list(video_id)
+            for transcript in transcript_list:
+                raw_transcripts = transcript.fetch(video_id).to_raw_data()
+                return self._convert_to_transcript_object(raw_transcripts)
+        
+        raw_transcripts = yt_api.fetch(video_id=video_id, languages=self.languages).to_raw_data()
         return self._convert_to_transcript_object(raw_transcripts)
     
     @staticmethod
