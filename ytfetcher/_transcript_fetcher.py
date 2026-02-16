@@ -94,7 +94,7 @@ class TranscriptFetcher:
             
         if not video_transcript and self.manually_created: 
             log(f'No manually created transcripts found for requested languages: {self.languages}', level='WARNING')
-            logger.error("No manually created transcripts found!")
+            logger.info("No manually created transcripts found!")
 
         return video_transcript
 
