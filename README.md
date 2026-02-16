@@ -129,6 +129,14 @@ print(channel_data)
 
 ```
 
+### Fetching Different Channel Tabs (Videos / Shorts / Streams)
+
+Use `tab` to choose which channel feed should be fetched. Default to ('Videos') tab.
+
+```py
+YTFetcher.from_channel(channel_handle='handle', tab='videos')
+```
+
 ---
 
 This will return a list of `ChannelData` with metadata in `DLSnippet` objects:
@@ -624,8 +632,22 @@ fetcher = YTFetcher.from_channel(
 ### Basic Usage
 
 ```bash
-ytfetcher <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
+ytfetcher channel <CHANNEL_HANDLE> -m <MAX_RESULTS> -f <FORMAT>
 ```
+
+### Fetching Different Channel Tabs (Videos / Shorts / Streams)
+
+Use `--tab` to choose which channel feed should be fetched.
+
+```bash
+# Default: videos
+ytfetcher channel TheOffice -m 20 --tab videos -f json
+
+# Fetch from the Shorts tab
+ytfetcher channel TheOffice -m 20 --tab shorts -f json
+
+# Fetch from the Live/Streams tab
+ytfetcher channel TheOffice -m 20 --tab streams -f json
 
 ### Fetching by Video IDs
 
