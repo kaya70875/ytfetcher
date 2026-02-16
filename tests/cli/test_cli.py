@@ -105,7 +105,7 @@ def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurati
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
@@ -137,7 +137,7 @@ def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_config
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
@@ -170,7 +170,7 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
@@ -202,7 +202,7 @@ def test_all_argument_for_channel_method(mock_ytfetcher, mock_configurations):
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
@@ -233,7 +233,7 @@ def test_all_argument_for_playlist_method(mock_ytfetcher, mock_configurations):
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
