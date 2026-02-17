@@ -158,7 +158,7 @@ class TranscriptFetcher:
                 logger.info(f"Couldn't found manually created transcript for {video_id}")
                 return None
         
-        elif not self.languages:
+        elif self.languages is None:
             transcript_list = yt_api.list(video_id)
             for transcript in transcript_list:
                 raw_transcripts = transcript.fetch(video_id).to_raw_data()
