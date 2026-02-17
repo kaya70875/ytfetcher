@@ -107,6 +107,7 @@ options:
 - Support for fetching with **channel handle, playlist id, custom video id's or with a search query.**
 - Fetch **comments** in bulk.
 - Concurrent fetching for **high performance**.
+- Built in **cache** support.
 - **Export** fetched data as txt, csv or json.
 - **CLI** support.
 
