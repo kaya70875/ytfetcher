@@ -182,6 +182,9 @@ class TranscriptFetcher:
             A list of validated Transcript objects if a manually created
             transcript is found, otherwise None.
         """
+
+        assert self.languages is not None, "languages must not be None here."
+
         try:
             transcript = (
                 yt_api
