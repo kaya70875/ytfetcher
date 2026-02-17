@@ -69,7 +69,7 @@ class TranscriptFetcher:
         self.http_config = http_config or HTTPConfig()
         self.proxy_config = proxy_config
         self.video_ids = video_ids
-        self.languages = tuple(languages) if languages else None
+        self.languages = languages
         self.manually_created = manually_created
 
         if manually_created and not languages:
@@ -248,6 +248,8 @@ class TranscriptFetcher:
             NoTranscriptFound: If no transcript matches the language criteria.
             Other API-related exceptions may propagate to the caller.
         """
+
+        assert self.languages is not None, "languages must not be None here."
 
         raw = yt_api.fetch(
             video_id=video_id,
