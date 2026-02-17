@@ -114,7 +114,7 @@ class SQLiteCache:
             )
 
     @staticmethod
-    def build_transcript_cache_key(languages: list[str], manually_created: bool) -> str:
+    def build_transcript_cache_key(languages: list[str] | str, manually_created: bool) -> str:
         return json.dumps(
             {
                 "languages": languages,

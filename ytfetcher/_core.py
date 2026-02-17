@@ -255,7 +255,7 @@ class YTFetcher:
 
         cache_key = SQLiteCache.build_transcript_cache_key(
             languages= (
-                tuple(self.options.languages)
+                list(self.options.languages)
                 if self.options.languages
                 else ("__auto__") # __auto__ means first available language if not defined by user.
             ),
