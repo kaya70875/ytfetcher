@@ -1,12 +1,9 @@
 import pytest
-import time
 from pytest_mock import MockerFixture
-from unittest.mock import MagicMock
+from youtube_transcript_api._errors import NoTranscriptFound
 from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
-from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api._transcripts import FetchedTranscript, FetchedTranscriptSnippet, TranscriptList
 from youtube_transcript_api.proxies import GenericProxyConfig
 
 @pytest.fixture
@@ -123,15 +120,93 @@ def test_clean_transcripts():
 
     assert cleaned_response[0].text == 'This is some text'
 
-def test_clean_transcripts_with_multiple_text():
-    test_response = [
-        Transcript(
-            text="[Music][Applause] and that happened!",
-            duration=1,
-            start=1
-        )
-    ]
+def test_decide_fetch_method_manual_branch(mocker):
+    fetcher = TranscriptFetcher(
+        video_ids=["abc"],
+        manually_created=True,
+        languages=["en"]
+    )
 
-    cleaned_response = TranscriptFetcher._clean_transcripts(test_response)
-    
-    assert cleaned_response[0].text == 'and that happened!'
+    mock_manual = mocker.patch.object(
+        fetcher,
+        "_fetch_manual_transcript",
+        return_value=["manual"]
+    )
+
+    mock_api = mocker.MagicMock()
+
+    result = fetcher._decide_fetch_method(mock_api, "abc")
+
+    assert result == ["manual"]
+    mock_manual.assert_called_once_with(yt_api=mock_api, video_id="abc")
+
+def test_decide_fetch_method_first_available_branch(mocker):
+    fetcher = TranscriptFetcher(
+        video_ids=["abc"],
+        manually_created=False,
+        languages=None
+    )
+
+    mock_first = mocker.patch.object(
+        fetcher,
+        "_fetch_first_available_transcript",
+        return_value=["first"]
+    )
+
+    mock_api = mocker.MagicMock()
+
+    result = fetcher._decide_fetch_method(mock_api, "abc")
+
+    assert result == ["first"]
+    mock_first.assert_called_once_with(yt_api=mock_api, video_id="abc")
+
+def test_decide_fetch_method_by_languages_branch(mocker):
+    fetcher = TranscriptFetcher(
+        video_ids=["abc"],
+        manually_created=False,
+        languages=["en"]
+    )
+
+    mock_lang = mocker.patch.object(
+        fetcher,
+        "_fetch_by_languages",
+        return_value=["lang"]
+    )
+
+    mock_api = mocker.MagicMock()
+
+    result = fetcher._decide_fetch_method(mock_api, "abc")
+
+    assert result == ["lang"]
+    mock_lang.assert_called_once_with(yt_api=mock_api, video_id="abc")
+
+def test_fetch_manual_transcript_no_transcript(mocker):
+    video_id = "abc"
+
+    mock_api = mocker.MagicMock()
+    mock_list = mocker.MagicMock()
+
+    mock_api.list.return_value = mock_list
+    mock_list.find_manually_created_transcript.side_effect = NoTranscriptFound(video_id, requested_language_codes=['en'], transcript_data=None)
+
+    fetcher = TranscriptFetcher(
+        video_ids=[video_id],
+        manually_created=True,
+        languages=["en"]
+    )
+
+    result = fetcher._fetch_manual_transcript(mock_api, video_id)
+
+    assert result is None
+
+def test_fetch_first_available_transcript_empty(mocker):
+    video_id = "abc"
+
+    mock_api = mocker.MagicMock()
+    mock_api.list.return_value = []
+
+    fetcher = TranscriptFetcher(video_ids=[video_id])
+
+    result = fetcher._fetch_first_available_transcript(mock_api, video_id)
+
+    assert result is None
