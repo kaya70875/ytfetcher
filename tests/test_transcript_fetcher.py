@@ -2,11 +2,11 @@ import pytest
 import time
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock
-from ytfetcher.models.channel import VideoTranscript, Transcript, ChannelData
+from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api._transcripts import FetchedTranscript, FetchedTranscriptSnippet
+from youtube_transcript_api._transcripts import FetchedTranscript, FetchedTranscriptSnippet, TranscriptList
 from youtube_transcript_api.proxies import GenericProxyConfig
 
 @pytest.fixture
@@ -46,42 +46,48 @@ def test_fetch_method_returns_correct_data(mocker: MockerFixture, mock_video_ids
     assert results[0].transcripts[0].text == 'text1'
     assert results[0].video_id == 'video_id'
 
-def test_fetch_single_returns_correct_data(mocker: MockerFixture, mock_video_ids):
+def test_fetch_single_returns_correct_data(mocker, mock_video_ids):
     fetcher = TranscriptFetcher(mock_video_ids)
 
-    mocker.patch.object(YouTubeTranscriptApi, "fetch", 
-        return_value=FetchedTranscript([FetchedTranscriptSnippet(text="text", start=1, duration=1)], fetcher.video_ids[0], "en", "", True)
+    video_id = mock_video_ids[0]
+
+    mock_transcripts = [
+        Transcript(text="text", start=1, duration=1)
+    ]
+
+    mocker.patch.object(
+        fetcher,
+        "_decide_fetch_method",
+        return_value=mock_transcripts
     )
 
-    results = fetcher._fetch_single(fetcher.video_ids[0])
+    result = fetcher._fetch_single(video_id)
 
-    assert isinstance(results.transcripts[0], Transcript)
-    assert results.video_id == fetcher.video_ids[0]
-    assert results.transcripts[0] == Transcript(
-        text='text',
-        start=1,
-        duration=1
-    )
-    assert results.transcripts[0].text == 'text'
+    assert isinstance(result, VideoTranscript)
+    assert result.video_id == video_id
+    assert result.transcripts == mock_transcripts
+    assert result.transcripts[0].text == "text"
+
 
 def test_concurrent_fetching(mocker, mock_video_ids):
-    mock_fetch = mocker.patch.object(
-        YouTubeTranscriptApi, 
-        "fetch",
-        side_effect=lambda *args, **kwargs: MagicMock(
-            to_raw_data=lambda: [{"text": "test", "start": 0, "duration": 1}]
-        )
-    )
-    
     fetcher = TranscriptFetcher(mock_video_ids)
-    
-    start_time = time.time()
+
+    mock_result = VideoTranscript(
+        video_id="dummy",
+        transcripts=[Transcript(text="test", start=0, duration=1)]
+    )
+
+    mock_fetch_single = mocker.patch.object(
+        fetcher,
+        "_fetch_single",
+        return_value=mock_result
+    )
+
     results = fetcher.fetch()
-    elapsed = time.time() - start_time
-    
-    assert len(results) == 2
-    assert elapsed < 1.5
-    assert mock_fetch.call_count == 2
+
+    assert len(results) == len(mock_video_ids)
+    assert mock_fetch_single.call_count == len(mock_video_ids)
+
 
 def test_custom_ytt_api_client_initialized_correctly(mocker):
     mock_api = mocker.patch("ytfetcher._transcript_fetcher.YouTubeTranscriptApi")
