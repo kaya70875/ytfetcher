@@ -219,7 +219,7 @@ class TranscriptFetcher:
         transcript_list = yt_api.list(video_id)
 
         for transcript in transcript_list:
-            raw = transcript.fetch(video_id).to_raw_data()
+            raw = transcript.fetch().to_raw_data()
             return self._convert_to_transcript_object(raw)
 
         return None
