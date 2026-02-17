@@ -69,7 +69,7 @@ class TranscriptFetcher:
         self.http_config = http_config or HTTPConfig()
         self.proxy_config = proxy_config
         self.video_ids = video_ids
-        self.languages = languages
+        self.languages = tuple(languages) if languages else None
         self.manually_created = manually_created
 
         if manually_created and not languages:
@@ -126,7 +126,7 @@ class TranscriptFetcher:
                 video_id=video_id,
                 transcripts=cleaned_transcript
             )
-        except (NoTranscriptFound, VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
+        except (VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
             logger.warning(str(e).replace(e.GITHUB_REFERRAL, ''))
             return None
         except Exception as e:
@@ -135,38 +135,128 @@ class TranscriptFetcher:
     
     def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
         """
-        Decides the correct fetch method based on the manually_created flag.
+        Selects and executes the appropriate transcript retrieval strategy.
 
-        When manually_created is True, this method attempts to fetch only
-        manually created transcripts. When False, it fetches auto-generated
-        transcripts. Returns None if no matching transcript is found.
+        Strategy selection is based on the instance configuration:
+
+        - If `manually_created` is True, attempts to fetch only manually created
+        transcripts for the configured languages.
+        - If `languages` is None, fetches the first available transcript
+        regardless of language or origin.
+        - Otherwise, fetches a transcript matching the configured language
+        priority using the API's built-in selection logic.
 
         Args:
-            yt_api: YouTubeTranscriptApi instance configured with HTTP settings.
-            video_id: YouTube video ID to fetch transcripts for.
+            yt_api: Initialized YouTubeTranscriptApi instance.
+            video_id: YouTube video ID to retrieve transcripts for.
 
         Returns:
-            A list of Transcript objects if a matching transcript is found,
-            otherwise None when no transcript is available (logs a warning for
-            manual transcript failures).
+            A list of validated Transcript objects if successful,
+            otherwise None when no suitable transcript is found.
         """
         if self.manually_created:
-            try:
-                raw_transcripts = yt_api.list(video_id).find_manually_created_transcript(language_codes=self.languages).fetch().to_raw_data()
-                return self._convert_to_transcript_object(raw_transcripts)
-            except NoTranscriptFound:
-                logger.info(f"Couldn't found manually created transcript for {video_id}")
-                return None
+            return self._fetch_manual_transcript(yt_api=yt_api, video_id=video_id)
         
         elif self.languages is None:
-            transcript_list = yt_api.list(video_id)
-            for transcript in transcript_list:
-                raw_transcripts = transcript.fetch(video_id).to_raw_data()
-                return self._convert_to_transcript_object(raw_transcripts)
+            return self._fetch_first_available_transcript(yt_api=yt_api, video_id=video_id)
         
-        raw_transcripts = yt_api.fetch(video_id=video_id, languages=self.languages).to_raw_data()
-        return self._convert_to_transcript_object(raw_transcripts)
+        return self._fetch_by_languages(yt_api=yt_api, video_id=video_id)
     
+    def _fetch_manual_transcript(
+        self,
+        yt_api: YouTubeTranscriptApi,
+        video_id: str
+    ) -> list[Transcript] | None:
+        """
+        Fetches manually created transcripts for the given video.
+
+        Attempts to retrieve a manually created transcript matching the
+        configured language priority. If no such transcript exists,
+        returns None without raising an exception.
+
+        Args:
+            yt_api: Initialized YouTubeTranscriptApi instance.
+            video_id: YouTube video ID.
+
+        Returns:
+            A list of validated Transcript objects if a manually created
+            transcript is found, otherwise None.
+        """
+        try:
+            transcript = (
+                yt_api
+                .list(video_id)
+                .find_manually_created_transcript(language_codes=self.languages)
+            )
+            raw = transcript.fetch().to_raw_data()
+            return self._convert_to_transcript_object(raw)
+
+        except NoTranscriptFound:
+            logger.info(f"No manually created transcript found for {video_id}")
+            return None
+
+    def _fetch_first_available_transcript(
+        self,
+        yt_api: YouTubeTranscriptApi,
+        video_id: str
+    ) -> list[Transcript] | None:
+        """
+        Fetches the first available transcript for a video.
+
+        Iterates through the transcript list returned by the API and
+        retrieves the first transcript encountered, regardless of language
+        or whether it is manually created or auto-generated.
+
+        Args:
+            yt_api: Initialized YouTubeTranscriptApi instance.
+            video_id: YouTube video ID.
+
+        Returns:
+            A list of validated Transcript objects if any transcript
+            is available, otherwise None.
+        """
+
+        transcript_list = yt_api.list(video_id)
+
+        for transcript in transcript_list:
+            raw = transcript.fetch(video_id).to_raw_data()
+            return self._convert_to_transcript_object(raw)
+
+        return None
+
+    def _fetch_by_languages(
+        self,
+        yt_api: YouTubeTranscriptApi,
+        video_id: str
+    ) -> list[Transcript] | None:
+        """
+        Fetches a transcript matching the configured language priority.
+
+        Uses the YouTubeTranscriptApi `fetch` method to automatically
+        select a transcript based on the provided language codes in
+        descending priority.
+
+        Args:
+            yt_api: Initialized YouTubeTranscriptApi instance.
+            video_id: YouTube video ID.
+
+        Returns:
+            A list of validated Transcript objects corresponding to
+            the matched language selection.
+
+        Raises:
+            NoTranscriptFound: If no transcript matches the language criteria.
+            Other API-related exceptions may propagate to the caller.
+        """
+
+        raw = yt_api.fetch(
+            video_id=video_id,
+            languages=self.languages
+        ).to_raw_data()
+
+        return self._convert_to_transcript_object(raw)
+
+
     @staticmethod
     def _collect_results(tasks: list[futures.Future]) -> list[VideoTranscript]:
         """
