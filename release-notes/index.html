@@ -1,0 +1,1473 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://kaya70875.github.io/ytfetcher/release-notes/">
+      
+      
+        <link rel="prev" href="../exporting/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Release Notes - YTFetcher Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#release-notes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="YTFetcher Docs" class="md-header__button md-logo" aria-label="YTFetcher Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            YTFetcher Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Release Notes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6m0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4M7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kaya70875/ytfetcher" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kaya70875/ytfetcher
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  YTFetcher
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../cli/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  YTFetcher CLI
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../examples/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Example Use Cases
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../exporting/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Exporting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Release Notes
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="YTFetcher Docs" class="md-nav__button md-logo" aria-label="YTFetcher Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    YTFetcher Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kaya70875/ytfetcher" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kaya70875/ytfetcher
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YTFetcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    YTFetcher CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example Use Cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#latest-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Latest Changes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Latest Changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#153-2026-01-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.5.3] - 2026-01-01
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.5.3] - 2026-01-01">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-2025-12-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.5] - 2025-12-31
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.5] - 2025-12-31">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-2025-10-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.4] - 2025-10-26
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.4] - 2025-10-26">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-2025-18-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.3] - 2025-18-10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.3] - 2025-18-10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-2025-11-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.2] - 2025-11-10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.2] - 2025-11-10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-2025-10-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.1] - 2025-10-02
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.1] - 2025-10-02">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#101-2025-10-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0.1] - 2025-10-01
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0.1] - 2025-10-01">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-2025-09-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [1.0] - 2025-09-27
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[1.0] - 2025-09-27">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#041-2025-08-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.4.1] - 2025-08-10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.4.1] - 2025-08-10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#040-2025-08-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.4.0] - 2025-08-10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.4.0] - 2025-08-10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#030-2025-08-09" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.0] - 2025-08-09
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.0] - 2025-08-09">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#021-2025-08-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.1] - 2025-08-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.1] - 2025-08-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#020-2025-08-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.0] - 2025-08-07
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.0] - 2025-08-07">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#011-2025-08-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.1] - 2025-08-03
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.1] - 2025-08-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-2025-08-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0] - 2025-08-03
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0] - 2025-08-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="release-notes">Release Notes</h1>
+<h2 id="latest-changes">Latest Changes</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>Introduced a new <code>FetchOptions</code> data class for defining fetcher options like <code>languages</code>, <code>filters</code> etc.</li>
+<li>Added a <code>--sort</code> argument for choosing <strong>top or new</strong> comments with CLI.</li>
+<li>Added <code>from_search</code> method for both Python API and CLI. This method allows user to fetch based on a <code>query</code>, similar to Youtube search.</li>
+<li>Added a <code>--quiet</code> tag for CLI.</li>
+<li>Added pre-fetch filters for <code>ytfetcher</code>.</li>
+</ul>
+<h3 id="changed">Changed</h3>
+<ul>
+<li>Removed deprecated <code>Exporter</code> class.</li>
+<li>No more <strong>network requests in <strong>init</strong></strong>.</li>
+<li><code>YTFetcher</code> now initializes correct <code>BaseYoutubeDLFetcher</code> inside classmethods.</li>
+<li><code>TranscriptFetcher</code> creates <code>Session</code> per thread for thread safety.</li>
+<li><code>TranscripFetcher</code> now returns <code>VideoTranscript</code> instead of returning <code>ChannelData</code>.</li>
+<li><code>Exporter</code> class now <strong>do not write <code>None</code> values</strong> to file which reduces total file size and noise.</li>
+<li>Changed main CLI arguments for easier usage and user experience.</li>
+<li>Python API for <code>ytfetcher</code> is now completely silent as default. Logs and progress informations are only visible in CLI or by enabling <code>verbose</code> mode.</li>
+<li>Changed <code>ytfetcher</code> to be completely <strong>sync</strong>.</li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li>Fixed a very critical bug that <strong>metadata, transcripts and comments</strong> are not aligned.</li>
+<li>Fixed <code>HTTPConfig</code> class <code>InvalidHeader</code> check.</li>
+<li>Fixed VideoListFetcher performance issue with implementing <code>ThreadPoolExecutor</code>.</li>
+<li>Fixed <code>CommentFetcher</code> doesn't fetch top comments.</li>
+</ul>
+<h2 id="153-2026-01-01">[1.5.3] - 2026-01-01</h2>
+<h3 id="added_1">Added</h3>
+<ul>
+<li>Added preview mode in CLI for <code>ytfetcher</code>. It's now default mode and exporting is optional with <code>--format</code>. Also dumping data possible with <code>--stdout</code> argument in CLI.</li>
+</ul>
+<h3 id="changed_1">Changed</h3>
+<ul>
+<li>Exporter now optional in CLI if you don't define <code>--format</code> argument.</li>
+<li>Categorized <code>ytfetcher</code> arguments for better clarity and user experience.</li>
+</ul>
+<h2 id="15-2025-12-31">[1.5] - 2025-12-31</h2>
+<h3 id="added_2">Added</h3>
+<ul>
+<li>Added <strong>comment fetching</strong> feature. You can now <strong>fetch comments alongside with transcript data</strong> or fetch <strong>comments only</strong>.</li>
+<li>Added <code>Dockerfile</code> and <code>docker-compose.yml</code> for setup docker enviroment.</li>
+</ul>
+<h3 id="changed_2">Changed</h3>
+<ul>
+<li><code>Exporter</code> changed to subclasses; <code>JSONExporter</code>, <code>TXTExporter</code> and <code>CSVExporter</code> for better control over every export option.</li>
+<li>Changed some log messages to be more professional and clear.</li>
+</ul>
+<h3 id="fixed_1">Fixed</h3>
+<ul>
+<li>Fix KeyError for missing 'url' in yt_dlp entry when fetching by video_ids.</li>
+</ul>
+<hr />
+<h2 id="14-2025-10-26">[1.4] - 2025-10-26</h2>
+<h3 id="added_3">Added</h3>
+<ul>
+<li>Added a flag for fetching <strong>only manually created transcripts</strong>.</li>
+</ul>
+<h3 id="fixed_2">Fixed</h3>
+<ul>
+<li>Transcript cleaner method does not clean <code>&gt;&gt;</code> signs.</li>
+</ul>
+<h2 id="13-2025-18-10">[1.3] - 2025-18-10</h2>
+<h3 id="added_4">Added</h3>
+<ul>
+<li>Add <code>PlaylistFetcher</code> for CLI and Python API.</li>
+<li>Add metadata choosing option for <strong>CLI</strong>.</li>
+<li>Add <code>no-timing</code> argument for CLI for not choosing transcript timings.</li>
+<li>Full url support for <code>PlaylistFetcher</code> and <code>ChannelFetcher</code>.</li>
+</ul>
+<h3 id="changed_3">Changed</h3>
+<ul>
+<li>Exporter now exports <strong>all available data</strong> as default.</li>
+</ul>
+<h2 id="12-2025-11-10">[1.2] - 2025-11-10</h2>
+<h3 id="added_5">Added</h3>
+<ul>
+<li>Users now can choose desired <strong>language</strong> for transcripts.</li>
+<li>Added progressive print statements for <code>CLI</code></li>
+<li>Added more logging statements for better debug and information.</li>
+</ul>
+<h3 id="changed_4">Changed</h3>
+<ul>
+<li>(docs) Add documentation for choosing primary transcript language.</li>
+</ul>
+<h3 id="fixed_3">Fixed</h3>
+<ul>
+<li>Removed load_env module from <code>python-dotenv</code> in <code>config.__init__</code> since it removed.</li>
+</ul>
+<h2 id="11-2025-10-02">[1.1] - 2025-10-02</h2>
+<h3 id="added_6">Added</h3>
+<ul>
+<li>Add progress bar support to from_video_ids method for YoutubeDL.</li>
+<li>Add print arg for allow users to print data to console.</li>
+<li>TranscriptFetcher now cleans transcripts that includes texts like <code>[Music]</code>, <code>[Applause]</code> etc.</li>
+<li>Add official documentation website for ytfetcher.</li>
+</ul>
+<h2 id="101-2025-10-01">[1.0.1] - 2025-10-01</h2>
+<h3 id="added_7">Added</h3>
+<ul>
+<li>(docs) Add cli help output to readme.</li>
+</ul>
+<h3 id="changed_5">Changed</h3>
+<ul>
+<li>Updated package dependencies.</li>
+</ul>
+<h3 id="fixed_4">Fixed</h3>
+<ul>
+<li><code>from_video_ids</code> method does not work both in CLI and python API.</li>
+</ul>
+<h2 id="10-2025-09-27">[1.0] - 2025-09-27</h2>
+<h3 id="added_8">Added</h3>
+<ul>
+<li>Ytfetcher now runs without an api key.</li>
+<li>Added YoutubeDL for fetching video id's and snippets faster and without requiring an API key.</li>
+</ul>
+<h3 id="changed_6">Changed</h3>
+<ul>
+<li>Removed YoutubeV3 class since YoutubeDL is simpler and faster.</li>
+<li>Changed readme accordingly based on last changes.</li>
+</ul>
+<h2 id="041-2025-08-10">[0.4.1] - 2025-08-10</h2>
+<h3 id="added_9">Added</h3>
+<ul>
+<li>Add instructions to docs for how to find channel_handle and change <code>channel_name</code> args with <code>&lt;CHANNEL_HANDLE&gt;</code> for better clarity.</li>
+<li>Add quick usage section in README.</li>
+</ul>
+<h2 id="040-2025-08-10">[0.4.0] - 2025-08-10</h2>
+<h3 id="added_10">Added</h3>
+<ul>
+<li>Users now can save their api keys with <code>ytfetcher config &lt;API_KEY&gt;</code> once and use it globally without writing everytime while using CLI.</li>
+</ul>
+<h2 id="030-2025-08-09">[0.3.0] - 2025-08-09</h2>
+<h3 id="added_11">Added</h3>
+<ul>
+<li>Add filename support for exporing data in CLI.</li>
+<li>Add thumbnail details to ChannelData Export.</li>
+</ul>
+<h3 id="changed_7">Changed</h3>
+<ul>
+<li>Make thumbnail metadata default.</li>
+</ul>
+<h2 id="021-2025-08-08">[0.2.1] - 2025-08-08</h2>
+<h3 id="changed_8">Changed</h3>
+<ul>
+<li>Change default timeout to <code>null</code> for HTTPConfig class.</li>
+</ul>
+<h2 id="020-2025-08-07">[0.2.0] - 2025-08-07</h2>
+<h3 id="added_12">Added</h3>
+<ul>
+<li>Add tags and classifiers to pyproject.toml.</li>
+<li>Add issue templates for bug reports and feature requests.</li>
+<li>Add docs for http config in CLI.</li>
+</ul>
+<h3 id="changed_9">Changed</h3>
+<ul>
+<li>Update youtube-transcript-api 1.1.1 to 1.2.1</li>
+</ul>
+<h2 id="011-2025-08-03">[0.1.1] - 2025-08-03</h2>
+<h3 id="added_13">Added</h3>
+<ul>
+<li>Add Custom <code>http-timeout</code> and <code>http-headers</code> options for CLI.</li>
+</ul>
+<h3 id="fixed_5">Fixed</h3>
+<ul>
+<li>Video ids doesn't work with <code>from_video_ids</code> method in CLI.</li>
+</ul>
+<h3 id="changed_10">Changed</h3>
+<ul>
+<li>HTTPConfig now takes <code>float</code> as timeout paramater instead of <code>httpx.Timeout</code> which causes unnecessary complexity.</li>
+</ul>
+<h2 id="010-2025-08-03">[0.1.0] - 2025-08-03</h2>
+<h3 id="added_14">Added</h3>
+<ul>
+<li>Initial release: CLI to fetch and export YouTube transcripts</li>
+</ul>
+<h3 id="changed_11">Changed</h3>
+<ul>
+<li>Update docs for <code>get_metadata</code> method.</li>
+<li>Change default httpx.Timeout value to <strong>4.0</strong> to <strong>2.0</strong>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/kaya70875" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M202.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1M496 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2m-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3m-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/ahmet-kaya-44a2172aa/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
