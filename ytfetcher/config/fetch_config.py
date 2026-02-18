@@ -21,7 +21,7 @@ def default_cache_path() -> str:
 class FetchOptions:
     http_config: HTTPConfig = field(default_factory=HTTPConfig)
     proxy_config: ProxyConfig | None = None
-    languages: Iterable[str] = ("en", )
+    languages: Iterable[str] | None = None
     manually_created: bool = False
     filters: list[Callable[[DLSnippet], bool]] | None = None
     cache_enabled: bool = True
