@@ -219,12 +219,13 @@ class TranscriptFetcher:
             is available, otherwise None.
         """
 
-        transcript_list = yt_api.list(video_id)
-
-        for transcript in transcript_list:
-            raw = transcript.fetch().to_raw_data()
-            return self._convert_to_transcript_object(raw)
-
+        try:
+            transcript_list = yt_api.list(video_id)
+            for transcript in transcript_list:
+                raw = transcript.fetch().to_raw_data()
+                return self._convert_to_transcript_object(raw)
+        except NoTranscriptFound:
+            logger.info(f'No transcript found for {video_id} with first available transcripts method.')
         return None
 
     def _fetch_by_languages(
