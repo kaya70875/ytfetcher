@@ -254,13 +254,16 @@ class TranscriptFetcher:
 
         assert self.languages is not None, "languages must not be None here."
 
-        raw = yt_api.fetch(
-            video_id=video_id,
-            languages=self.languages
-        ).to_raw_data()
+        try:
+            raw = yt_api.fetch(
+                video_id=video_id,
+                languages=self.languages
+            ).to_raw_data()
 
-        return self._convert_to_transcript_object(raw)
-
+            return self._convert_to_transcript_object(raw)
+        except NoTranscriptFound:
+            logger.info(f'No transcript found for {video_id} with languages {self.languages}')
+            return None
 
     @staticmethod
     def _collect_results(tasks: list[futures.Future]) -> list[VideoTranscript]:
