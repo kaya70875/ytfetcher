@@ -9,8 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added tab option for both CLI and Python API to fetch from different tabs for a channel. ('videos', 'shorts', 'streams')
 
 ### Changed
+- Updated transcript languages behavior for better UX and less friction.
 
 ### Fixed
+- Fix users will be forcing to fetch only english transcripts if they are not set a `languages` parameter.
 
 ## [2.1] - 2026-02-16
 ### Added
