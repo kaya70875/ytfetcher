@@ -124,7 +124,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 )
         
         except Exception as e:
-            logger.warning(f"Failed to fetch comments for {video_id}: {e}")
+            logger.exception(f"Failed to fetch comments for {video_id}: {e}")
             return None
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
@@ -137,6 +137,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
             try:
                 comments.append(Comment.model_validate(raw))
             except Exception:
+                logger.debug("Couldn't validate a comment.")
                 continue
 
         return comments
@@ -164,6 +165,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts()
         if self.max_results is not None:
             ydl_opts["playlistend"] = self.max_results
+
         url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/{self.tab}"
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
@@ -191,7 +193,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         Raises:
             ValueError: If no valid handle can be extracted.
         """
-        logger.warning("Got full URL, trying to extract channel handle. If it fails, try providing only the handle.")
+        logger.debug("Got full URL, trying to extract channel handle. If it fails, try providing only the handle.")
 
         parsed = urlparse(url)
         path = parsed.path
@@ -224,6 +226,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts()
         if self.max_results is not None:
             ydl_opts["playlistend"] = self.max_results
+
         url = f"https://www.youtube.com/playlist?list={self.playlist_id.strip()}"
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
@@ -250,7 +253,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         Raises:
             ValueError: If no valid playlist ID can be found.
         """
-        logger.warning("Got full URL, trying to extract playlist ID. If it fails, try providing only playlist ID.")
+        logger.debug("Got full URL, trying to extract playlist ID. If it fails, try providing only playlist ID.")
 
         parsed = urlparse(url)
         query_params = parse_qs(parsed.query)
