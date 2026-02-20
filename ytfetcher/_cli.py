@@ -4,15 +4,20 @@ import sys
 from typing import Union, Callable
 from pathlib import Path
 from ytfetcher._core import YTFetcher
+from ytfetcher.config import (
+    enable_default_config,
+    default_cache_path,
+    GenericProxyConfig,
+    WebshareProxyConfig,
+    HTTPConfig,
+    FetchOptions
+)
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
-from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig, HTTPConfig
-from ytfetcher.config.fetch_config import default_cache_path
+from ytfetcher.services._preview import PreviewRenderer
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
 from ytfetcher import filters
-from ytfetcher.services._preview import PreviewRenderer
 from ytfetcher.utils.state import RuntimeConfig
-from ytfetcher.config.fetch_config import FetchOptions
 
 from argparse import ArgumentParser, Namespace
 
@@ -275,6 +280,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     output_group = parser.add_argument_group("Output Options")
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
     output_group.add_argument("--quiet", action="store_true", help="Supress output logs and progress informations.")
+    output_group.add_argument("--verbose", action="store_true", help="Show logs.")
 
 def _clear_cache(cache_path: str | None) -> None:
     from ytfetcher.cache.sqlite_cache import SQLiteCache
@@ -292,8 +298,9 @@ def _clear_cache(cache_path: str | None) -> None:
     print(f"Cache cleared at: {cache.db_file}")
 
 def main():
-    args = parse_args(sys.argv[1:])
+    import logging
 
+    args = parse_args(sys.argv[1:])
     if args.command == 'cache':
         if args.clean:
             _clear_cache(cache_path=args.cache_path)
@@ -301,6 +308,8 @@ def main():
 
     if not args.quiet:
         RuntimeConfig.enable_verbose()
+        if args.verbose:
+            enable_default_config(logging.DEBUG)
         
     cli = YTFetcherCLI(args=args)
     cli.run()
