@@ -310,9 +310,16 @@ def main():
         RuntimeConfig.enable_verbose()
         if args.verbose:
             enable_default_config(logging.DEBUG)
-        
+    
     cli = YTFetcherCLI(args=args)
-    cli.run()
+    try:
+        cli.run()
+    except KeyboardInterrupt:
+        log('Operation cancelled by user.', level='WARNING')
+        raise SystemExit(130)
+    except Exception:
+        log('Failed to complete request. Re-run with full logs for details.', level='ERROR')
+        raise SystemExit(1)
 
 if __name__ == "__main__":
     main()
