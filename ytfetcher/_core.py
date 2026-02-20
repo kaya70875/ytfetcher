@@ -1,3 +1,4 @@
+import logging
 from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import (
@@ -11,6 +12,8 @@ from ytfetcher._youtube_dl import (
 from ytfetcher.config.fetch_config import FetchOptions
 from ytfetcher.cache import SQLiteCache
 from typing import Literal
+
+logger = logging.getLogger(__name__)
 
 class YTFetcher:
     """
@@ -204,16 +207,29 @@ class YTFetcher:
     def _get_snippets(self) -> list[DLSnippet]:
         if self._snippets is None:
             snippets = self._youtube_dl.fetch()
-
-            if self.options.filters:
-                snippets = [
-                    snippet for snippet in snippets
-                    if all(filter(snippet) for filter in self.options.filters)
-                    ]
-
-            self._snippets = snippets
+            self._snippets = self._apply_filters(snippets)
 
         return self._snippets
+    
+    def _apply_filters(self, snippets: list[DLSnippet]) -> list[DLSnippet]:
+        if not self.options.filters:
+            return snippets
+        
+        filtered_snippets = [
+            snippet for snippet in snippets
+            if all(filter(snippet) for filter in self.options.filters)
+        ]
+
+        if not filtered_snippets:
+            logger.warning('Could not find any videos for the current filters.')
+            return []
+
+        logger.info(
+            f'Filters applied, total of {len(snippets) - len(filtered_snippets)} videos filtered.',
+        )
+
+        return filtered_snippets
+
 
     def _get_transcripts(self) -> list[VideoTranscript]:
         video_ids = self._get_video_ids()
