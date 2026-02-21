@@ -1,6 +1,7 @@
 import argparse
 import ast
 import sys
+import logging
 from typing import Union, Callable
 from pathlib import Path
 from ytfetcher._core import YTFetcher
@@ -20,6 +21,8 @@ from ytfetcher import filters
 from ytfetcher.utils.state import RuntimeConfig
 
 from argparse import ArgumentParser, Namespace
+
+logger = logging.getLogger(__name__)
 
 class ConfigBuilder:
     """Helper class to build configuration objects from CLI arguments."""
@@ -317,8 +320,8 @@ def main():
     except KeyboardInterrupt:
         log('Operation cancelled by user.', level='WARNING')
         raise SystemExit(130)
-    except Exception:
-        log('Failed to complete request. Re-run with full logs for details.', level='ERROR')
+    except Exception as e:
+        logger.exception("Unexpected error during CLI run.")
         raise SystemExit(1)
 
 if __name__ == "__main__":
