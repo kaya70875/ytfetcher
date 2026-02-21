@@ -320,8 +320,9 @@ def main():
     except KeyboardInterrupt:
         log('Operation cancelled by user.', level='WARNING')
         raise SystemExit(130)
-    except Exception as e:
+    except Exception:
         logger.exception("Unexpected error during CLI run.")
+        log("Unexpected error occurred. Re-run with `--verbose` for details.", level="ERROR")
         raise SystemExit(1)
 
 if __name__ == "__main__":
