@@ -25,14 +25,24 @@ class SQLiteCache:
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_file)
+        try:
+            conn = sqlite3.connect(self.db_file)
 
-        conn.execute("PRAGMA journal_mode=WAL;")
-        conn.execute("PRAGMA synchronous=NORMAL;")
-        
-        return conn
+            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute("PRAGMA synchronous=NORMAL;")
+            
+            return conn
+        except sqlite3.DatabaseError:
+            logger.exception("Failed to connect to SQLite database at %s", self.db_file)
+            raise
 
     def _initialize(self) -> None:
+        logger.debug(
+            "Initializing SQLite cache at %s (ttl=%d days)",
+            self.db_file,
+            self.ttl,
+        )
+
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         with self._connect() as conn:
@@ -47,12 +57,16 @@ class SQLiteCache:
                 )
                 """
             )
+        
+        logger.debug("SQLite cache table ensured.")
 
         if self.ttl > 0:
             removed_rows = self.purge_expired()
-            logger.info(f'Removed records older than {self.ttl} days. Total rows removed: {removed_rows}')
+            if removed_rows > 0:
+                logger.debug(f'Removed records older than {self.ttl} days. Total rows removed: {removed_rows}')
 
     def clear(self) -> None:
+        logger.info("Clearing entire transcript cache at %s", self.db_file)
         with self._connect() as conn:
             conn.execute("DELETE from transcript_cache")
     
@@ -63,6 +77,7 @@ class SQLiteCache:
         """
 
         if self.ttl <= 0:
+            logger.debug("TTL <= 0, skipping cache purge.")
             return 0
         
         sql = """
@@ -79,6 +94,7 @@ class SQLiteCache:
 
     def get_transcripts(self, video_ids: list[str], cache_key: str) -> list[VideoTranscript]:
         if not video_ids:
+            logger.debug("Cache lookup skipped: empty video_ids list.")
             return []
 
         placeholders = ",".join("?" for _ in video_ids)
@@ -90,10 +106,18 @@ class SQLiteCache:
         with self._connect() as conn:
             rows = conn.execute(query, [cache_key, *video_ids]).fetchall()
 
+        logger.debug(
+            "Cache lookup for %d videos with key=%s | hits=%d",
+            len(video_ids),
+            cache_key,
+            len(rows),
+        )
+
         return [VideoTranscript.model_validate_json(payload) for (payload,) in rows]
 
     def upsert_transcripts(self, transcripts: list[VideoTranscript], cache_key: str) -> None:
         if not transcripts:
+            logger.debug("Upsert skipped: no transcripts provided.")
             return
 
         rows = [
@@ -112,6 +136,12 @@ class SQLiteCache:
                 """,
                 rows,
             )
+
+        logger.debug(
+            "Upserted %d transcripts into cache with key=%s",
+            len(transcripts),
+            cache_key,
+        )
 
     @staticmethod
     def build_transcript_cache_key(languages: list[str] | str, manually_created: bool) -> str:

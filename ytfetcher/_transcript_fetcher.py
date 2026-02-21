@@ -88,6 +88,14 @@ class TranscriptFetcher:
             list[VideoTranscript]: A list of successful transcripts from list of videos with video_id information.
         """
 
+        logger.debug(
+            "Starting transcript fetch: %d videos | languages=%s | manually_created=%s",
+            len(self.video_ids),
+            self.languages,
+            self.manually_created,
+        )
+
+
         with futures.ThreadPoolExecutor(max_workers=30) as executor:
             tasks = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
             video_transcript = self._collect_results(tasks)
@@ -121,7 +129,7 @@ class TranscriptFetcher:
             if not transcript: return None
 
             cleaned_transcript = self._clean_transcripts(transcript)
-            logger.debug(f'{video_id} fetched.')
+            logger.debug("Transcript fetched for %s", video_id)
             return VideoTranscript(
                 video_id=video_id,
                 transcripts=cleaned_transcript
@@ -130,7 +138,7 @@ class TranscriptFetcher:
             logger.warning(str(e).replace(e.GITHUB_REFERRAL, ''))
             return None
         except Exception as e:
-            logger.exception(f'Error while fetching transcript from video: {video_id}')
+            logger.exception("Unexpected error while fetching transcript for %s", video_id)
             return None
     
     def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
@@ -195,7 +203,7 @@ class TranscriptFetcher:
             return self._convert_to_transcript_object(raw)
 
         except NoTranscriptFound:
-            logger.info(f"No manually created transcript found for {video_id}")
+            logger.warning(f"No manually created transcript found for {video_id}")
             return None
 
     def _fetch_first_available_transcript(
@@ -225,7 +233,7 @@ class TranscriptFetcher:
                 raw = transcript.fetch().to_raw_data()
                 return self._convert_to_transcript_object(raw)
         except NoTranscriptFound:
-            logger.info(f'No transcript found for {video_id} with first available transcripts method.')
+            logger.warning(f'No transcript found for {video_id} with first available transcripts method.')
         return None
 
     def _fetch_by_languages(
@@ -263,7 +271,7 @@ class TranscriptFetcher:
 
             return self._convert_to_transcript_object(raw)
         except NoTranscriptFound:
-            logger.info(f'No transcript found for {video_id} with languages {self.languages}')
+            logger.warning(f'No transcript found for {video_id} with languages {self.languages}')
             return None
 
     @staticmethod
@@ -288,6 +296,9 @@ class TranscriptFetcher:
             result: VideoTranscript = future.result()
             if result:
                 results.append(result)
+
+        logger.debug("Collected %d successful transcripts out of %d tasks", len(results), len(tasks))
+
         return results
 
     @staticmethod

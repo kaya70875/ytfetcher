@@ -47,12 +47,17 @@ class BaseExporter(ABC):
         pass
 
     def _initialize_output_path(self, export_type: Literal['txt', 'json', 'csv'] = 'txt') -> Path:
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = self.output_dir / f"{self.filename}.{export_type}"
-        
-        logger.info(f"Writing as {export_type} file, output path: {output_path}")
-
-        return output_path
+        try:
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = self.output_dir / f"{self.filename}.{export_type}"
+            
+            logger.info(f"Writing as {export_type} file, output path: {output_path}")
+            return output_path
+        except OSError as e:
+            logger.exception("Failed to initialize output directory %s", self.output_dir)
+            raise OSError(
+            f"Could not create or access output directory: {self.output_dir}"
+            ) from e
     
     def _get_clean_metadata(self, data: ChannelData):
         """
@@ -69,6 +74,12 @@ class BaseExporter(ABC):
             if value is not None:
                 clean_meta[field] = value
         
+        logger.debug(
+            "Filtered metadata for video %s: %s",
+            data.video_id,
+            list(clean_meta.keys())
+        )
+
         return clean_meta
 class TXTExporter(BaseExporter):
     """
@@ -90,6 +101,13 @@ class TXTExporter(BaseExporter):
         
                 self._write_transcripts(file=file, data=data)
                 self._write_comments(file=file, data=data)
+        
+        logger.info(
+            "%s export completed. Videos processed: %d. Output: %s",
+            self.__class__.__name__,
+            len(self.channel_data),
+            output_path
+        )
     
     def _write_transcripts(self, file, data: ChannelData) -> None:
         if not data.transcripts: return
@@ -118,21 +136,27 @@ class JSONExporter(BaseExporter):
         output_path = self._initialize_output_path(export_type='json')
         export_data = []
 
-        with open(output_path, 'w', encoding='utf-8') as file:
-            for data in self.channel_data:
-                video_data = {
-                    "video_id": data.video_id,
-                    **self._get_clean_metadata(data)
-                }
+        for data in self.channel_data:
+            video_data = {
+                "video_id": data.video_id,
+                **self._get_clean_metadata(data)
+            }
 
-                self._write_transcripts(data=data, video_data=video_data)
-                self._write_comments(data=data, video_data=video_data)
+            self._write_transcripts(data=data, video_data=video_data)
+            self._write_comments(data=data, video_data=video_data)
 
-                export_data.append(video_data)
+            export_data.append(video_data)
 
         with open(output_path, 'w', encoding='utf-8') as file:
             json.dump(export_data, file, indent=2, ensure_ascii=False)
-    
+        
+        logger.info(
+            "%s export completed. Videos processed: %d. Output: %s",
+            self.__class__.__name__,
+            len(self.channel_data),
+            output_path
+        )
+
     def _write_transcripts(self, data: ChannelData, video_data: dict[str, Any]) -> None:
         if not data.transcripts: return
 
@@ -193,7 +217,14 @@ class CSVExporter(BaseExporter):
 
                 self._write_transcripts(data=data, writer=writer, base_info=base_info)
                 i += 1
-                
+
+        logger.info(
+            "%s export completed. Videos processed: %d. Output: %s",
+            self.__class__.__name__,
+            len(self.channel_data),
+            output_path
+        )
+
     def _write_transcripts(self, data: ChannelData, writer, base_info: dict[str, Any]) -> None:
         if not data.transcripts: return
 
