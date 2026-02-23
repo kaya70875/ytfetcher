@@ -293,9 +293,12 @@ class TranscriptFetcher:
         results: list[VideoTranscript] = []
 
         for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript', disable=should_disable_progress()):
-            result: VideoTranscript = future.result()
-            if result:
-                results.append(result)
+            try:
+                result: VideoTranscript = future.result()
+                if result:
+                    results.append(result)
+            except Exception:
+                logger.exception('Unexpected error while retrieving result from thread future.')
 
         logger.debug("Collected %d successful transcripts out of %d tasks", len(results), len(tasks))
 
