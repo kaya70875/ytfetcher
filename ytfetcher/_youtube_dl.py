@@ -62,7 +62,15 @@ class BaseYoutubeDLFetcher(ABC):
         Returns:
             list[DLSnippet]: List of structured DLSnippet objects.
         """
-        return [DLSnippet.model_validate(entry) for entry in entries]
+        snippets: list[DLSnippet] = []
+        for entry in entries:
+            try:
+                snippets.append(DLSnippet.model_validate(entry))
+            except Exception:
+                logger.debug("Failed to validate a snippet, skipping.")
+                continue
+        
+        return snippets
 class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
     def __init__(self, video_ids: list[str], info: str | None = None, description: str | None = None):
         self.video_ids = video_ids
