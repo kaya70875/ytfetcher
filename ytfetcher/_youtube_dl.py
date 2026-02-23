@@ -85,10 +85,12 @@ class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
 
             results = []
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc=self.description, disable=should_disable_progress()):
-                res = future.result()
-                if res is not None:
-                    results.append(res)
-                
+                try:
+                    res = future.result()
+                    if res is not None:
+                        results.append(res)
+                except Exception as e:
+                    logger.exception("Thread encountered an unexpected error while fetching data.", e)
             return results
 
     @abstractmethod
