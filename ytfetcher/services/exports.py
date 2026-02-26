@@ -53,11 +53,9 @@ class BaseExporter(ABC):
             
             logger.info(f"Writing as {export_type} file, output path: {output_path}")
             return output_path
-        except OSError as e:
+        except OSError:
             logger.exception("Failed to initialize output directory %s", self.output_dir)
-            raise OSError(
-            f"Could not create or access output directory: {self.output_dir}"
-            ) from e
+            raise
     
     def _get_clean_metadata(self, data: ChannelData):
         """
