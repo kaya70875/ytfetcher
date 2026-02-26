@@ -273,7 +273,7 @@ class YTFetcher:
             languages= (
                 list(self.options.languages)
                 if self.options.languages
-                else ("__auto__") # __auto__ means first available language if not defined by user.
+                else ["__auto__"] # First available language if not defined by user.
             ),
             manually_created=self.options.manually_created,
         )
