@@ -309,10 +309,11 @@ def main():
             _clear_cache(cache_path=args.cache_path)
         return
 
+    if args.verbose:
+        enable_default_config(logging.DEBUG)
+
     if not args.quiet:
         RuntimeConfig.enable_verbose()
-        if args.verbose:
-            enable_default_config(logging.DEBUG)
     
     cli = YTFetcherCLI(args=args)
     try:
