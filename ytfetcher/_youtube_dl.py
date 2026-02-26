@@ -89,8 +89,8 @@ class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
                     res = future.result()
                     if res is not None:
                         results.append(res)
-                except Exception as e:
-                    logger.exception("Thread encountered an unexpected error while fetching data.", e)
+                except Exception:
+                    logger.exception("Thread encountered an unexpected error while fetching data.")
             return results
 
     @abstractmethod
