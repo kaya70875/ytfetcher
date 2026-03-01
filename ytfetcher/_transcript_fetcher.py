@@ -6,6 +6,7 @@ from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.utils.state import should_disable_progress
 from ytfetcher.utils import log
 from concurrent import futures
+from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 from typing import Iterable
 import requests
@@ -66,11 +67,24 @@ class TranscriptFetcher:
                 and skip auto-generated ones. When True and no manual transcripts
                 are found, logs an error. Defaults to False.
         """
+
         self.http_config = http_config or HTTPConfig()
         self.proxy_config = proxy_config
         self.video_ids = video_ids
         self.languages = languages
         self.manually_created = manually_created
+        self.max_workers = 10
+
+        self.session = requests.Session()
+        self.session.headers.update(self.http_config.headers)
+
+        adapter = HTTPAdapter(
+            pool_connections=self.max_workers,
+            pool_maxsize=self.max_workers
+        )
+
+        self.session.mount("https://", adapter)
+        self.session.mount("http://", adapter)
 
         if manually_created and not languages:
             raise ValueError(
@@ -95,16 +109,18 @@ class TranscriptFetcher:
             self.manually_created,
         )
 
+        try:
+            with futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                tasks = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
+                video_transcript = self._collect_results(tasks)
+                
+            if not video_transcript and self.manually_created: 
+                log(f'No manually created transcripts found for requested languages: {self.languages}', level='WARNING')
+                logger.info("No manually created transcripts found!")
 
-        with futures.ThreadPoolExecutor(max_workers=30) as executor:
-            tasks = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
-            video_transcript = self._collect_results(tasks)
-            
-        if not video_transcript and self.manually_created: 
-            log(f'No manually created transcripts found for requested languages: {self.languages}', level='WARNING')
-            logger.info("No manually created transcripts found!")
-
-        return video_transcript
+            return video_transcript
+        finally:
+            self.session.close()
 
     def _fetch_single(self, video_id: str) -> VideoTranscript | None:
         """
@@ -121,9 +137,7 @@ class TranscriptFetcher:
                          or None if transcript is unavailable.
         """
         try:
-            session = requests.Session()
-            session.headers.update(self.http_config.headers)
-            yt_api = YouTubeTranscriptApi(http_client=session, proxy_config=self.proxy_config)
+            yt_api = YouTubeTranscriptApi(http_client=self.session, proxy_config=self.proxy_config)
             transcript: list[Transcript] | None = self._decide_fetch_method(yt_api, video_id)
 
             if not transcript: return None
