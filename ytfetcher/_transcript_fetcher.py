@@ -73,7 +73,7 @@ class TranscriptFetcher:
         self.video_ids = video_ids
         self.languages = languages
         self.manually_created = manually_created
-        self.max_workers = 10
+        self.max_workers = 25
 
         self.session = requests.Session()
         self.session.headers.update(self.http_config.headers)
