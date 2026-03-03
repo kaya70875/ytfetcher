@@ -129,12 +129,26 @@ print(channel_data)
 
 ```
 
-### Fetching Different Channel Tabs (Videos / Shorts / Streams)
+### Fetching Specific Channel Tabs (Videos / Shorts / Streams)
 
-Use `tab` to choose which channel feed should be fetched. Default to ('Videos') tab.
+Use the `tab` parameter in `from_channel()` to select which section of a channel to fetch.
 
-```py
-YTFetcher.from_channel(channel_handle='handle', tab='videos')
+Available options:
+- `'videos'` (default)
+- `'shorts'`
+- `'streams'`
+
+If not specified, the fetcher defaults to the **Videos** tab.
+
+```python
+# Fetch regular videos (default)
+YTFetcher.from_channel(channel_handle="handle")
+
+# Fetch Shorts
+YTFetcher.from_channel(channel_handle="handle", tab="shorts")
+
+# Fetch live streams
+YTFetcher.from_channel(channel_handle="handle", tab="streams")
 ```
 
 ---

@@ -29,8 +29,7 @@ from ytfetcher import YTFetcher
 
 fetcher = YTFetcher.from_channel(
     channel_handle="TheOffice",
-    max_results=2,
-    tab="videos" # or "shorts" / "streams"
+    max_results=2
 )
 
 channel_data = fetcher.fetch_youtube_data()
@@ -73,6 +72,28 @@ ChannelData(
 ),
 # Other ChannelData objects...
 ]
+```
+
+### Fetching Specific Channel Tabs (Videos / Shorts / Streams)
+
+Use the `tab` parameter in `from_channel()` to select which section of a channel to fetch.
+
+Available options:
+- `'videos'` (default)
+- `'shorts'`
+- `'streams'`
+
+If not specified, the fetcher defaults to the **Videos** tab.
+
+```python
+# Fetch regular videos (default)
+YTFetcher.from_channel(channel_handle="handle")
+
+# Fetch Shorts
+YTFetcher.from_channel(channel_handle="handle", tab="shorts")
+
+# Fetch live streams
+YTFetcher.from_channel(channel_handle="handle", tab="streams")
 ```
 
 ### Preview Data
