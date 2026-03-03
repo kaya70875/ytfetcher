@@ -41,7 +41,6 @@ class YTFetcher:
         self._youtube_dl: BaseYoutubeDLFetcher = youtube_dl_fetcher
         self.options = options or FetchOptions()
 
-        self._transcript_fetcher: TranscriptFetcher | None = None
         self._snippets: list[DLSnippet] | None = None
         self._cache: SQLiteCache | None = (
             SQLiteCache(cache_dir=self.options.cache_path, ttl=self.options.cache_ttl)
@@ -234,21 +233,18 @@ class YTFetcher:
     def _get_transcripts(self) -> list[VideoTranscript]:
         video_ids = self._get_video_ids()
         if not self._cache:
-            return self._get_transcript_fetcher().fetch()
+            return self._create_transcript_fetcher(video_ids=video_ids).fetch()
 
         return self._get_cached_transcripts(video_ids=video_ids)
 
-    def _get_transcript_fetcher(self) -> TranscriptFetcher:
-        if self._transcript_fetcher is None:
-            video_ids = self._get_video_ids()
-            self._transcript_fetcher = TranscriptFetcher(
-                video_ids,
-                http_config=self.options.http_config,
-                proxy_config=self.options.proxy_config,
-                languages=self.options.languages,
-                manually_created=self.options.manually_created,
-            )
-        return self._transcript_fetcher
+    def _create_transcript_fetcher(self, video_ids: list[str]) -> TranscriptFetcher:
+        return TranscriptFetcher(
+            video_ids=video_ids,
+            http_config=self.options.http_config,
+            proxy_config=self.options.proxy_config,
+            languages=self.options.languages,
+            manually_created=self.options.manually_created
+        )
     
     def _get_video_ids(self) -> list[str]:
         """
