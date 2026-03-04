@@ -1,3 +1,4 @@
+import logging
 from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import (
@@ -11,6 +12,8 @@ from ytfetcher._youtube_dl import (
 from ytfetcher.config.fetch_config import FetchOptions
 from ytfetcher.cache import SQLiteCache
 from typing import Literal
+
+logger = logging.getLogger(__name__)
 
 class YTFetcher:
     """
@@ -38,7 +41,6 @@ class YTFetcher:
         self._youtube_dl: BaseYoutubeDLFetcher = youtube_dl_fetcher
         self.options = options or FetchOptions()
 
-        self._transcript_fetcher: TranscriptFetcher | None = None
         self._snippets: list[DLSnippet] | None = None
         self._cache: SQLiteCache | None = (
             SQLiteCache(cache_dir=self.options.cache_path, ttl=self.options.cache_ttl)
@@ -51,13 +53,14 @@ class YTFetcher:
         cls,
         channel_handle: str,
         max_results: int | None = 20,
+        tab: Literal['videos', 'shorts', 'streams'] = 'videos',
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
         Create a fetcher that pulls up to max_results from the channel.
         """
         return cls(
-            youtube_dl_fetcher=ChannelFetcher(channel_handle=channel_handle, max_results=max_results),
+            youtube_dl_fetcher=ChannelFetcher(channel_handle=channel_handle, max_results=max_results, tab=tab),
             options=options
             )
     
@@ -203,35 +206,45 @@ class YTFetcher:
     def _get_snippets(self) -> list[DLSnippet]:
         if self._snippets is None:
             snippets = self._youtube_dl.fetch()
-
-            if self.options.filters:
-                snippets = [
-                    snippet for snippet in snippets
-                    if all(filter(snippet) for filter in self.options.filters)
-                    ]
-
-            self._snippets = snippets
+            self._snippets = self._apply_filters(snippets)
 
         return self._snippets
+    
+    def _apply_filters(self, snippets: list[DLSnippet]) -> list[DLSnippet]:
+        if not self.options.filters:
+            return snippets
+        
+        filtered_snippets = [
+            snippet for snippet in snippets
+            if all(filter(snippet) for filter in self.options.filters)
+        ]
+
+        if not filtered_snippets:
+            logger.warning('Could not find any videos for the current filters.')
+            return []
+
+        logger.info(
+            f'Filters applied, total of {len(snippets) - len(filtered_snippets)} videos filtered.',
+        )
+
+        return filtered_snippets
+
 
     def _get_transcripts(self) -> list[VideoTranscript]:
         video_ids = self._get_video_ids()
         if not self._cache:
-            return self._get_transcript_fetcher().fetch()
+            return self._create_transcript_fetcher(video_ids=video_ids).fetch()
 
         return self._get_cached_transcripts(video_ids=video_ids)
 
-    def _get_transcript_fetcher(self) -> TranscriptFetcher:
-        if self._transcript_fetcher is None:
-            video_ids = self._get_video_ids()
-            self._transcript_fetcher = TranscriptFetcher(
-                video_ids,
-                http_config=self.options.http_config,
-                proxy_config=self.options.proxy_config,
-                languages=self.options.languages,
-                manually_created=self.options.manually_created,
-            )
-        return self._transcript_fetcher
+    def _create_transcript_fetcher(self, video_ids: list[str]) -> TranscriptFetcher:
+        return TranscriptFetcher(
+            video_ids=video_ids,
+            http_config=self.options.http_config,
+            proxy_config=self.options.proxy_config,
+            languages=self.options.languages,
+            manually_created=self.options.manually_created
+        )
     
     def _get_video_ids(self) -> list[str]:
         """
@@ -253,7 +266,11 @@ class YTFetcher:
         assert self._cache is not None
 
         cache_key = SQLiteCache.build_transcript_cache_key(
-            languages=list(self.options.languages),
+            languages= (
+                list(self.options.languages)
+                if self.options.languages
+                else ["__auto__"] # First available language if not defined by user.
+            ),
             manually_created=self.options.manually_created,
         )
         cached_transcripts = self._cache.get_transcripts(video_ids, cache_key)

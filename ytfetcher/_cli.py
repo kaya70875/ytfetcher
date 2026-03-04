@@ -1,20 +1,28 @@
 import argparse
 import ast
 import sys
+import logging
 from typing import Union, Callable
 from pathlib import Path
 from ytfetcher._core import YTFetcher
+from ytfetcher.config import (
+    enable_default_config,
+    default_cache_path,
+    GenericProxyConfig,
+    WebshareProxyConfig,
+    HTTPConfig,
+    FetchOptions
+)
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
-from ytfetcher.config import GenericProxyConfig, WebshareProxyConfig, HTTPConfig
-from ytfetcher.config.fetch_config import default_cache_path
+from ytfetcher.services._preview import PreviewRenderer
 from ytfetcher.models import ChannelData
 from ytfetcher.utils.log import log
 from ytfetcher import filters
-from ytfetcher.services._preview import PreviewRenderer
 from ytfetcher.utils.state import RuntimeConfig
-from ytfetcher.config.fetch_config import FetchOptions
 
 from argparse import ArgumentParser, Namespace
+
+logger = logging.getLogger(__name__)
 
 class ConfigBuilder:
     """Helper class to build configuration objects from CLI arguments."""
@@ -161,7 +169,8 @@ class YTFetcherCLI:
                 self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel,
-                    max_results=None if self.args.all else self.args.max_results
+                    max_results=None if self.args.all else self.args.max_results,
+                    tab=self.args.tab
                 )
             
             case 'video':
@@ -199,6 +208,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser_channel = subparsers.add_parser("channel", help="Fetch data from channel handle with max_results.")
     parser_channel.add_argument("channel", help="The Channel Handle or ID (e.g. @PewDiePie)")
     parser_channel.add_argument("-m", "--max-results", type=int, default=20, help="Maximum videos to fetch")
+    parser_channel.add_argument('-t', '--tab', choices=['videos', 'shorts', 'streams'], default='videos', help="Choose which tab to fetch from: 'videos' or 'shorts' or 'streams'.")
     parser_channel.add_argument("--all", action="store_true", help="Fetch ALL videos from a channel.")
     _create_common_arguments(parser_channel)
 
@@ -237,7 +247,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     """
     transcript_group = parser.add_argument_group("Transcript Options")
     transcript_group.add_argument("--no-timing", action="store_true", help="Do not write transcript timings like 'start', 'duration'")
-    transcript_group.add_argument("--languages", nargs="+", default=["en"], help="List of language codes in priority order (e.g. en de fr). Defaults to ['en'].")
+    transcript_group.add_argument("--languages", nargs="+", default=None, help="List of language codes in priority order (e.g. en de fr). Defaults to None.")
     transcript_group.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
 
     comments_group = parser.add_argument_group("Comment Options")
@@ -273,6 +283,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     output_group = parser.add_argument_group("Output Options")
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
     output_group.add_argument("--quiet", action="store_true", help="Supress output logs and progress informations.")
+    output_group.add_argument("--verbose", action="store_true", help="Show logs.")
 
 def _clear_cache(cache_path: str | None) -> None:
     from ytfetcher.cache.sqlite_cache import SQLiteCache
@@ -290,18 +301,30 @@ def _clear_cache(cache_path: str | None) -> None:
     print(f"Cache cleared at: {cache.db_file}")
 
 def main():
-    args = parse_args(sys.argv[1:])
+    import logging
 
+    args = parse_args(sys.argv[1:])
     if args.command == 'cache':
         if args.clean:
             _clear_cache(cache_path=args.cache_path)
         return
 
+    if args.verbose:
+        enable_default_config(logging.DEBUG)
+
     if not args.quiet:
         RuntimeConfig.enable_verbose()
-        
+    
     cli = YTFetcherCLI(args=args)
-    cli.run()
+    try:
+        cli.run()
+    except KeyboardInterrupt:
+        log('Operation cancelled by user.', level='WARNING')
+        raise SystemExit(130)
+    except Exception:
+        logger.exception("Unexpected error during CLI run.")
+        log("Unexpected error occurred. Re-run with `--verbose` for details.", level="ERROR")
+        raise SystemExit(1)
 
 if __name__ == "__main__":
     main()

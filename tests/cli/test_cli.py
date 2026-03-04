@@ -101,10 +101,11 @@ def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurati
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
         max_results=20,
+        tab='videos',
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
@@ -132,10 +133,11 @@ def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_config
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
         max_results=20,
+        tab='videos',
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
@@ -164,10 +166,11 @@ def test_run_from_channel_arguments_passed_correctly_to_ytfetcher(mock_ytfetcher
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
         max_results=20,
+        tab='videos',
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
@@ -195,10 +198,11 @@ def test_all_argument_for_channel_method(mock_ytfetcher, mock_configurations):
     mock_ytfetcher.from_channel.assert_called_once_with(
         channel_handle="TestChannel",
         max_results=None,
+        tab='videos',
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )
@@ -229,7 +233,7 @@ def test_all_argument_for_playlist_method(mock_ytfetcher, mock_configurations):
         options=FetchOptions(
             http_config=expected_http_config,
             proxy_config=expected_proxy_config,
-            languages=["en"],
+            languages=None,
             manually_created=False,
             filters=[]
         )

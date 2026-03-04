@@ -62,7 +62,15 @@ class BaseYoutubeDLFetcher(ABC):
         Returns:
             list[DLSnippet]: List of structured DLSnippet objects.
         """
-        return [DLSnippet.model_validate(entry) for entry in entries]
+        snippets: list[DLSnippet] = []
+        for entry in entries:
+            try:
+                snippets.append(DLSnippet.model_validate(entry))
+            except Exception:
+                logger.debug("Failed to validate a snippet, skipping.")
+                continue
+        
+        return snippets
 class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
     def __init__(self, video_ids: list[str], info: str | None = None, description: str | None = None):
         self.video_ids = video_ids
@@ -77,10 +85,12 @@ class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
 
             results = []
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc=self.description, disable=should_disable_progress()):
-                res = future.result()
-                if res is not None:
-                    results.append(res)
-                
+                try:
+                    res = future.result()
+                    if res is not None:
+                        results.append(res)
+                except Exception:
+                    logger.exception("Thread encountered an unexpected error while fetching data.")
             return results
 
     @abstractmethod
@@ -124,7 +134,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 )
         
         except Exception as e:
-            logger.warning(f"Failed to fetch comments for {video_id}: {e}")
+            logger.exception(f"Failed to fetch comments for {video_id}: {e}")
             return None
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
@@ -137,6 +147,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
             try:
                 comments.append(Comment.model_validate(raw))
             except Exception:
+                logger.debug("Couldn't validate a comment.")
                 continue
 
         return comments
@@ -149,11 +160,13 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
     Args:
         channel_handle (str): The channel handle or URL.
         max_results (int | None = 20): Maximum number of videos to fetch. Define as `None` if you want to fetch all videos from a channel.
+        tab (Literal['videos', 'shorts', 'streams']): The channel tab to fetch from ('videos' or 'shorts' or 'streams'). Defaults to 'videos'.
     """
 
-    def __init__(self, channel_handle: str, max_results: int | None = 20):
+    def __init__(self, channel_handle: str, max_results: int | None = 20, tab: Literal['videos', 'shorts', 'streams'] = ('videos')):
         super().__init__(max_results)
         self.channel_handle = channel_handle
+        self.tab = tab
 
         if "https://" in channel_handle:
             self.channel_handle = self._find_channel_handle_from_url(channel_handle)
@@ -162,7 +175,8 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts()
         if self.max_results is not None:
             ydl_opts["playlistend"] = self.max_results
-        url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/videos"
+
+        url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/{self.tab}"
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
             info = ydl.extract_info(url, download=False)
@@ -189,7 +203,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         Raises:
             ValueError: If no valid handle can be extracted.
         """
-        logger.warning("Got full URL, trying to extract channel handle. If it fails, try providing only the handle.")
+        logger.debug("Got full URL, trying to extract channel handle. If it fails, try providing only the handle.")
 
         parsed = urlparse(url)
         path = parsed.path
@@ -222,6 +236,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts()
         if self.max_results is not None:
             ydl_opts["playlistend"] = self.max_results
+
         url = f"https://www.youtube.com/playlist?list={self.playlist_id.strip()}"
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
@@ -248,7 +263,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         Raises:
             ValueError: If no valid playlist ID can be found.
         """
-        logger.warning("Got full URL, trying to extract playlist ID. If it fails, try providing only playlist ID.")
+        logger.debug("Got full URL, trying to extract playlist ID. If it fails, try providing only playlist ID.")
 
         parsed = urlparse(url)
         query_params = parse_qs(parsed.query)

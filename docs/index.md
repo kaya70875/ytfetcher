@@ -74,6 +74,28 @@ ChannelData(
 ]
 ```
 
+### Fetching Specific Channel Tabs (Videos / Shorts / Streams)
+
+Use the `tab` parameter in `from_channel()` to select which section of a channel to fetch.
+
+Available options:
+- `'videos'` (default)
+- `'shorts'`
+- `'streams'`
+
+If not specified, the fetcher defaults to the **Videos** tab.
+
+```python
+# Fetch regular videos (default)
+YTFetcher.from_channel(channel_handle="handle")
+
+# Fetch Shorts
+YTFetcher.from_channel(channel_handle="handle", tab="shorts")
+
+# Fetch live streams
+YTFetcher.from_channel(channel_handle="handle", tab="streams")
+```
+
 ### Preview Data
 You can also preview this data using `PreviewRenderer` class from `ytfetcher.services`:
 ```py

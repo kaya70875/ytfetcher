@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 ### Added
+- Added tab option for both CLI and Python API to fetch from different tabs for a channel. ('videos', 'shorts', 'streams')
+- Verbose logging mode via `--verbose` CLI flag.
+- Comprehensive debug and info logs for core operations.
+
+### Changed
+- Updated transcript languages behavior for better UX and less friction.
+- Improved log messages and levels for better clarity.
+- Refactored filtering logic into a separate method.
+
+### Fixed
+- Fixed session resource leak by closing `requests.session` properly in `TranscriptFetcher`.
+- Improved CLI error handling for graceful exits on exceptions.
+- Fix users will be forcing to fetch only english transcripts if they are not set a `languages` parameter.
+- Fixed possible data loss in `YoutubeDLFetcher`.
+
+## [2.1] - 2026-02-16
+### Added
 - Added `convert_to_rows` utility method for converting `ChannelData` objects to Python dict for easily feed data to ML and RAG pipelines.
 - Added built-in cache strategy for fetching transcripts.
 - Added CLI argument for channel fetcher and playlist fetcher; `--all` argument now fetches ALL videos from a channel or playlist.
