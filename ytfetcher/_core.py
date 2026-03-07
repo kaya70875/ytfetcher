@@ -57,7 +57,14 @@ class YTFetcher:
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
-        Create a fetcher that pulls up to max_results from the channel.
+        Initialize a fetcher to retrieve transcripts from a specific YouTube channel.        
+
+        Args:
+            channel_handle (str): The handle or ID of the YouTube channel.
+            max_results (int): The maximum number of videos to retrieve from the channel. 
+            tab (Literal): The specific channel section to target. 
+                Choose from 'videos', 'shorts', or 'streams'. Defaults to 'videos'.
+            options (FetchOptions): Advanced settings for the fetcher.
         """
         return cls(
             youtube_dl_fetcher=ChannelFetcher(channel_handle=channel_handle, max_results=max_results, tab=tab),
@@ -71,7 +78,11 @@ class YTFetcher:
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
-        Create a fetcher that only fetches from given video ids.
+        Initialize a fetcher for a specific list of YouTube video IDs.
+
+        Args:
+            video_ids (list[str]):A list of unique YouTube video identifiers (e.g., ['dQw4w9WgXcQ'])
+            options (FetchOptions): Advanced settings for the fetcher.
         """
         return cls(
             youtube_dl_fetcher=VideoListFetcher(video_ids=video_ids),
@@ -85,7 +96,12 @@ class YTFetcher:
         options: FetchOptions | None = None
         ) -> "YTFetcher":
         """
-        Create a fetcher that fetches from given playlist id.
+        Initialize a fetcher to retrieve transcripts from all videos in a playlist.
+
+        Args:
+            playlist_id (str): Youtube playlist id.
+            max_results (int): The maximum number of videos to retrieve from the playlist. 
+            options (FetchOptions): Advanced settings for the fetcher.
         """
         return cls(
             youtube_dl_fetcher=PlaylistFetcher(playlist_id=playlist_id, max_results=max_results),
@@ -100,7 +116,12 @@ class YTFetcher:
         options: FetchOptions | None = None
     ) -> "YTFetcher":
         """
-        Create a fetcher that fetches from search query.
+        Initialize a fetcher to retrieve transcripts based on a global YouTube search.
+
+        Args:
+            query (str): The search term used to find videos. (eg. "How to ride a horse.")
+            max_results (int): max_results (int): The maximum number of videos to retrieve from the query results. Defaults to 20.
+            options (FetchOptions): Advanced settings for the fetcher.
         """
         return cls(
             youtube_dl_fetcher=SearchFetcher(query=query, max_results=max_results),
@@ -124,13 +145,21 @@ class YTFetcher:
     
     def fetch_with_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
         """
-        Fetches comments, addition to transcripts and metadata.
+        Retrieves a comprehensive dataset including transcripts, metadata, and comments.
+
+        This method extends the standard fetcher by scraping user discussions for each 
+        video. It is ideal for sentiment analysis or context-heavy data mining.
 
         Args:
-            max_comments: Max number of comments to fetch.
+            max_comments (int): The maximum number of comments to retrieve per video. 
+                Higher limits may increase the number of API requests. Defaults to 20.
+            sort (Literal['top', 'new']): The criteria for comment retrieval. 
+                'top' fetches most-liked comments; 'new' fetches the most recent. 
+                Defaults to 'top'.
 
         Returns:
-            list[ChannelData]: A list objects containing transcript text, metadata and comments.
+            list[ChannelData]: A list of objects, each containing the transcript text, 
+                video metadata, and the requested comments.
         """
 
         transcripts = self._get_transcripts()
@@ -147,14 +176,21 @@ class YTFetcher:
     
     def fetch_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
         """
-        Fetches comments for all videos.
+        Retrieves comments for all identified videos, bypassing transcript extraction.
+
+        This is a lightweight alternative to fetch_with_comments, useful when you 
+        only need user feedback and engagement data without the video text.
 
         Args:
-            max_comments: Max number of comments to fetch.
-            max_workers: Max number of workers for threads.
+            max_comments (int): The maximum number of comments to retrieve per video. 
+                Defaults to 20.
+            sort (Literal['top', 'new']): Determines the order of retrieved comments. 
+                Use 'top' for most relevant/liked or 'new' for latest. 
+                Defaults to 'top'.
 
         Returns:
-            list[ChannelData]: A list of objects containing only comments.
+            list[ChannelData]: A list of objects containing the video identifiers 
+                and their associated comment data.
         """
         comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
         full_comments: list[VideoComments] = comment_fetcher.fetch()
