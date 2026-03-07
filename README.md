@@ -625,7 +625,6 @@ from ytfetcher import YTFetcher
 from ytfetcher.config import HTTPConfig, FetchOptions
 
 custom_config = HTTPConfig(
-    timeout=4.0,
     headers={"User-Agent": "ytfetcher/1.0"}
 )
 
@@ -691,12 +690,6 @@ ytfetcher <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>" --webs
 
 ```bash
 ytfetcher <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
-```
-
-### Using Custom HTTP Config
-
-```bash
-ytfetcher <CHANNEL_HANDLE> --http-timeout 4.2 --http-headers "{'key': 'value'}"
 ```
 
 ---
