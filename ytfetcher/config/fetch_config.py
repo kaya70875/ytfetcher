@@ -17,13 +17,38 @@ def default_cache_path() -> str:
     cache_dir = Path.home() / ".cache" / "ytfetcher"
     return str(cache_dir)
 
+from dataclasses import dataclass, field
+from typing import Iterable, Callable, Literal
+from ytfetcher.config.http_config import HTTPConfig
+from youtube_transcript_api.proxies import ProxyConfig
+
 @dataclass
 class FetchOptions:
+    """
+    Configuration options for the YTFetcher. 
+    Controls network behavior, language selection, and local caching.
+    """
+
     http_config: HTTPConfig = field(default_factory=HTTPConfig)
+    """Custom HTTP settings including headers, cookies, and timeout configurations."""
+
     proxy_config: ProxyConfig | None = None
+    """Optional proxy settings to route requests through a specific gateway."""
+
     languages: Iterable[str] | None = None
+    """A list of language codes in descending priority (e.g., ['en', 'es'])."""
+
     manually_created: bool = False
-    filters: list[Callable[[DLSnippet], bool]] | None = None
+    """If True, only fetches transcripts written by humans; skips auto-generated ones."""
+
+    filters: list[Callable[["DLSnippet"], bool]] | None = None
+    """A list of predicate functions to filter out specific videos before fetching data."""
+
     cache_enabled: bool = True
+    """Whether to store and retrieve transcripts from a local file-based cache."""
+
     cache_path: str = field(default_factory=default_cache_path)
+    """The directory path where cached transcript files are stored."""
+
     cache_ttl: int = 7
+    """Cache Time-To-Live in days. Data older than this will be re-fetched."""
