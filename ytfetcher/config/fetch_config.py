@@ -17,11 +17,6 @@ def default_cache_path() -> str:
     cache_dir = Path.home() / ".cache" / "ytfetcher"
     return str(cache_dir)
 
-from dataclasses import dataclass, field
-from typing import Iterable, Callable, Literal
-from ytfetcher.config.http_config import HTTPConfig
-from youtube_transcript_api.proxies import ProxyConfig
-
 @dataclass
 class FetchOptions:
     """
