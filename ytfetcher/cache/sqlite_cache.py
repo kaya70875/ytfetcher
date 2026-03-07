@@ -15,6 +15,18 @@ class SQLiteCache:
     with support for multiple cache keys and language configurations.
     """
     def __init__(self, cache_dir: str, ttl: int = 7):
+        """
+        Initialize the SQLiteCache.
+
+        Args:
+            cache_dir (str): The directory where the SQLite database file 
+                will be stored. Will be expanded if using tilde (e.g., "~/cache").
+            ttl (int): Time-To-Live in days. Cached entries older than this 
+                will be considered expired. Defaults to 7.
+
+        Raises:
+            ValueError: If the provided cache_dir exists but is not a directory.
+        """
         self.cache_dir = Path(cache_dir).expanduser()
 
         if self.cache_dir.exists() and not self.cache_dir.is_dir():
