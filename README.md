@@ -15,9 +15,9 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 
 - [Installation](#installation)
 - [Quick CLI Usage](#quick-cli-usage)
-- [Docker Quick Start](#docker-quick-start)
-- [Features](#features)
 - [Basic Usage (Python API)](#basic-usage-python-api)
+- [Features](#features)
+- [Fetching Specific Channel Tabs (Videos / Shorts / Streams)](#fetching-specific-channel-tabs-videos--shorts--streams)
 - [Using Different Fetchers](#using-different-fetchers)
 - [Retreive Different Languages](#retreive-different-languages)
 - [Filtering](#filtering)
@@ -30,6 +30,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Proxy Configuration](#proxy-configuration)
 - [Advanced HTTP Configuration (Optional)](#advanced-http-configuration-optional)
 - [CLI (Advanced)](#cli-advanced)
+- [Docker Quick Start](#docker-quick-start)
 - [Contributing](#contributing)
 - [Running Tests](#running-tests)
 - [Related Projects](#related-projects)
@@ -55,62 +56,6 @@ Fetch 50 video transcripts + metadata from a channel and save as JSON:
 ```bash
 ytfetcher channel TheOffice -m 50 -f json
 ```
-
----
-
-## Docker Quick Start
-
-The recommended way to run or develop YTFetcher is using Docker to ensure a clean, stable environment without needing local Python or dependency management.
-
-```bash
-docker-compose build
-```
-
-Use `docker-compose run` to execute your desired command inside the container.
-
-```bash
-docker-compose run ytfetcher poetry run ytfetcher channel -c TheOffice -m 20 -f json
-```
-
----
-
-## CLI Overview
-
-YTFetcher comes with a simple CLI so you can fetch data directly from your terminal.
-
-```bash
-ytfetcher -h
-```
-
-```bash
-usage: ytfetcher [-h] {channel,playlist,video,search} ...
-
-Fetch YouTube transcripts for a channel
-
-positional arguments:
-  {channel,playlist,video,search}
-    channel        Fetch data from channel handle with max_results.
-    playlist    Fetch data from a specific playlist id.
-    video      Fetch data from your custom video ids.
-    search     Fetch data from youtube with search query. 
-
-options:
-  -h, --help            show this help message and exit
-```
-
----
-
-## Features
-
-- Fetch full **transcripts** from a YouTube channel.
-- Get video **metadata: title, description, thumbnails, published date**.
-- Support for fetching with **channel handle, playlist id, custom video id's or with a search query.**
-- Fetch **comments** in bulk.
-- Concurrent fetching for **high performance**.
-- Built in **cache** support.
-- **Export** fetched data as txt, csv or json.
-- **CLI** support.
-
 ---
 
 ## Basic Usage (Python API)
@@ -126,32 +71,12 @@ fetcher = YTFetcher.from_channel(
 )
 
 channel_data = fetcher.fetch_youtube_data()
-print(channel_data)
+for video in channel_data:
+  print(video.metadata.title)
+  print(video.metadata.description)
+  print(video.transcripts)
 
 ```
-
-### Fetching Specific Channel Tabs (Videos / Shorts / Streams)
-
-Use the `tab` parameter in `from_channel()` to select which section of a channel to fetch.
-
-Available options:
-- `'videos'` (default)
-- `'shorts'`
-- `'streams'`
-
-If not specified, the fetcher defaults to the **Videos** tab.
-
-```python
-# Fetch regular videos (default)
-YTFetcher.from_channel(channel_handle="handle")
-
-# Fetch Shorts
-YTFetcher.from_channel(channel_handle="handle", tab="shorts")
-
-# Fetch live streams
-YTFetcher.from_channel(channel_handle="handle", tab="streams")
-```
-
 ---
 
 This will return a list of `ChannelData` with metadata in `DLSnippet` objects:
@@ -199,6 +124,42 @@ preview.render(data=channel_data, limit=4)
 
 This will preview the first 4 results of the data in a beautifully formatted terminal view, including metadata, transcript snippets, and comments.
 
+---
+
+## Features
+
+- Fetch full **transcripts** from a YouTube channel.
+- Get video **metadata: title, description, thumbnails, published date**.
+- Support for fetching with **channel handle, playlist id, custom video id's or with a search query.**
+- Fetch **comments** in bulk.
+- Concurrent fetching for **high performance**.
+- Built in **cache** support.
+- **Export** fetched data as txt, csv or json.
+- **CLI** support.
+
+---
+
+## Fetching Specific Channel Tabs (Videos / Shorts / Streams)
+
+Use the `tab` parameter in `from_channel()` to select which section of a channel to fetch.
+
+Available options:
+- `'videos'` (default)
+- `'shorts'`
+- `'streams'`
+
+If not specified, the fetcher defaults to the **Videos** tab.
+
+```python
+# Fetch regular videos (default)
+YTFetcher.from_channel(channel_handle="handle")
+
+# Fetch Shorts
+YTFetcher.from_channel(channel_handle="handle", tab="shorts")
+
+# Fetch live streams
+YTFetcher.from_channel(channel_handle="handle", tab="streams")
+```
 ---
 
 ## Using Different Fetchers
@@ -643,6 +604,31 @@ fetcher = YTFetcher.from_channel(
 
 ## CLI (Advanced)
 
+### CLI Overview
+
+YTFetcher comes with a simple CLI so you can fetch data directly from your terminal.
+
+```bash
+ytfetcher -h
+```
+
+```bash
+usage: ytfetcher [-h] {channel,playlist,video,search} ...
+
+Fetch YouTube transcripts for a channel
+
+positional arguments:
+  {channel,playlist,video,search}
+    channel        Fetch data from channel handle with max_results.
+    playlist    Fetch data from a specific playlist id.
+    video      Fetch data from your custom video ids.
+    search     Fetch data from youtube with search query. 
+
+options:
+  -h, --help            show this help message and exit
+```
+---
+
 ### Basic Usage
 
 ```bash
@@ -691,7 +677,21 @@ ytfetcher <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>" --webs
 ```bash
 ytfetcher <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
 ```
+---
 
+## Docker Quick Start
+
+The recommended way to run or develop YTFetcher is using Docker to ensure a clean, stable environment without needing local Python or dependency management.
+
+```bash
+docker-compose build
+```
+
+Use `docker-compose run` to execute your desired command inside the container.
+
+```bash
+docker-compose run ytfetcher poetry run ytfetcher channel -c TheOffice -m 20 -f json
+```
 ---
 
 ## Contributing
