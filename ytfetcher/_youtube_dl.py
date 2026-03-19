@@ -8,7 +8,8 @@ from ytfetcher.exceptions import (
     ChannelNotFound,
     ChannelTabUnavailable,
     PlaylistIdNotFound,
-    PlaylistFetchError
+    PlaylistFetchError,
+    SearchFetchError
 )
 from yt_dlp.utils import DownloadError
 from tqdm import tqdm
@@ -280,11 +281,14 @@ class SearchFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts(default_search='ytsearch', no_playlist=True)
         search_query = f"ytsearch{self.max_results}:{self.query}"
         logger.info(f"Searching via yt-dlp: '{self.query}'")
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            info = ydl.extract_info(search_query, download=False)
-            entries = cast(list[dict[str, Any]], info.get("entries", []))
-            return self._to_snippets(entries)
 
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+                info = ydl.extract_info(search_query, download=False)
+                entries = cast(list[dict[str, Any]], info.get("entries", []))
+                return self._to_snippets(entries)
+        except DownloadError:
+            raise SearchFetchError(query=self.query)
 class VideoListFetcher(ConcurrentYoutubeDLFetcher):
     """
     Fetches detailed metadata for a specific list of YouTube video IDs.
