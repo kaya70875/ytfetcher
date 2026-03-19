@@ -13,6 +13,11 @@ from ytfetcher.config import (
     HTTPConfig,
     FetchOptions
 )
+from ytfetcher.exceptions import (
+    ChannelFetchError,
+    PlaylistFetchError,
+    YTFetcherError
+)
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
 from ytfetcher.services._preview import PreviewRenderer
 from ytfetcher.models import ChannelData
@@ -321,6 +326,8 @@ def main():
     except KeyboardInterrupt:
         log('Operation cancelled by user.', level='WARNING')
         raise SystemExit(130)
+    except YTFetcherError as e:
+        log(str(e), level='ERROR')
     except Exception:
         logger.exception("Unexpected error during CLI run.")
         log("Unexpected error occurred. Re-run with `--verbose` for details.", level="ERROR")
