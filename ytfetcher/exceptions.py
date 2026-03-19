@@ -41,6 +41,11 @@ class SearchFetchError(YTFetcherError):
         self.query = query
         super().__init__(f"Search failed for query {query}.")
 
+class VideoListFetchError(YTFetcherError):
+    """
+    Base exception for all VideoListFetcher errors.
+    """
+
 class PlaylistIdNotFound(PlaylistFetchError):
     """
     Raises when playlist id not found.
@@ -65,3 +70,19 @@ class ChannelTabUnavailable(ChannelFetchError):
         self.channel_handle = channel_handle
         self.tab = tab
         super().__init__(f"There is no '{tab}' tab for channel '{channel_handle}'")
+
+class InCompleteVideoId(VideoListFetchError):
+    """
+    Raises when video id truncated or incomplete.
+    """
+    def __init__(self, video_id: str):
+        self.video_id = video_id
+        super().__init__(f'Video id {video_id} is incomplete or truncated.')
+
+class VideoUnavailable(VideoListFetchError):
+    """
+    Raises when video id is not available or correct.
+    """
+    def __init__(self, video_id: str):
+        self.video_id = video_id
+        super().__init__(f"Video id {video_id} is not available.")
