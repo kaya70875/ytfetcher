@@ -3,6 +3,8 @@ import concurrent.futures
 import logging
 from ytfetcher.models.channel import DLSnippet, Comment, VideoComments
 from ytfetcher.utils.state import should_disable_progress
+from ytfetcher.exceptions import ChannelFetchError, ChannelNotFound, ChannelTabUnavailable
+from yt_dlp.utils import DownloadError
 from tqdm import tqdm
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse, parse_qs
@@ -145,7 +147,6 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 continue
         return comments
 
-
 class ChannelFetcher(BaseYoutubeDLFetcher):
     """
     Fetches recent videos from a YouTube channel via handles or URLs.
@@ -175,11 +176,23 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
             ydl_opts["playlistend"] = self.max_results
 
         url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/{self.tab}"
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            info = ydl.extract_info(url, download=False)
-            entries = cast(list[dict[str, Any]], info.get("entries", []))
-            return self._to_snippets(entries)
 
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                entries = cast(list[dict[str, Any]], info.get("entries", []))
+                return self._to_snippets(entries)
+
+        except DownloadError as e:
+            msg = str(e)
+
+            if "Unable to download" in msg or "not found" in msg:
+                raise ChannelNotFound(channel_handle=self.channel_handle)
+            elif "does not have a streams tab" in msg:
+                raise ChannelTabUnavailable(channel_handle=self.channel_handle, tab=self.tab)
+
+            raise ChannelFetchError(f"Failed to fetch channel '{self.channel_handle}'")
+        
     @staticmethod
     def _find_channel_handle_from_url(url: str) -> str:
         """Extract the channel handle from a full YouTube channel URL."""
