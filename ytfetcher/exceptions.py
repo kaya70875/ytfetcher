@@ -22,3 +22,25 @@ class InvalidHeaders(YTFetcherError):
     """
     Raises when headers are invalid.
     """
+
+class ChannelFetchError(YTFetcherError):
+    """
+    Raises when any ChannelFetcher error occurs.
+    """
+
+class ChannelNotFound(ChannelFetchError):
+    """
+    Raises when channel not found.
+    """
+    def __init__(self, channel_handle: str):
+        self.channel_handle = channel_handle
+        super().__init__(f"Channel '{channel_handle}' not found.")
+
+class ChannelTabUnavailable(ChannelFetchError):
+    """
+    Raises when specified tab not found.
+    """
+    def __init__(self, channel_handle: str, tab: str):
+        self.channel_handle = channel_handle
+        self.tab = tab
+        super().__init__(f"There is no '{tab}' tab for channel '{channel_handle}'")
