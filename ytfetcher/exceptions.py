@@ -33,6 +33,14 @@ class PlaylistFetchError(YTFetcherError):
     Base exception for all PlaylistFetcher errors.
     """
 
+class SearchFetchError(YTFetcherError):
+    """
+    Base exception for all SearchFetcher errors.
+    """
+    def __init__(self, query: str):
+        self.query = query
+        super().__init__(f"Search failed for query {query}.")
+
 class PlaylistIdNotFound(PlaylistFetchError):
     """
     Raises when playlist id not found.
