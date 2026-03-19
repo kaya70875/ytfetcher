@@ -25,12 +25,12 @@ class InvalidHeaders(YTFetcherError):
 
 class ChannelFetchError(YTFetcherError):
     """
-    Raises when any ChannelFetcher error occurs.
+    Base exception for all ChannelFetcher errors.
     """
 
 class PlaylistFetchError(YTFetcherError):
     """
-    Raises when any PlaylistFetcher error occurs.
+    Base exception for all PlaylistFetcher errors.
     """
 
 class PlaylistIdNotFound(PlaylistFetchError):
