@@ -28,6 +28,19 @@ class ChannelFetchError(YTFetcherError):
     Raises when any ChannelFetcher error occurs.
     """
 
+class PlaylistFetchError(YTFetcherError):
+    """
+    Raises when any PlaylistFetcher error occurs.
+    """
+
+class PlaylistIdNotFound(PlaylistFetchError):
+    """
+    Raises when playlist id not found.
+    """
+    def __init__(self, playlist_id: str):
+        self.playlist_id = playlist_id
+        super().__init__(f"No playlist found for ID: {playlist_id}")
+
 class ChannelNotFound(ChannelFetchError):
     """
     Raises when channel not found.
