@@ -4,12 +4,16 @@ import logging
 from ytfetcher.models.channel import DLSnippet, Comment, VideoComments
 from ytfetcher.utils.state import should_disable_progress
 from ytfetcher.exceptions import (
+    YTFetcherError,
     ChannelFetchError,
     ChannelNotFound,
     ChannelTabUnavailable,
     PlaylistIdNotFound,
     PlaylistFetchError,
-    SearchFetchError
+    SearchFetchError,
+    VideoListFetchError,
+    InCompleteVideoId,
+    VideoUnavailable
 )
 from yt_dlp.utils import DownloadError
 from tqdm import tqdm
@@ -84,12 +88,14 @@ class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
         with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
             futures = [executor.submit(self.fetch_single, video_id) for video_id in self.video_ids]
             results = []
-            for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), 
-                              desc=self.description, disable=should_disable_progress()):
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc=self.description, disable=should_disable_progress()):
                 try:
                     res = future.result()
                     if res is not None:
                         results.append(res)
+                except YTFetcherError as e:
+                    logger.warning(str(e))
+                    continue
                 except Exception:
                     logger.exception("Thread encountered an unexpected error while fetching data.")
             return results
@@ -310,8 +316,19 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
             "extract_flat": True,
             "no_warnings": True,
         }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            url = f"https://www.youtube.com/watch?v={video_id}"
-            metadata = cast(dict[str, Any], ydl.extract_info(url, download=False))
-            if not metadata: return None
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+                url = f"https://www.youtube.com/watch?v={video_id}"
+                metadata = cast(dict[str, Any], ydl.extract_info(url, download=False))
+                if not metadata: return None
+        except DownloadError as e:
+            msg = str(e)
+
+            if "Video unavailable" in msg:
+                raise VideoUnavailable(video_id=video_id)
+            elif "Incomplete Youtube ID" in msg:
+                raise InCompleteVideoId(video_id=video_id)
+
+            raise VideoListFetchError('Error while fetching with video ids.')
+
         return DLSnippet.model_validate(metadata)
