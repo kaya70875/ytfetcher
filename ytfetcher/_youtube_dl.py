@@ -3,7 +3,13 @@ import concurrent.futures
 import logging
 from ytfetcher.models.channel import DLSnippet, Comment, VideoComments
 from ytfetcher.utils.state import should_disable_progress
-from ytfetcher.exceptions import ChannelFetchError, ChannelNotFound, ChannelTabUnavailable
+from ytfetcher.exceptions import (
+    ChannelFetchError,
+    ChannelNotFound,
+    ChannelTabUnavailable,
+    PlaylistIdNotFound,
+    PlaylistFetchError
+)
 from yt_dlp.utils import DownloadError
 from tqdm import tqdm
 from abc import ABC, abstractmethod
@@ -231,10 +237,18 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
             ydl_opts["playlistend"] = self.max_results
 
         url = f"https://www.youtube.com/playlist?list={self.playlist_id.strip()}"
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            info = ydl.extract_info(url, download=False)
-            entries = cast(list[dict[str, Any]], info.get("entries", []))
-            return self._to_snippets(entries)
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+                info = ydl.extract_info(url, download=False)
+                entries = cast(list[dict[str, Any]], info.get("entries", []))
+                return self._to_snippets(entries)
+        except DownloadError as e:
+            msg = str(e)
+
+            if "Unable to download" in msg or "not found" in msg:
+                raise PlaylistIdNotFound(playlist_id=self.playlist_id)
+            
+            raise PlaylistFetchError(f'Error fetching playlist ID: {self.playlist_id}')
 
     @staticmethod
     def _find_playlist_id_from_url(url: str) -> str:
@@ -270,7 +284,6 @@ class SearchFetcher(BaseYoutubeDLFetcher):
             info = ydl.extract_info(search_query, download=False)
             entries = cast(list[dict[str, Any]], info.get("entries", []))
             return self._to_snippets(entries)
-
 
 class VideoListFetcher(ConcurrentYoutubeDLFetcher):
     """
