@@ -20,6 +20,7 @@ from tqdm import tqdm
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse, parse_qs
 from typing import Any, cast, Literal
+from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class BaseYoutubeDLFetcher(ABC):
         for entry in entries:
             try:
                 snippets.append(DLSnippet.model_validate(entry))
-            except Exception:
+            except ValidationError:
                 logger.debug("Failed to validate a snippet, skipping.")
                 continue
         return snippets
@@ -158,7 +159,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
         for raw in raw_comments:
             try:
                 comments.append(Comment.model_validate(raw))
-            except Exception:
+            except ValidationError:
                 logger.debug("Couldn't validate a comment.")
                 continue
         return comments
