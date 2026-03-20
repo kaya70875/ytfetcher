@@ -145,8 +145,11 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 data = cast(list[dict[str, Any]], info_dict.get('comments', None) or [])
                 validated_comments = self._safe_validate_comments(raw_comments=data)
                 return VideoComments(video_id=video_id, comments=validated_comments)
-        except Exception as e:
-            logger.exception(f"Failed to fetch comments for {video_id}: {e}")
+        except DownloadError:
+            logger.warning(f"Failed to fetch comments for {video_id}")
+            return None
+        except Exception:
+            logger.exception(f"Unexpected error while fetching comment for video id: {video_id}")
             return None
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
