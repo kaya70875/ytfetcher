@@ -200,9 +200,9 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
                 return self._to_snippets(entries)
 
         except DownloadError as e:
-            msg = str(e)
+            msg = str(e).lower()
 
-            if "Unable to download" in msg or "not found" in msg:
+            if "unable to download" in msg or "not found" in msg:
                 raise ChannelNotFound(channel_handle=self.channel_handle)
             elif "does not have a streams tab" in msg:
                 raise ChannelTabUnavailable(channel_handle=self.channel_handle, tab=self.tab)
@@ -253,9 +253,9 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
                 entries = cast(list[dict[str, Any]], info.get("entries", []))
                 return self._to_snippets(entries)
         except DownloadError as e:
-            msg = str(e)
+            msg = str(e).lower()
 
-            if "Unable to download" in msg or "not found" in msg:
+            if "unable to download" in msg or "not found" in msg:
                 raise PlaylistIdNotFound(playlist_id=self.playlist_id)
             
             raise PlaylistFetchError(f'Error fetching playlist ID: {self.playlist_id}')
@@ -325,11 +325,11 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
                 metadata = cast(dict[str, Any], ydl.extract_info(url, download=False))
                 if not metadata: return None
         except DownloadError as e:
-            msg = str(e)
+            msg = str(e).lower()
 
-            if "Video unavailable" in msg:
+            if "video unavailable" in msg:
                 raise VideoUnavailable(video_id=video_id)
-            elif "Incomplete Youtube ID" in msg:
+            elif "incomplete youtube id" in msg:
                 raise InCompleteVideoId(video_id=video_id)
 
             raise VideoListFetchError('Error while fetching with video ids.')
