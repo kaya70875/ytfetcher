@@ -191,7 +191,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/{self.tab}"
 
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
                 info = ydl.extract_info(url, download=False)
                 entries = cast(list[dict[str, Any]], info.get("entries", []))
                 return self._to_snippets(entries)
