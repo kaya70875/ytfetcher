@@ -332,6 +332,6 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
             elif "incomplete youtube id" in msg:
                 raise InCompleteVideoId(video_id=video_id)
 
-            raise VideoListFetchError('Error while fetching with video ids.')
+            raise VideoListFetchError(f'Error while fetching with video id: {video_id}')
 
         return DLSnippet.model_validate(metadata)
