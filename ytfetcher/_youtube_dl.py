@@ -146,11 +146,11 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 data = cast(list[dict[str, Any]], info_dict.get('comments', None) or [])
                 validated_comments = self._safe_validate_comments(raw_comments=data)
                 return VideoComments(video_id=video_id, comments=validated_comments)
-        except DownloadError:
-            logger.warning(f"Failed to fetch comments for {video_id}")
+        except DownloadError as e:
+            logger.warning(f"Failed to fetch comments for {video_id}: {str(e)}")
             return None
         except Exception:
-            logger.exception(f"Unexpected error while fetching comment for video id: {video_id}")
+            logger.exception(f"Unexpected error while fetching comments for video id: {video_id}")
             return None
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
@@ -208,7 +208,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
             elif "does not have a streams tab" in msg:
                 raise ChannelTabUnavailable(channel_handle=self.channel_handle, tab=self.tab)
 
-            raise ChannelFetchError(f"Failed to fetch channel '{self.channel_handle}'")
+            raise ChannelFetchError(f"Failed to fetch channel '{self.channel_handle}': {msg}")
         
     @staticmethod
     def _find_channel_handle_from_url(url: str) -> str:
@@ -259,7 +259,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
             if "unable to download" in msg or "not found" in msg:
                 raise PlaylistIdNotFound(playlist_id=self.playlist_id)
             
-            raise PlaylistFetchError(f'Error fetching playlist ID: {self.playlist_id}')
+            raise PlaylistFetchError(f'Error fetching playlist ID: {self.playlist_id} : {msg}')
 
     @staticmethod
     def _find_playlist_id_from_url(url: str) -> str:
@@ -297,8 +297,8 @@ class SearchFetcher(BaseYoutubeDLFetcher):
                 info = ydl.extract_info(search_query, download=False)
                 entries = cast(list[dict[str, Any]], info.get("entries", []))
                 return self._to_snippets(entries)
-        except DownloadError:
-            raise SearchFetchError(query=self.query)
+        except DownloadError as e:
+            raise SearchFetchError(query=self.query, msg=str(e))
 class VideoListFetcher(ConcurrentYoutubeDLFetcher):
     """
     Fetches detailed metadata for a specific list of YouTube video IDs.
@@ -335,4 +335,4 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
             elif "incomplete youtube id" in msg:
                 raise InCompleteVideoId(video_id=video_id)
 
-            raise VideoListFetchError(f'Error while fetching with video id: {video_id}')
+            raise VideoListFetchError(f'Error while fetching with video id: {video_id} : {msg}')

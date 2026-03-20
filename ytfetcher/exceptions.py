@@ -37,9 +37,10 @@ class SearchFetchError(YTFetcherError):
     """
     Base exception for all SearchFetcher errors.
     """
-    def __init__(self, query: str):
+    def __init__(self, query: str, msg: str):
         self.query = query
-        super().__init__(f"Search failed for query {query}.")
+        self.msg = msg
+        super().__init__(f"Search failed for query {query} : {msg}")
 
 class VideoListFetchError(YTFetcherError):
     """
