@@ -328,6 +328,7 @@ def main():
         raise SystemExit(130)
     except YTFetcherError as e:
         log(str(e), level='ERROR')
+        raise SystemExit(1)
     except Exception:
         logger.exception("Unexpected error during CLI run.")
         log("Unexpected error occurred. Re-run with `--verbose` for details.", level="ERROR")
