@@ -4,7 +4,16 @@ All notable changes to this project will be documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [UNRELEASED]
+### Added
+- Added new exceptions for `_youtube_dl` file and it's classes.
+
+### Changed
+- Used `ValidationError` from pydantic instead of using general `Exception` class.
+
+### Fixed
+
+## [2.2] - 2026-03-01
 ### Added
 - Added tab option for both CLI and Python API to fetch from different tabs for a channel. ('videos', 'shorts', 'streams')
 - Verbose logging mode via `--verbose` CLI flag.
