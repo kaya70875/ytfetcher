@@ -218,7 +218,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         if "@" in path:
             handle = path.split("@", 1)[1].split("/")[0]
             return handle.strip()
-        raise ValueError(f"Could not extract channel handle from URL: {url}")
+        raise ChannelFetchError(f"Could not extract channel handle from URL: {url}")
 
 
 class PlaylistFetcher(BaseYoutubeDLFetcher):
@@ -268,7 +268,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         playlist_id_list = query_params.get("list")
         if playlist_id_list and len(playlist_id_list) > 0:
             return playlist_id_list[0].strip()
-        raise ValueError(f"Could not extract playlist ID from URL: {url}")
+        raise PlaylistFetchError(f"Could not extract playlist ID from URL: {url}")
 
 
 class SearchFetcher(BaseYoutubeDLFetcher):
