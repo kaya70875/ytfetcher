@@ -324,6 +324,8 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
                 url = f"https://www.youtube.com/watch?v={video_id}"
                 metadata = cast(dict[str, Any], ydl.extract_info(url, download=False))
                 if not metadata: return None
+
+                return DLSnippet.model_validate(metadata)
         except DownloadError as e:
             msg = str(e).lower()
 
@@ -333,5 +335,3 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
                 raise InCompleteVideoId(video_id=video_id)
 
             raise VideoListFetchError(f'Error while fetching with video id: {video_id}')
-
-        return DLSnippet.model_validate(metadata)
