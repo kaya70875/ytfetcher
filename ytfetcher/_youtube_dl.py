@@ -3,10 +3,24 @@ import concurrent.futures
 import logging
 from ytfetcher.models.channel import DLSnippet, Comment, VideoComments
 from ytfetcher.utils.state import should_disable_progress
+from ytfetcher.exceptions import (
+    YTFetcherError,
+    ChannelFetchError,
+    ChannelNotFound,
+    ChannelTabUnavailable,
+    PlaylistIdNotFound,
+    PlaylistFetchError,
+    SearchFetchError,
+    VideoListFetchError,
+    InCompleteVideoId,
+    VideoUnavailable
+)
+from yt_dlp.utils import DownloadError
 from tqdm import tqdm
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse, parse_qs
 from typing import Any, cast, Literal
+from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +61,7 @@ class BaseYoutubeDLFetcher(ABC):
         for entry in entries:
             try:
                 snippets.append(DLSnippet.model_validate(entry))
-            except Exception:
+            except ValidationError:
                 logger.debug("Failed to validate a snippet, skipping.")
                 continue
         return snippets
@@ -75,12 +89,14 @@ class ConcurrentYoutubeDLFetcher(BaseYoutubeDLFetcher):
         with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
             futures = [executor.submit(self.fetch_single, video_id) for video_id in self.video_ids]
             results = []
-            for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), 
-                              desc=self.description, disable=should_disable_progress()):
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(self.video_ids), desc=self.description, disable=should_disable_progress()):
                 try:
                     res = future.result()
                     if res is not None:
                         results.append(res)
+                except YTFetcherError as e:
+                    logger.warning(str(e))
+                    continue
                 except Exception:
                     logger.exception("Thread encountered an unexpected error while fetching data.")
             return results
@@ -130,8 +146,12 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 data = cast(list[dict[str, Any]], info_dict.get('comments', None) or [])
                 validated_comments = self._safe_validate_comments(raw_comments=data)
                 return VideoComments(video_id=video_id, comments=validated_comments)
-        except Exception as e:
-            logger.exception(f"Failed to fetch comments for {video_id}: {e}")
+        except DownloadError as e:
+            logger.debug(f"yt-dlp error while fetching comments for {video_id}", exc_info=True)
+            logger.warning(f"Failed to fetch comments for {video_id} : {str(e)}")
+            return None
+        except Exception:
+            logger.exception(f"Unexpected error while fetching comments for video id: {video_id}")
             return None
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
@@ -140,11 +160,10 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
         for raw in raw_comments:
             try:
                 comments.append(Comment.model_validate(raw))
-            except Exception:
+            except ValidationError:
                 logger.debug("Couldn't validate a comment.")
                 continue
         return comments
-
 
 class ChannelFetcher(BaseYoutubeDLFetcher):
     """
@@ -175,10 +194,27 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
             ydl_opts["playlistend"] = self.max_results
 
         url = f"https://www.youtube.com/@{self.channel_handle.replace('@', '').strip()}/{self.tab}"
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            info = ydl.extract_info(url, download=False)
-            entries = cast(list[dict[str, Any]], info.get("entries", []))
-            return self._to_snippets(entries)
+
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+                info = ydl.extract_info(url, download=False)
+                entries = cast(list[dict[str, Any]], info.get("entries", []))
+                return self._to_snippets(entries)
+
+        except DownloadError as e:
+            msg = str(e).lower()
+
+            if "unable to download" in msg or "not found" in msg:
+                raise ChannelNotFound(channel_handle=self.channel_handle) from None
+            elif "does not have a streams tab" in msg:
+                raise ChannelTabUnavailable(channel_handle=self.channel_handle, tab=self.tab) from None
+
+            logger.debug(f'Full yt-dlp error for channel: {self.channel_handle}', exc_info=True)
+            raise ChannelFetchError(f"Failed to fetch channel '{self.channel_handle}'") from e
+        
+        except Exception as e:
+            logger.debug(f"Critical internal yt-dlp error for channel: {self.channel_handle}", exc_info=True)
+            raise ChannelFetchError(f"Unexpected internal error while fetching '{self.channel_handle}'") from e
 
     @staticmethod
     def _find_channel_handle_from_url(url: str) -> str:
@@ -189,7 +225,7 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
         if "@" in path:
             handle = path.split("@", 1)[1].split("/")[0]
             return handle.strip()
-        raise ValueError(f"Could not extract channel handle from URL: {url}")
+        raise ChannelFetchError(f"Could not extract channel handle from URL: {url}")
 
 
 class PlaylistFetcher(BaseYoutubeDLFetcher):
@@ -218,10 +254,22 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
             ydl_opts["playlistend"] = self.max_results
 
         url = f"https://www.youtube.com/playlist?list={self.playlist_id.strip()}"
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            info = ydl.extract_info(url, download=False)
-            entries = cast(list[dict[str, Any]], info.get("entries", []))
-            return self._to_snippets(entries)
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+                info = ydl.extract_info(url, download=False)
+                entries = cast(list[dict[str, Any]], info.get("entries", []))
+                return self._to_snippets(entries)
+        except DownloadError as e:
+            msg = str(e).lower()
+
+            if "unable to download" in msg or "not found" in msg:
+                raise PlaylistIdNotFound(playlist_id=self.playlist_id) from None
+            
+            raise PlaylistFetchError(f'Error fetching playlist ID: {self.playlist_id}') from e
+        
+        except Exception as e:
+            logger.debug(f'Critical yt-dlp failure for playlist ID: {self.playlist_id}', exc_info=True)
+            raise PlaylistFetchError(f'Unexpected error while fetching playlist ID: {self.playlist_id}') from e
 
     @staticmethod
     def _find_playlist_id_from_url(url: str) -> str:
@@ -231,7 +279,7 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
         playlist_id_list = query_params.get("list")
         if playlist_id_list and len(playlist_id_list) > 0:
             return playlist_id_list[0].strip()
-        raise ValueError(f"Could not extract playlist ID from URL: {url}")
+        raise PlaylistFetchError(f"Could not extract playlist ID from URL: {url}")
 
 
 class SearchFetcher(BaseYoutubeDLFetcher):
@@ -253,12 +301,18 @@ class SearchFetcher(BaseYoutubeDLFetcher):
         ydl_opts = self._setup_ydl_opts(default_search='ytsearch', no_playlist=True)
         search_query = f"ytsearch{self.max_results}:{self.query}"
         logger.info(f"Searching via yt-dlp: '{self.query}'")
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            info = ydl.extract_info(search_query, download=False)
-            entries = cast(list[dict[str, Any]], info.get("entries", []))
-            return self._to_snippets(entries)
 
-
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+                info = ydl.extract_info(search_query, download=False)
+                entries = cast(list[dict[str, Any]], info.get("entries", []))
+                return self._to_snippets(entries)
+        except DownloadError as e:
+            raise SearchFetchError(query=self.query, msg=str(e)) from e
+        
+        except Exception as e:
+            logger.debug(f'Critical yt-dlp failure for search query: {self.query}', exc_info=True)
+            raise SearchFetchError(query=self.query, msg=str(e)) from e
 class VideoListFetcher(ConcurrentYoutubeDLFetcher):
     """
     Fetches detailed metadata for a specific list of YouTube video IDs.
@@ -280,8 +334,23 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
             "extract_flat": True,
             "no_warnings": True,
         }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
-            url = f"https://www.youtube.com/watch?v={video_id}"
-            metadata = cast(dict[str, Any], ydl.extract_info(url, download=False))
-            if not metadata: return None
-        return DLSnippet.model_validate(metadata)
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
+                url = f"https://www.youtube.com/watch?v={video_id}"
+                metadata = cast(dict[str, Any], ydl.extract_info(url, download=False))
+                if not metadata: return None
+
+                return DLSnippet.model_validate(metadata)
+        except DownloadError as e:
+            msg = str(e).lower()
+
+            if "video unavailable" in msg:
+                raise VideoUnavailable(video_id=video_id) from None
+            elif "incomplete youtube id" in msg:
+                raise InCompleteVideoId(video_id=video_id) from None
+
+            raise VideoListFetchError(f'Error while fetching with video id: {video_id}') from e
+        
+        except Exception as e:
+            logger.debug(f'Critical yt-dlp failure for VideoListFetcher: {video_id}', exc_info=True)
+            raise VideoListFetchError(f"Unexpected error while fetching from video ID: {video_id}") from e
