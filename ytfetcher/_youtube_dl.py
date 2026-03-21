@@ -147,7 +147,8 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
                 validated_comments = self._safe_validate_comments(raw_comments=data)
                 return VideoComments(video_id=video_id, comments=validated_comments)
         except DownloadError as e:
-            logger.warning(f"Failed to fetch comments for {video_id}: {str(e)}")
+            logger.debug(f"yt-dlp error while fetching comments for {video_id}", exc_info=True)
+            logger.warning(f"Failed to fetch comments for {video_id} : {str(e)}")
             return None
         except Exception:
             logger.exception(f"Unexpected error while fetching comments for video id: {video_id}")
@@ -204,12 +205,17 @@ class ChannelFetcher(BaseYoutubeDLFetcher):
             msg = str(e).lower()
 
             if "unable to download" in msg or "not found" in msg:
-                raise ChannelNotFound(channel_handle=self.channel_handle)
+                raise ChannelNotFound(channel_handle=self.channel_handle) from None
             elif "does not have a streams tab" in msg:
-                raise ChannelTabUnavailable(channel_handle=self.channel_handle, tab=self.tab)
+                raise ChannelTabUnavailable(channel_handle=self.channel_handle, tab=self.tab) from None
 
-            raise ChannelFetchError(f"Failed to fetch channel '{self.channel_handle}': {msg}")
+            logger.debug(f'Full yt-dlp error for channel: {self.channel_handle}', exc_info=True)
+            raise ChannelFetchError(f"Failed to fetch channel '{self.channel_handle}'") from e
         
+        except Exception as e:
+            logger.debug(f"Critical internal yt-dlp error for channel: {self.channel_handle}", exc_info=True)
+            raise ChannelFetchError(f"Unexpected internal error while fetching '{self.channel_handle}'") from e
+
     @staticmethod
     def _find_channel_handle_from_url(url: str) -> str:
         """Extract the channel handle from a full YouTube channel URL."""
@@ -257,9 +263,13 @@ class PlaylistFetcher(BaseYoutubeDLFetcher):
             msg = str(e).lower()
 
             if "unable to download" in msg or "not found" in msg:
-                raise PlaylistIdNotFound(playlist_id=self.playlist_id)
+                raise PlaylistIdNotFound(playlist_id=self.playlist_id) from None
             
-            raise PlaylistFetchError(f'Error fetching playlist ID: {self.playlist_id} : {msg}')
+            raise PlaylistFetchError(f'Error fetching playlist ID: {self.playlist_id}') from e
+        
+        except Exception as e:
+            logger.debug(f'Critical yt-dlp failure for playlist ID: {self.playlist_id}', exc_info=True)
+            raise PlaylistFetchError(f'Unexpected error while fetching playlist ID: {self.playlist_id}') from e
 
     @staticmethod
     def _find_playlist_id_from_url(url: str) -> str:
@@ -298,7 +308,11 @@ class SearchFetcher(BaseYoutubeDLFetcher):
                 entries = cast(list[dict[str, Any]], info.get("entries", []))
                 return self._to_snippets(entries)
         except DownloadError as e:
-            raise SearchFetchError(query=self.query, msg=str(e))
+            raise SearchFetchError(query=self.query, msg=str(e)) from e
+        
+        except Exception as e:
+            logger.debug(f'Critical yt-dlp failure for search query: {self.query}', exc_info=True)
+            raise SearchFetchError(query=self.query, msg=str(e)) from e
 class VideoListFetcher(ConcurrentYoutubeDLFetcher):
     """
     Fetches detailed metadata for a specific list of YouTube video IDs.
@@ -331,8 +345,12 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
             msg = str(e).lower()
 
             if "video unavailable" in msg:
-                raise VideoUnavailable(video_id=video_id)
+                raise VideoUnavailable(video_id=video_id) from None
             elif "incomplete youtube id" in msg:
-                raise InCompleteVideoId(video_id=video_id)
+                raise InCompleteVideoId(video_id=video_id) from None
 
-            raise VideoListFetchError(f'Error while fetching with video id: {video_id} : {msg}')
+            raise VideoListFetchError(f'Error while fetching with video id: {video_id}') from e
+        
+        except Exception as e:
+            logger.debug(f'Critical yt-dlp failure for VideoListFetcher: {video_id}', exc_info=True)
+            raise VideoListFetchError(f"Unexpected error while fetching from video ID: {video_id}") from e
