@@ -3,7 +3,6 @@ from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.utils.state import should_disable_progress
 from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.utils import log
-from ytfetcher.exceptions import TranscriptFetchError
 from youtube_transcript_api._errors import (
  NoTranscriptFound,
  VideoUnavailable,
@@ -16,6 +15,7 @@ from concurrent import futures
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 from typing import Iterable
+from collections import defaultdict
 import requests
 import logging
 import re
@@ -81,6 +81,8 @@ class TranscriptFetcher:
         self.languages = languages
         self.manually_created = manually_created
         self.max_workers = 25
+
+        self._failures: dict[str, int] = defaultdict(int)
 
         self.session = requests.Session()
         self.session.headers.update(self.http_config.headers)
@@ -162,6 +164,7 @@ class TranscriptFetcher:
             logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.")
             raise e
         except (VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
+            self._failures[type(e).__name__] += 1
             logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
             return None
         except Exception as e:
@@ -301,8 +304,7 @@ class TranscriptFetcher:
             logger.warning(f'No transcript found for {video_id} with languages {self.languages}')
             return None
 
-    @staticmethod
-    def _collect_results(tasks: list[futures.Future]) -> list[VideoTranscript]:
+    def _collect_results(self, tasks: list[futures.Future]) -> list[VideoTranscript]:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -326,6 +328,12 @@ class TranscriptFetcher:
                     results.append(result)
             except Exception:
                 logger.exception('Unexpected error while retrieving result from thread future.')
+
+        if not results:
+            logger.info('No transcripts fetched.')
+            for failure_type, count in self._failures.items():
+                logger.debug(f"Failure Summary: {failure_type} : {count}")
+            return []
 
         logger.debug("Collected %d successful transcripts out of %d tasks", len(results), len(tasks))
 
