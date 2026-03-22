@@ -1,10 +1,17 @@
-from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled, AgeRestricted
-from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.utils.state import should_disable_progress
+from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.utils import log
+from ytfetcher.exceptions import TranscriptFetchError
+from youtube_transcript_api._errors import (
+ NoTranscriptFound,
+ VideoUnavailable,
+ TranscriptsDisabled,
+ AgeRestricted,
+ IpBlocked   
+)
+from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent import futures
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
@@ -121,6 +128,7 @@ class TranscriptFetcher:
             return video_transcript
         except Exception:
             logger.exception('Thread failed while fetching transcripts.')
+            raise
         finally:
             self.session.close()
 
@@ -150,8 +158,11 @@ class TranscriptFetcher:
                 video_id=video_id,
                 transcripts=cleaned_transcript
             )
+        except IpBlocked as e:
+            logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.")
+            raise e
         except (VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
-            logger.warning(str(e).replace(e.GITHUB_REFERRAL, ''))
+            logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
             return None
         except Exception as e:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
