@@ -119,6 +119,8 @@ class TranscriptFetcher:
                 logger.info("No manually created transcripts found!")
 
             return video_transcript
+        except Exception:
+            logger.exception('Thread failed while fetching transcripts.')
         finally:
             self.session.close()
 
