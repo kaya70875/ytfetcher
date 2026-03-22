@@ -233,7 +233,7 @@ class TranscriptFetcher:
             return self._convert_to_transcript_object(raw)
 
         except NoTranscriptFound:
-            logger.warning(f"No manually created transcript found for {video_id}")
+            logger.debug(f"No manually created transcript found for {video_id}")
             return None
 
     def _fetch_first_available_transcript(
@@ -263,7 +263,7 @@ class TranscriptFetcher:
                 raw = transcript.fetch().to_raw_data()
                 return self._convert_to_transcript_object(raw)
         except NoTranscriptFound:
-            logger.warning(f'No transcript found for {video_id} with first available transcripts method.')
+            logger.debug(f'No transcript found for {video_id} with first available transcripts method.')
         return None
 
     def _fetch_by_languages(
@@ -301,7 +301,7 @@ class TranscriptFetcher:
 
             return self._convert_to_transcript_object(raw)
         except NoTranscriptFound:
-            logger.warning(f'No transcript found for {video_id} with languages {self.languages}')
+            logger.debug(f'No transcript found for {video_id} with languages {self.languages}')
             return None
 
     def _collect_results(self, tasks: list[futures.Future]) -> list[VideoTranscript]:
