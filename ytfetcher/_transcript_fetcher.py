@@ -1,14 +1,15 @@
 from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
+from ytfetcher.exceptions import TranscriptFetchError
 from ytfetcher.utils.state import should_disable_progress
-from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.utils import log
+from youtube_transcript_api.proxies import ProxyConfig
 from youtube_transcript_api._errors import (
  NoTranscriptFound,
  VideoUnavailable,
  TranscriptsDisabled,
  AgeRestricted,
- IpBlocked   
+ IpBlocked
 )
 from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent import futures
@@ -96,7 +97,7 @@ class TranscriptFetcher:
         self.session.mount("http://", adapter)
 
         if manually_created and not languages:
-            raise ValueError(
+            raise TranscriptFetchError(
                 "You must provide a language when using manually_created."
             )
 
@@ -126,6 +127,10 @@ class TranscriptFetcher:
             if not video_transcript and self.manually_created: 
                 log(f'No manually created transcripts found for requested languages: {self.languages}', level='WARNING')
                 logger.info("No manually created transcripts found!")
+            
+            all_failed = len(self.video_ids) == sum(self._failures.values())
+            if all_failed:
+                raise TranscriptFetchError(f'All transcript fetches failed. Reasons: {dict(self._failures)}')
 
             return video_transcript
         except Exception:
@@ -161,7 +166,7 @@ class TranscriptFetcher:
                 transcripts=cleaned_transcript
             )
         except IpBlocked as e:
-            logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.")
+            logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.", exc_info=True)
             raise
         except (VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
             self._failures[type(e).__name__] += 1
