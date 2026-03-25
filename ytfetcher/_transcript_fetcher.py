@@ -162,7 +162,7 @@ class TranscriptFetcher:
             )
         except IpBlocked as e:
             logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.")
-            raise e
+            raise
         except (VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
             self._failures[type(e).__name__] += 1
             logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
