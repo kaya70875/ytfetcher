@@ -23,6 +23,11 @@ class InvalidHeaders(YTFetcherError):
     Raises when headers are invalid.
     """
 
+class TranscriptFetchError(YTFetcherError):
+    """
+    Raises when transcripts could not be fetched.
+    """
+
 class ChannelFetchError(YTFetcherError):
     """
     Base exception for all ChannelFetcher errors.
