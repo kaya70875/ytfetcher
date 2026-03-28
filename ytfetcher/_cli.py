@@ -284,7 +284,6 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
 
     output_group = parser.add_argument_group("Output Options")
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
-    output_group.add_argument("--quiet", action="store_true", help="Supress output logs and progress informations.")
     output_group.add_argument("--verbose", action="store_true", help="Show logs.")
 
 def _clear_cache(cache_path: str | None) -> None:
@@ -308,12 +307,9 @@ def main():
         if args.clean:
             _clear_cache(cache_path=args.cache_path)
         return
-
+    
     setup_logging(args.verbose)
 
-    if not args.quiet:
-        RuntimeConfig.enable_verbose()
-    
     cli = YTFetcherCLI(args=args)
     try:
         cli.run()
