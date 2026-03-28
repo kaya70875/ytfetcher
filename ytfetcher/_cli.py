@@ -309,6 +309,7 @@ def main():
         return
     
     setup_logging(args.verbose)
+    RuntimeConfig.enable_verbose()
 
     cli = YTFetcherCLI(args=args)
     try:
