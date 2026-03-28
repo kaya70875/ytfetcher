@@ -2,7 +2,6 @@ from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.exceptions import TranscriptFetchError
 from ytfetcher.utils.state import should_disable_progress
-from ytfetcher.utils import log
 from youtube_transcript_api.proxies import ProxyConfig
 from youtube_transcript_api._errors import (
     CouldNotRetrieveTranscript,
