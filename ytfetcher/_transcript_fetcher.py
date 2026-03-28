@@ -124,7 +124,7 @@ class TranscriptFetcher:
                 video_transcript = self._collect_results(tasks)
                 
             if not video_transcript and self.manually_created: 
-                logger.info("No manually created transcripts found for requested languages: %s", ", ".join(self.languages))
+                logger.info(f"No manually created transcripts found for requested languages: {self.languages}")
             
             all_failed = len(self.video_ids) == sum(self._failures.values())
             if all_failed:
