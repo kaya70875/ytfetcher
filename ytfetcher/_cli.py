@@ -322,7 +322,7 @@ def main():
         logger.error(str(e))
         raise SystemExit(1)
     except Exception:
-        logger.error('Unexpected error occurred. Re-run with `--verbose` for details.')
+        logger.exception('Unexpected error occurred. Re-run with `--verbose` for details.')
         raise SystemExit(1)
 
 if __name__ == "__main__":
