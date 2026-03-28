@@ -72,11 +72,11 @@ class BaseExporter(ABC):
             if value is not None:
                 clean_meta[field] = value
         
-        logger.debug(
-            "Filtered metadata for video %s: %s",
-            data.video_id,
-            list(clean_meta.keys())
-        )
+        #logger.debug(
+            #"Filtered metadata for video %s: %s",
+            #data.video_id,
+            #list(clean_meta.keys())
+        #)
 
         return clean_meta
 class TXTExporter(BaseExporter):
