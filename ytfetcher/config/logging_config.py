@@ -30,7 +30,8 @@ def setup_logging(verbose: bool = False):
     handler = logging.StreamHandler()
     handler.setFormatter(ColorFormatter(fmt))
 
-    root = logging.getLogger()
-    root.handlers.clear()
-    root.setLevel(level)
-    root.addHandler(handler)
+    logging.basicConfig(
+        level=level,
+        handlers=[handler],
+        force=True
+    )
