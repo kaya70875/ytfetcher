@@ -51,7 +51,7 @@ class BaseExporter(ABC):
             self.output_dir.mkdir(parents=True, exist_ok=True)
             output_path = self.output_dir / f"{self.filename}.{export_type}"
             
-            logger.info(f"Writing as {export_type} file, output path: {output_path}")
+            logger.debug(f"Writing as {export_type} file, output path: {output_path}")
             return output_path
         except OSError:
             logger.exception("Failed to initialize output directory %s", self.output_dir)
@@ -100,7 +100,7 @@ class TXTExporter(BaseExporter):
                 self._write_transcripts(file=file, data=data)
                 self._write_comments(file=file, data=data)
         
-        logger.info(
+        logger.debug(
             "%s export completed. Videos processed: %d. Output: %s",
             self.__class__.__name__,
             len(self.channel_data),
@@ -148,7 +148,7 @@ class JSONExporter(BaseExporter):
         with open(output_path, 'w', encoding='utf-8') as file:
             json.dump(export_data, file, indent=2, ensure_ascii=False)
         
-        logger.info(
+        logger.debug(
             "%s export completed. Videos processed: %d. Output: %s",
             self.__class__.__name__,
             len(self.channel_data),
@@ -216,7 +216,7 @@ class CSVExporter(BaseExporter):
                 self._write_transcripts(data=data, writer=writer, base_info=base_info)
                 i += 1
 
-        logger.info(
+        logger.debug(
             "%s export completed. Videos processed: %d. Output: %s",
             self.__class__.__name__,
             len(self.channel_data),
