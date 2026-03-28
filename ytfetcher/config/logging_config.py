@@ -1,12 +1,21 @@
 import logging
 
-def enable_default_config(level=logging.INFO):
+def setup_logging(verbose: bool = False):
     """
-    Simple method for enabling basic logging.
+    Configure logging for CLI usage.
+
     Args:
-        level: Log level. Default to INFO
+        verbose: If True → DEBUG logs with full details.
+                 If False → INFO logs with clean output.
     """
+    level = logging.DEBUG if verbose else logging.INFO
+
+    if verbose:
+        fmt = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    else:
+        fmt = "[%(levelname)s] %(message)s"
+
     logging.basicConfig(
         level=level,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        format=fmt,
     )
