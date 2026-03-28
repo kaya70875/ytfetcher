@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [UNRELEASED]
 ### Added
 - Added new exceptions for `_youtube_dl` file and it's classes.
+- Added new exceptions and improve error handling for `TranscriptFetcher`.
+- Simplified logging by removing custom `log` method and use built-in `logging` for colorful CLI logs.
+- Removed `--quiet` argument from CLI.
+- Updated `yt-dlp` to latest version `2026.03.17`.
 
 ### Changed
 - Used `ValidationError` from pydantic instead of using general `Exception` class.

@@ -2,7 +2,6 @@ from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.exceptions import TranscriptFetchError
 from ytfetcher.utils.state import should_disable_progress
-from ytfetcher.utils import log
 from youtube_transcript_api.proxies import ProxyConfig
 from youtube_transcript_api._errors import (
     CouldNotRetrieveTranscript,
@@ -125,8 +124,7 @@ class TranscriptFetcher:
                 video_transcript = self._collect_results(tasks)
                 
             if not video_transcript and self.manually_created: 
-                log(f'No manually created transcripts found for requested languages: {self.languages}', level='WARNING')
-                logger.info("No manually created transcripts found!")
+                logger.info(f"No manually created transcripts found for requested languages: {self.languages}")
             
             all_failed = len(self.video_ids) == sum(self._failures.values())
             if all_failed:

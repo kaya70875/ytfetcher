@@ -1,12 +1,12 @@
 from .http_config import HTTPConfig
 from .fetch_config import FetchOptions
-from .logging_config import enable_default_config
+from .logging_config import setup_logging
 from .fetch_config import default_cache_path
 from youtube_transcript_api.proxies import ProxyConfig, GenericProxyConfig, WebshareProxyConfig
 
 __all__ = [
     "HTTPConfig",
-    "enable_default_config",
+    "setup_logging",
     "ProxyConfig",
     "GenericProxyConfig",
     "WebshareProxyConfig",

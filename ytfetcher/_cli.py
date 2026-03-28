@@ -6,7 +6,7 @@ from typing import Union, Callable
 from pathlib import Path
 from ytfetcher._core import YTFetcher
 from ytfetcher.config import (
-    enable_default_config,
+    setup_logging,
     default_cache_path,
     GenericProxyConfig,
     WebshareProxyConfig,
@@ -14,14 +14,11 @@ from ytfetcher.config import (
     FetchOptions
 )
 from ytfetcher.exceptions import (
-    ChannelFetchError,
-    PlaylistFetchError,
     YTFetcherError
 )
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
 from ytfetcher.services._preview import PreviewRenderer
 from ytfetcher.models import ChannelData
-from ytfetcher.utils.log import log
 from ytfetcher import filters
 from ytfetcher.utils.state import RuntimeConfig
 
@@ -93,7 +90,7 @@ class YTFetcherCLI:
             **kwargs
         )
         data = self._fetch_data(fetcher=fetcher)
-        log('Fetched all channel data.', level='DONE')
+        logging.info('Fetched all channel data.')
 
         self._handle_output(data=data)
     
@@ -106,14 +103,14 @@ class YTFetcherCLI:
 
         if should_show_preview:
             PreviewRenderer().render(data=data)
-            log("Showing preview (5 lines)")
+            logging.info('Showing preview (5 lines)')
             if not self.args.format:
-                log("Use --stdout or --format to see full structured output", level='WARNING')
+                logging.warning('Use --stdout or --format to see full structured output')
         if self.args.stdout:
             print(data)
         if self.args.format:
             self._export(data)
-            log(f"Data exported successfully as {self.args.format}", level='DONE')
+            logging.info('Data exported successfully as %s', self.args.format)
     
     def _get_active_filters(self) -> list[Callable]:
         """
@@ -170,7 +167,7 @@ class YTFetcherCLI:
     def run(self):
         match self.args.command:
             case 'channel':
-                log(f"Starting to fetch from channel: {self.args.channel}")
+                logging.info('Starting to fetch from channel: %s', self.args.channel)
                 self._run_fetcher(
                     YTFetcher.from_channel,
                     channel_handle=self.args.channel,
@@ -179,14 +176,14 @@ class YTFetcherCLI:
                 )
             
             case 'video':
-                log(f'Starting to fetch from video ids: {self.args.video_ids}')
+                logging.info(f'Starting to fetch from video ids: {self.args.video_ids}')
                 self._run_fetcher(
                     YTFetcher.from_video_ids,
                     video_ids=self.args.video_ids,
                 )
             
             case 'playlist':
-                log(f"Starting to fetch from playlist id: {self.args.playlist_id}")
+                logging.info('Starting to fetch from playlist id: %s', self.args.playlist_id)
                 self._run_fetcher(
                     YTFetcher.from_playlist_id,
                     playlist_id=self.args.playlist_id,
@@ -194,7 +191,7 @@ class YTFetcherCLI:
                 )
             
             case 'search':
-                log(f"Starting to fetch for query: '{self.args.search}'")
+                logging.info('Starting to fetch for query: %s', self.args.search)
                 self._run_fetcher(
                     YTFetcher.from_search,
                     query=self.args.search,
@@ -287,51 +284,45 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
 
     output_group = parser.add_argument_group("Output Options")
     output_group.add_argument("--stdout", action="store_true", help="Dump data to console.")
-    output_group.add_argument("--quiet", action="store_true", help="Supress output logs and progress informations.")
     output_group.add_argument("--verbose", action="store_true", help="Show logs.")
 
 def _clear_cache(cache_path: str | None) -> None:
     from ytfetcher.cache.sqlite_cache import SQLiteCache
+    setup_logging()
 
     resolved_path = Path(cache_path or default_cache_path()).expanduser()
     db_file = resolved_path / "cache.sqlite3"
 
     if not db_file.exists():
-        print(f"No cache found at: {db_file}")
+        logging.warning(f"No cache found at: {db_file}")
         return
 
     cache = SQLiteCache(str(resolved_path))
     cache.clear()
 
-    print(f"Cache cleared at: {cache.db_file}")
+    logging.info(f'Cache cleared at: {cache.db_file}')
 
 def main():
-    import logging
-
     args = parse_args(sys.argv[1:])
     if args.command == 'cache':
         if args.clean:
             _clear_cache(cache_path=args.cache_path)
         return
-
-    if args.verbose:
-        enable_default_config(logging.DEBUG)
-
-    if not args.quiet:
-        RuntimeConfig.enable_verbose()
     
+    setup_logging(args.verbose)
+    RuntimeConfig.enable_verbose()
+
     cli = YTFetcherCLI(args=args)
     try:
         cli.run()
     except KeyboardInterrupt:
-        log('Operation cancelled by user.', level='WARNING')
+        logger.warning('Operation cancelled by user.')
         raise SystemExit(130)
     except YTFetcherError as e:
-        log(str(e), level='ERROR')
+        logger.error(str(e))
         raise SystemExit(1)
     except Exception:
-        logger.exception("Unexpected error during CLI run.")
-        log("Unexpected error occurred. Re-run with `--verbose` for details.", level="ERROR")
+        logger.exception('Unexpected error occurred. Re-run with `--verbose` for details.')
         raise SystemExit(1)
 
 if __name__ == "__main__":
