@@ -157,11 +157,6 @@ All commands support the following common options:
 - Print data directly to console instead of exporting to file
 - Example: `ytfetcher channel TheOffice --stdout`
 
-**`--quiet`**
-
-- Supress CLI logs and progress informations.
-- Example: `ytfetcher channel TEDx --quiet`
-
 ### Comment Options
 
 **`--comments <NUMBER>`**
