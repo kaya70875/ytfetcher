@@ -187,7 +187,11 @@ def test_fetch_manual_transcript_no_transcript(mocker):
     mock_list = mocker.MagicMock()
 
     mock_api.list.return_value = mock_list
-    mock_list.find_manually_created_transcript.side_effect = NoTranscriptFound(video_id, requested_language_codes=['en'], transcript_data=None)
+    mock_list.find_manually_created_transcript.side_effect = NoTranscriptFound(
+        video_id,
+        requested_language_codes=['en'],
+        transcript_data=None
+    )
 
     fetcher = TranscriptFetcher(
         video_ids=[video_id],
@@ -195,9 +199,15 @@ def test_fetch_manual_transcript_no_transcript(mocker):
         languages=["en"]
     )
 
-    result = fetcher._fetch_manual_transcript(mock_api, video_id)
+    mocker.patch(
+        "ytfetcher._transcript_fetcher.YouTubeTranscriptApi",
+        return_value=mock_api
+    )
+
+    result = fetcher._fetch_single(video_id)
 
     assert result is None
+    assert fetcher._failures["NoTranscriptFound"] == 1
 
 def test_fetch_first_available_transcript_empty(mocker):
     video_id = "abc"

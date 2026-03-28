@@ -1,14 +1,19 @@
-from youtube_transcript_api._errors import NoTranscriptFound, VideoUnavailable, TranscriptsDisabled, AgeRestricted
-from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.proxies import ProxyConfig
 from ytfetcher.models.channel import VideoTranscript, Transcript
 from ytfetcher.config.http_config import HTTPConfig
+from ytfetcher.exceptions import TranscriptFetchError
 from ytfetcher.utils.state import should_disable_progress
 from ytfetcher.utils import log
+from youtube_transcript_api.proxies import ProxyConfig
+from youtube_transcript_api._errors import (
+    CouldNotRetrieveTranscript,
+    IpBlocked
+)
+from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent import futures
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 from typing import Iterable
+from collections import defaultdict
 import requests
 import logging
 import re
@@ -75,6 +80,8 @@ class TranscriptFetcher:
         self.manually_created = manually_created
         self.max_workers = 25
 
+        self._failures: dict[str, int] = defaultdict(int)
+
         self.session = requests.Session()
         self.session.headers.update(self.http_config.headers)
 
@@ -87,7 +94,7 @@ class TranscriptFetcher:
         self.session.mount("http://", adapter)
 
         if manually_created and not languages:
-            raise ValueError(
+            raise TranscriptFetchError(
                 "You must provide a language when using manually_created."
             )
 
@@ -109,6 +116,9 @@ class TranscriptFetcher:
             self.manually_created,
         )
 
+        if not self.video_ids:
+            return []
+
         try:
             with futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
                 tasks = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
@@ -117,6 +127,10 @@ class TranscriptFetcher:
             if not video_transcript and self.manually_created: 
                 log(f'No manually created transcripts found for requested languages: {self.languages}', level='WARNING')
                 logger.info("No manually created transcripts found!")
+            
+            all_failed = len(self.video_ids) == sum(self._failures.values())
+            if all_failed:
+                raise TranscriptFetchError(f'All transcript fetches failed. Reasons: {dict(self._failures)}')
 
             return video_transcript
         finally:
@@ -148,12 +162,16 @@ class TranscriptFetcher:
                 video_id=video_id,
                 transcripts=cleaned_transcript
             )
-        except (VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
-            logger.warning(str(e).replace(e.GITHUB_REFERRAL, ''))
+        except IpBlocked as e:
+            logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.", exc_info=True)
+            raise
+        except CouldNotRetrieveTranscript as e:
+            self._failures[type(e).__name__] += 1
+            logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
             return None
         except Exception as e:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
-            return None
+            raise
     
     def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
         """
@@ -207,18 +225,13 @@ class TranscriptFetcher:
 
         assert self.languages is not None, "languages must not be None here."
 
-        try:
-            transcript = (
-                yt_api
-                .list(video_id)
-                .find_manually_created_transcript(language_codes=self.languages)
-            )
-            raw = transcript.fetch().to_raw_data()
-            return self._convert_to_transcript_object(raw)
-
-        except NoTranscriptFound:
-            logger.warning(f"No manually created transcript found for {video_id}")
-            return None
+        transcript = (
+            yt_api
+            .list(video_id)
+            .find_manually_created_transcript(language_codes=self.languages)
+        )
+        raw = transcript.fetch().to_raw_data()
+        return self._convert_to_transcript_object(raw)
 
     def _fetch_first_available_transcript(
         self,
@@ -241,13 +254,11 @@ class TranscriptFetcher:
             is available, otherwise None.
         """
 
-        try:
-            transcript_list = yt_api.list(video_id)
-            for transcript in transcript_list:
-                raw = transcript.fetch().to_raw_data()
-                return self._convert_to_transcript_object(raw)
-        except NoTranscriptFound:
-            logger.warning(f'No transcript found for {video_id} with first available transcripts method.')
+        transcript_list = yt_api.list(video_id)
+        for transcript in transcript_list:
+            raw = transcript.fetch().to_raw_data()
+            return self._convert_to_transcript_object(raw)
+        
         return None
 
     def _fetch_by_languages(
@@ -277,19 +288,15 @@ class TranscriptFetcher:
 
         assert self.languages is not None, "languages must not be None here."
 
-        try:
-            raw = yt_api.fetch(
-                video_id=video_id,
-                languages=self.languages
-            ).to_raw_data()
+        raw = yt_api.fetch(
+            video_id=video_id,
+            languages=self.languages
+        ).to_raw_data()
 
-            return self._convert_to_transcript_object(raw)
-        except NoTranscriptFound:
-            logger.warning(f'No transcript found for {video_id} with languages {self.languages}')
-            return None
+        return self._convert_to_transcript_object(raw)
 
-    @staticmethod
-    def _collect_results(tasks: list[futures.Future]) -> list[VideoTranscript]:
+
+    def _collect_results(self, tasks: list[futures.Future]) -> list[VideoTranscript]:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -311,10 +318,17 @@ class TranscriptFetcher:
                 result: VideoTranscript = future.result()
                 if result:
                     results.append(result)
-            except Exception:
-                logger.exception('Unexpected error while retrieving result from thread future.')
+            except IpBlocked:
+                logger.error('IP blocked. Stopping all operations.')
+                raise
+            except Exception as e:
+                logger.exception('Unexpected error while retrieving result from future.')
+                self._failures[type(e).__name__] += 1
 
-        logger.debug("Collected %d successful transcripts out of %d tasks", len(results), len(tasks))
+        logger.info("Collected %d successful transcripts out of %d tasks", len(results), len(tasks))
+
+        for failure_type, count in self._failures.items():
+            logger.info(f"Failure Summary: {failure_type} : {count}")
 
         return results
 
