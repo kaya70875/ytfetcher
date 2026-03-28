@@ -288,18 +288,19 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
 
 def _clear_cache(cache_path: str | None) -> None:
     from ytfetcher.cache.sqlite_cache import SQLiteCache
+    setup_logging()
 
     resolved_path = Path(cache_path or default_cache_path()).expanduser()
     db_file = resolved_path / "cache.sqlite3"
 
     if not db_file.exists():
-        print(f"No cache found at: {db_file}")
+        logging.warning(f"No cache found at: {db_file}")
         return
 
     cache = SQLiteCache(str(resolved_path))
     cache.clear()
 
-    print(f"Cache cleared at: {cache.db_file}")
+    logging.info(f'Cache cleared at: {cache.db_file}')
 
 def main():
     args = parse_args(sys.argv[1:])
