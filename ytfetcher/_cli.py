@@ -309,8 +309,7 @@ def main():
             _clear_cache(cache_path=args.cache_path)
         return
 
-    if args.verbose:
-        setup_logging(verbose=True)
+    setup_logging(args.verbose)
 
     if not args.quiet:
         RuntimeConfig.enable_verbose()
