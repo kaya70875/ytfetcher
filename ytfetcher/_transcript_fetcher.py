@@ -262,6 +262,8 @@ class TranscriptFetcher:
         for transcript in transcript_list:
             raw = transcript.fetch().to_raw_data()
             return self._convert_to_transcript_object(raw)
+        
+        return None
 
     def _fetch_by_languages(
         self,
