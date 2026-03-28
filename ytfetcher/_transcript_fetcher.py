@@ -136,9 +136,6 @@ class TranscriptFetcher:
                 raise TranscriptFetchError(f'All transcript fetches failed. Reasons: {dict(self._failures)}')
 
             return video_transcript
-        except Exception:
-            logger.exception('Thread failed while fetching transcripts.')
-            raise
         finally:
             self.session.close()
 
@@ -171,12 +168,13 @@ class TranscriptFetcher:
         except IpBlocked as e:
             logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.", exc_info=True)
             raise
-        except (VideoUnavailable, TranscriptsDisabled, AgeRestricted) as e:
+        except (VideoUnavailable, TranscriptsDisabled, AgeRestricted, NoTranscriptFound) as e:
             self._failures[type(e).__name__] += 1
             logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
             return None
         except Exception as e:
-            logger.exception("Unexpected error while fetching transcript for %s", video_id)
+            self._failures[type(e).__name__] += 1
+            logger.exception("Unexpected error while retrieving result from future.")
             return None
     
     def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
@@ -322,8 +320,12 @@ class TranscriptFetcher:
                 result: VideoTranscript = future.result()
                 if result:
                     results.append(result)
-            except Exception:
-                logger.exception('Unexpected error while retrieving result from thread future.')
+            except IpBlocked:
+                logger.error('IP blocked. Stopping all operations.')
+                raise
+            except Exception as e:
+                logger.exception('Unexpected error while fetching transcripts for video id: %s', result.video_id)
+                self._failures[type(e).__name__] += 1
 
         if not results:
             logger.info('No transcripts fetched.')
