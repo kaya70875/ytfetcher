@@ -6,7 +6,7 @@ from typing import Union, Callable
 from pathlib import Path
 from ytfetcher._core import YTFetcher
 from ytfetcher.config import (
-    enable_default_config,
+    setup_logging,
     default_cache_path,
     GenericProxyConfig,
     WebshareProxyConfig,
@@ -303,8 +303,6 @@ def _clear_cache(cache_path: str | None) -> None:
     print(f"Cache cleared at: {cache.db_file}")
 
 def main():
-    import logging
-
     args = parse_args(sys.argv[1:])
     if args.command == 'cache':
         if args.clean:
@@ -312,7 +310,7 @@ def main():
         return
 
     if args.verbose:
-        enable_default_config(logging.DEBUG)
+        setup_logging(verbose=True)
 
     if not args.quiet:
         RuntimeConfig.enable_verbose()
