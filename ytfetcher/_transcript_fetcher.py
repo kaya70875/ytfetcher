@@ -5,11 +5,8 @@ from ytfetcher.utils.state import should_disable_progress
 from ytfetcher.utils import log
 from youtube_transcript_api.proxies import ProxyConfig
 from youtube_transcript_api._errors import (
- NoTranscriptFound,
- VideoUnavailable,
- TranscriptsDisabled,
- AgeRestricted,
- IpBlocked
+    CouldNotRetrieveTranscript,
+    IpBlocked
 )
 from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent import futures
@@ -168,14 +165,13 @@ class TranscriptFetcher:
         except IpBlocked as e:
             logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.", exc_info=True)
             raise
-        except (VideoUnavailable, TranscriptsDisabled, AgeRestricted, NoTranscriptFound) as e:
+        except CouldNotRetrieveTranscript as e:
             self._failures[type(e).__name__] += 1
             logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
             return None
         except Exception as e:
-            self._failures[type(e).__name__] += 1
-            logger.exception("Unexpected error while retrieving result from future.")
-            return None
+            logger.exception("Unexpected error while fetching transcript for %s", video_id)
+            raise
     
     def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
         """
@@ -326,16 +322,13 @@ class TranscriptFetcher:
                 logger.error('IP blocked. Stopping all operations.')
                 raise
             except Exception as e:
-                logger.exception('Unexpected error while fetching transcripts for video id: %s', result.video_id)
+                logger.exception('Unexpected error while retrieving result from future.')
                 self._failures[type(e).__name__] += 1
 
-        if not results:
-            logger.info('No transcripts fetched.')
-            for failure_type, count in self._failures.items():
-                logger.debug(f"Failure Summary: {failure_type} : {count}")
-            return []
+        logger.info("Collected %d successful transcripts out of %d tasks", len(results), len(tasks))
 
-        logger.debug("Collected %d successful transcripts out of %d tasks", len(results), len(tasks))
+        for failure_type, count in self._failures.items():
+            logger.info(f"Failure Summary: {failure_type} : {count}")
 
         return results
 
