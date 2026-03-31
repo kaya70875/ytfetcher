@@ -35,6 +35,11 @@ class Transcript(BaseModel):
     start: float
     duration: float
     
+class FailedTranscript(BaseModel):
+    video_id: str
+    reason: str
+    message: str | None = None
+
 class VideoTranscript(BaseModel):
     video_id: str
     transcripts: list[Transcript]
@@ -46,9 +51,14 @@ class VideoComments(BaseModel):
     video_id: str
     comments: list[Comment]
 
+class FetchResult(BaseModel):
+    transcripts: list[VideoTranscript]
+    failed: list[FailedTranscript]
+
 class ChannelData(BaseModel):
     video_id: str
     transcripts: list[Transcript] | None = None
+    failed_transcripts: list[FailedTranscript] | None = None
     metadata: DLSnippet | None = None
     comments: list[Comment] | None = None
 
