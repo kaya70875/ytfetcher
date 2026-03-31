@@ -1,4 +1,9 @@
-from ytfetcher.models.channel import VideoTranscript, Transcript
+from ytfetcher.models.channel import (
+    VideoTranscript,
+    FetchResult,
+    Transcript,
+    FailedTranscript
+)
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.exceptions import TranscriptFetchError
 from ytfetcher.utils.state import should_disable_progress
@@ -97,7 +102,7 @@ class TranscriptFetcher:
                 "You must provide a language when using manually_created."
             )
 
-    def fetch(self) -> list[VideoTranscript]:
+    def fetch(self) -> FetchResult:
         """
         Synchronously fetches transcripts for all provided video IDs.
 
@@ -121,16 +126,16 @@ class TranscriptFetcher:
         try:
             with futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
                 tasks = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
-                video_transcript = self._collect_results(tasks)
+                fetch_results = self._collect_results(tasks)
                 
-            if not video_transcript and self.manually_created: 
+            if not fetch_results and self.manually_created: 
                 logger.info(f"No manually created transcripts found for requested languages: {self.languages}")
             
             all_failed = len(self.video_ids) == sum(self._failures.values())
             if all_failed:
                 raise TranscriptFetchError(f'All transcript fetches failed. Reasons: {dict(self._failures)}')
 
-            return video_transcript
+            return fetch_results
         finally:
             self.session.close()
 
@@ -294,7 +299,7 @@ class TranscriptFetcher:
         return self._convert_to_transcript_object(raw)
 
 
-    def _collect_results(self, tasks: list[futures.Future]) -> list[VideoTranscript]:
+    def _collect_results(self, tasks: list[futures.Future]) -> FetchResult:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -305,17 +310,17 @@ class TranscriptFetcher:
         Args:
             tasks: List of Future objects representing in-progress transcript
                 fetch operations.
-
-        Returns:
-            List of successfully fetched VideoTranscript objects.
         """
         results: list[VideoTranscript] = []
+        failed: list[FailedTranscript] = []
 
         for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript', disable=should_disable_progress()):
             try:
-                result: VideoTranscript = future.result()
-                if result:
+                result = future.result()
+                if isinstance(result, VideoTranscript):
                     results.append(result)
+                elif isinstance(result, FailedTranscript):
+                    failed.append(result)
             except IpBlocked:
                 logger.error('IP blocked. Stopping all operations.')
                 raise
@@ -328,7 +333,10 @@ class TranscriptFetcher:
         for failure_type, count in self._failures.items():
             logger.info(f"Failure Summary: {failure_type} : {count}")
 
-        return results
+        return FetchResult(
+            transcripts=results,
+            failed=failed
+        )
 
     @staticmethod
     def _clean_transcripts(transcripts: list[Transcript]) -> list[Transcript]:
