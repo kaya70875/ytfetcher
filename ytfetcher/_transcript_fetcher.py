@@ -139,7 +139,7 @@ class TranscriptFetcher:
         finally:
             self.session.close()
 
-    def _fetch_single(self, video_id: str) -> VideoTranscript | None:
+    def _fetch_single(self, video_id: str) -> VideoTranscript | FailedTranscript:
         """
         Fetches a single transcript and returns structured data.
 
@@ -171,7 +171,11 @@ class TranscriptFetcher:
         except CouldNotRetrieveTranscript as e:
             self._failures[type(e).__name__] += 1
             logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
-            return None
+            return FailedTranscript(
+                video_id=video_id,
+                reason=type(e).__name__,
+                message=str(e)
+            )
         except Exception as e:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
             raise
