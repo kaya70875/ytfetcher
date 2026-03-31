@@ -1,5 +1,5 @@
 import logging
-from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript
+from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript, FetchResult
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import (
     ChannelFetcher,
@@ -266,7 +266,7 @@ class YTFetcher:
         return filtered_snippets
 
 
-    def _get_transcripts(self) -> list[VideoTranscript]:
+    def _get_transcripts(self) -> FetchResult:
         video_ids = self._get_video_ids()
         if not self._cache:
             return self._create_transcript_fetcher(video_ids=video_ids).fetch()
@@ -288,7 +288,7 @@ class YTFetcher:
         """
         return [snippet.video_id for snippet in self._get_snippets()]
 
-    def _get_cached_transcripts(self, video_ids: list[str]) -> list[VideoTranscript]:
+    def _get_cached_transcripts(self, video_ids: list[str]) -> FetchResult:
         """
         Fetches transcripts from cache and merges with freshly fetched transcripts for missing video IDs.
         
@@ -336,7 +336,7 @@ class YTFetcher:
     def _build_response(
             self,
             snippets: list[DLSnippet],
-            transcripts: list[VideoTranscript] | None = None,
+            transcripts: FetchResult | None = None,
             comments: list[VideoComments] | None = None
     ) -> list[ChannelData]:
         """
@@ -345,6 +345,7 @@ class YTFetcher:
         """
 
         transcript_map = {t.video_id: t.transcripts for t in transcripts} if transcripts else {}
+        failed_map = {f.video_id: f for f in transcripts.failed} if transcripts else {}
         comments_map = {c.video_id: c.comments for c in comments} if comments else {}
 
         results: list[ChannelData] = []
@@ -353,6 +354,7 @@ class YTFetcher:
             vid = snippet.video_id
 
             vid_transcripts = transcript_map.get(vid)
+            vid_failed = failed_map.get(vid)
             vid_comments = comments_map.get(vid)
 
             results.append(
@@ -360,6 +362,7 @@ class YTFetcher:
                     video_id=vid,
                     metadata=snippet,
                     transcripts=vid_transcripts,
+                    failed_transcripts=vid_failed,
                     comments=vid_comments
                 )
             )
