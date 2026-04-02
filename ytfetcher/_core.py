@@ -140,7 +140,7 @@ class YTFetcher:
         
         return self._build_response(
             snippets=snippets,
-            transcripts=transcripts
+            transcript_results=transcripts
         )
     
     def fetch_with_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
@@ -169,7 +169,7 @@ class YTFetcher:
         full_comments: list[VideoComments] = comment_fetcher.fetch()
 
         return self._build_response(
-            transcripts=transcripts,
+            transcript_results=transcripts,
             snippets=snippets,
             comments=full_comments
         )
