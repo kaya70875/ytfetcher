@@ -162,14 +162,14 @@ class YTFetcher:
                 video metadata, and the requested comments.
         """
 
-        transcripts = self._get_transcripts()
+        transcript_results = self._get_transcripts()
         snippets = self._get_snippets()
         
         comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
         full_comments: list[VideoComments] = comment_fetcher.fetch()
 
         return self._build_response(
-            transcript_results=transcripts,
+            transcript_results=transcript_results,
             snippets=snippets,
             comments=full_comments
         )
@@ -210,14 +210,14 @@ class YTFetcher:
             list[ChannelData]: Transcripts only with video_id (excluding metadata).
         """
         
-        transcripts = self._get_transcripts()
+        transcript_results = self._get_transcripts()
         return [
             ChannelData(
-                video_id=transcript.video_id,
+                video_id=video_transcript.video_id,
                 metadata=None,
-                transcripts=transcript.transcripts
+                transcripts=video_transcript.transcripts
             )
-            for transcript in transcripts
+            for video_transcript in transcript_results.transcripts
         ]
     
     def fetch_snippets(self) -> list[ChannelData]:
