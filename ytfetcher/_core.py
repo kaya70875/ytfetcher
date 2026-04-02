@@ -336,7 +336,7 @@ class YTFetcher:
     def _build_response(
             self,
             snippets: list[DLSnippet],
-            transcripts: TranscriptFetchResult | None = None,
+            transcript_results: TranscriptFetchResult | None = None,
             comments: list[VideoComments] | None = None
     ) -> list[ChannelData]:
         """
@@ -344,8 +344,8 @@ class YTFetcher:
         Prevents misalignment if some transcripts/comments fail to fetch.
         """
 
-        transcript_map = {t.video_id: t.transcripts for t in transcripts.transcripts} if transcripts.transcripts else {}
-        failed_map = {f.video_id: f for f in transcripts.failed} if transcripts.failed else {}
+        transcript_map = {t.video_id: t.transcripts for t in transcript_results.transcripts} if transcript_results.transcripts else {}
+        failed_map = {f.video_id: f for f in transcript_results.failed} if transcript_results.failed else {}
         comments_map = {c.video_id: c.comments for c in comments} if comments else {}
 
         results: list[ChannelData] = []
