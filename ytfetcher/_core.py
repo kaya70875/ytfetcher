@@ -1,5 +1,5 @@
 import logging
-from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript, FetchResult
+from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript, TranscriptFetchResult
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import (
     ChannelFetcher,
@@ -266,7 +266,7 @@ class YTFetcher:
         return filtered_snippets
 
 
-    def _get_transcripts(self) -> FetchResult:
+    def _get_transcripts(self) -> TranscriptFetchResult:
         video_ids = self._get_video_ids()
         if not self._cache:
             return self._create_transcript_fetcher(video_ids=video_ids).fetch()
@@ -288,7 +288,7 @@ class YTFetcher:
         """
         return [snippet.video_id for snippet in self._get_snippets()]
 
-    def _get_cached_transcripts(self, video_ids: list[str]) -> FetchResult:
+    def _get_cached_transcripts(self, video_ids: list[str]) -> TranscriptFetchResult:
         """
         Fetches transcripts from cache and merges with freshly fetched transcripts for missing video IDs.
         
@@ -336,7 +336,7 @@ class YTFetcher:
     def _build_response(
             self,
             snippets: list[DLSnippet],
-            transcripts: FetchResult | None = None,
+            transcripts: TranscriptFetchResult | None = None,
             comments: list[VideoComments] | None = None
     ) -> list[ChannelData]:
         """

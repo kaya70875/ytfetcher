@@ -1,6 +1,6 @@
 from ytfetcher.models.channel import (
     VideoTranscript,
-    FetchResult,
+    TranscriptFetchResult,
     Transcript,
     FailedTranscript
 )
@@ -102,7 +102,7 @@ class TranscriptFetcher:
                 "You must provide a language when using manually_created."
             )
 
-    def fetch(self) -> FetchResult:
+    def fetch(self) -> TranscriptFetchResult:
         """
         Synchronously fetches transcripts for all provided video IDs.
 
@@ -303,7 +303,7 @@ class TranscriptFetcher:
         return self._convert_to_transcript_object(raw)
 
 
-    def _collect_results(self, tasks: list[futures.Future]) -> FetchResult:
+    def _collect_results(self, tasks: list[futures.Future]) -> TranscriptFetchResult:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -337,7 +337,7 @@ class TranscriptFetcher:
         for failure_type, count in self._failures.items():
             logger.info(f"Failure Summary: {failure_type} : {count}")
 
-        return FetchResult(
+        return TranscriptFetchResult(
             transcripts=results,
             failed=failed
         )

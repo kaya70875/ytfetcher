@@ -51,7 +51,7 @@ class VideoComments(BaseModel):
     video_id: str
     comments: list[Comment]
 
-class FetchResult(BaseModel):
+class TranscriptFetchResult(BaseModel):
     transcripts: list[VideoTranscript]
     failed: list[FailedTranscript]
 
