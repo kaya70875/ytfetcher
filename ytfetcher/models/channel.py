@@ -58,7 +58,7 @@ class FetchResult(BaseModel):
 class ChannelData(BaseModel):
     video_id: str
     transcripts: list[Transcript] | None = None
-    failed_transcripts: list[FailedTranscript] | None = None
+    failed_transcripts: FailedTranscript | None = None
     metadata: DLSnippet | None = None
     comments: list[Comment] | None = None
 
