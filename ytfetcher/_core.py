@@ -344,8 +344,8 @@ class YTFetcher:
         Prevents misalignment if some transcripts/comments fail to fetch.
         """
 
-        transcript_map = {t.video_id: t.transcripts for t in transcripts} if transcripts else {}
-        failed_map = {f.video_id: f for f in transcripts.failed} if transcripts else {}
+        transcript_map = {t.video_id: t.transcripts for t in transcripts.transcripts} if transcripts.transcripts else {}
+        failed_map = {f.video_id: f for f in transcripts.failed} if transcripts.failed else {}
         comments_map = {c.video_id: c.comments for c in comments} if comments else {}
 
         results: list[ChannelData] = []
