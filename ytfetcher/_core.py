@@ -329,6 +329,7 @@ class YTFetcher:
                 proxy_config=self.options.proxy_config,
                 languages=self.options.languages,
                 manually_created=self.options.manually_created,
+                _failed_transcripts=self._failed_transcripts
             ).fetch()
             self._cache.upsert_transcripts(fetched_transcripts, cache_key)
 
