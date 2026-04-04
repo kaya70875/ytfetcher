@@ -1,7 +1,7 @@
 import pytest
 from pytest_mock import MockerFixture
 from youtube_transcript_api._errors import NoTranscriptFound
-from ytfetcher.models.channel import VideoTranscript, Transcript
+from ytfetcher.models.channel import VideoTranscript, Transcript, FailedTranscript
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import GenericProxyConfig
@@ -206,7 +206,7 @@ def test_fetch_manual_transcript_no_transcript(mocker):
 
     result = fetcher._fetch_single(video_id)
 
-    assert result is None
+    assert isinstance(result, FailedTranscript)
     assert fetcher._failures["NoTranscriptFound"] == 1
 
 def test_fetch_first_available_transcript_empty(mocker):

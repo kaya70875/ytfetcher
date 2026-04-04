@@ -1,5 +1,5 @@
 import logging
-from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript, TranscriptFetchResult
+from ytfetcher.models.channel import ChannelData, DLSnippet, VideoComments, VideoTranscript, FailedTranscript
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher._youtube_dl import (
     ChannelFetcher,
@@ -47,6 +47,7 @@ class YTFetcher:
             if self.options.cache_enabled
             else None
         )
+        self._failed_transcripts: list[FailedTranscript] = []
             
     @classmethod
     def from_channel(
@@ -140,7 +141,7 @@ class YTFetcher:
         
         return self._build_response(
             snippets=snippets,
-            transcript_results=transcripts
+            transcripts=transcripts
         )
     
     def fetch_with_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
@@ -162,14 +163,14 @@ class YTFetcher:
                 video metadata, and the requested comments.
         """
 
-        transcript_results = self._get_transcripts()
+        transcripts = self._get_transcripts()
         snippets = self._get_snippets()
         
         comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
         full_comments: list[VideoComments] = comment_fetcher.fetch()
 
         return self._build_response(
-            transcript_results=transcript_results,
+            transcripts=transcripts,
             snippets=snippets,
             comments=full_comments
         )
@@ -210,14 +211,14 @@ class YTFetcher:
             list[ChannelData]: Transcripts only with video_id (excluding metadata).
         """
         
-        transcript_results = self._get_transcripts()
+        transcripts = self._get_transcripts()
         return [
             ChannelData(
-                video_id=video_transcript.video_id,
+                video_id=transcript.video_id,
                 metadata=None,
-                transcripts=video_transcript.transcripts
+                transcripts=transcript.transcripts
             )
-            for video_transcript in transcript_results.transcripts
+            for transcript in transcripts
         ]
     
     def fetch_snippets(self) -> list[ChannelData]:
@@ -238,6 +239,9 @@ class YTFetcher:
             )
             for snippet in snippets
         ]
+    
+    def get_failed_transcripts(self) -> list[FailedTranscript]:
+        return self._failed_transcripts.copy()
 
     def _get_snippets(self) -> list[DLSnippet]:
         if self._snippets is None:
@@ -266,7 +270,7 @@ class YTFetcher:
         return filtered_snippets
 
 
-    def _get_transcripts(self) -> TranscriptFetchResult:
+    def _get_transcripts(self) -> list[VideoTranscript]:
         video_ids = self._get_video_ids()
         if not self._cache:
             return self._create_transcript_fetcher(video_ids=video_ids).fetch()
@@ -279,7 +283,8 @@ class YTFetcher:
             http_config=self.options.http_config,
             proxy_config=self.options.proxy_config,
             languages=self.options.languages,
-            manually_created=self.options.manually_created
+            manually_created=self.options.manually_created,
+            _failed_transcripts=self._failed_transcripts
         )
     
     def _get_video_ids(self) -> list[str]:
@@ -288,7 +293,7 @@ class YTFetcher:
         """
         return [snippet.video_id for snippet in self._get_snippets()]
 
-    def _get_cached_transcripts(self, video_ids: list[str]) -> TranscriptFetchResult:
+    def _get_cached_transcripts(self, video_ids: list[str]) -> list[VideoTranscript]:
         """
         Fetches transcripts from cache and merges with freshly fetched transcripts for missing video IDs.
         
@@ -336,7 +341,7 @@ class YTFetcher:
     def _build_response(
             self,
             snippets: list[DLSnippet],
-            transcript_results: TranscriptFetchResult | None = None,
+            transcripts: list[VideoTranscript] | None = None,
             comments: list[VideoComments] | None = None
     ) -> list[ChannelData]:
         """
@@ -344,8 +349,7 @@ class YTFetcher:
         Prevents misalignment if some transcripts/comments fail to fetch.
         """
 
-        transcript_map = {t.video_id: t.transcripts for t in transcript_results.transcripts} if transcript_results.transcripts else {}
-        failed_map = {f.video_id: f for f in transcript_results.failed} if transcript_results.failed else {}
+        transcript_map = {t.video_id: t.transcripts for t in transcripts} if transcripts else {}
         comments_map = {c.video_id: c.comments for c in comments} if comments else {}
 
         results: list[ChannelData] = []
@@ -354,7 +358,6 @@ class YTFetcher:
             vid = snippet.video_id
 
             vid_transcripts = transcript_map.get(vid)
-            vid_failed = failed_map.get(vid)
             vid_comments = comments_map.get(vid)
 
             results.append(
@@ -362,7 +365,6 @@ class YTFetcher:
                     video_id=vid,
                     metadata=snippet,
                     transcripts=vid_transcripts,
-                    failed_transcripts=vid_failed,
                     comments=vid_comments
                 )
             )

@@ -1,6 +1,5 @@
 from ytfetcher.models.channel import (
     VideoTranscript,
-    TranscriptFetchResult,
     Transcript,
     FailedTranscript
 )
@@ -62,7 +61,8 @@ class TranscriptFetcher:
         http_config: HTTPConfig | None = None,
         proxy_config: ProxyConfig | None = None,
         languages: Iterable[str] | None = None,
-        manually_created: bool = False
+        manually_created: bool = False,
+        _failed_transcripts: list[FailedTranscript] = []
     ):
         """
         Initialize the TranscriptFetcher.
@@ -85,6 +85,7 @@ class TranscriptFetcher:
         self.max_workers = 25
 
         self._failures: dict[str, int] = defaultdict(int)
+        self._failed_transcripts = _failed_transcripts
 
         self.session = requests.Session()
         self.session.headers.update(self.http_config.headers)
@@ -102,7 +103,7 @@ class TranscriptFetcher:
                 "You must provide a language when using manually_created."
             )
 
-    def fetch(self) -> TranscriptFetchResult:
+    def fetch(self) -> list[VideoTranscript]:
         """
         Synchronously fetches transcripts for all provided video IDs.
 
@@ -303,7 +304,7 @@ class TranscriptFetcher:
         return self._convert_to_transcript_object(raw)
 
 
-    def _collect_results(self, tasks: list[futures.Future]) -> TranscriptFetchResult:
+    def _collect_results(self, tasks: list[futures.Future]) -> VideoTranscript | None:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -316,7 +317,6 @@ class TranscriptFetcher:
                 fetch operations.
         """
         results: list[VideoTranscript] = []
-        failed: list[FailedTranscript] = []
 
         for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript', disable=should_disable_progress()):
             try:
@@ -324,7 +324,7 @@ class TranscriptFetcher:
                 if isinstance(result, VideoTranscript):
                     results.append(result)
                 elif isinstance(result, FailedTranscript):
-                    failed.append(result)
+                    self._failed_transcripts.append(result)
             except IpBlocked:
                 logger.error('IP blocked. Stopping all operations.')
                 raise
@@ -337,10 +337,7 @@ class TranscriptFetcher:
         for failure_type, count in self._failures.items():
             logger.info(f"Failure Summary: {failure_type} : {count}")
 
-        return TranscriptFetchResult(
-            transcripts=results,
-            failed=failed
-        )
+        return results
 
     @staticmethod
     def _clean_transcripts(transcripts: list[Transcript]) -> list[Transcript]:
