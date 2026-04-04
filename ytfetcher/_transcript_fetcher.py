@@ -16,7 +16,7 @@ from concurrent import futures
 from requests.adapters import HTTPAdapter
 from tqdm import tqdm
 from typing import Iterable
-from collections import defaultdict
+from collections import Counter
 import requests
 import logging
 import re
@@ -84,7 +84,6 @@ class TranscriptFetcher:
         self.manually_created = manually_created
         self.max_workers = 25
 
-        self._failures: dict[str, int] = defaultdict(int)
         self._failed_transcripts = _failed_transcripts
 
         self.session = requests.Session()
@@ -132,9 +131,13 @@ class TranscriptFetcher:
             if not fetch_results and self.manually_created: 
                 logger.info(f"No manually created transcripts found for requested languages: {self.languages}")
             
-            all_failed = len(self.video_ids) == sum(self._failures.values())
-            if all_failed:
-                raise TranscriptFetchError(f'All transcript fetches failed. Reasons: {dict(self._failures)}')
+            if len(self.video_ids) == len(self._failed_transcripts):
+                summary = Counter(f.reason for f in self._failed_transcripts)
+                logger.warning(
+                    "All %d transcript fetches failed. Reasons: %s",
+                    len(self.video_ids),
+                    dict(summary)
+                )
 
             return fetch_results
         finally:
@@ -170,7 +173,6 @@ class TranscriptFetcher:
             logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.", exc_info=True)
             raise
         except CouldNotRetrieveTranscript as e:
-            self._failures[type(e).__name__] += 1
             logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
             return FailedTranscript(
                 video_id=video_id,
@@ -330,12 +332,8 @@ class TranscriptFetcher:
                 raise
             except Exception as e:
                 logger.exception('Unexpected error while retrieving result from future.')
-                self._failures[type(e).__name__] += 1
 
         logger.info("Collected %d successful transcripts out of %d tasks", len(results), len(tasks))
-
-        for failure_type, count in self._failures.items():
-            logger.info(f"Failure Summary: {failure_type} : {count}")
 
         return results
 
