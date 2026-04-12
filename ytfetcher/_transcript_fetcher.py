@@ -176,7 +176,7 @@ class TranscriptFetcher:
             return FailedTranscript(
                 video_id=video_id,
                 reason=type(e).__name__,
-                message=str(e)
+                message=None
             )
         except Exception as e:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
