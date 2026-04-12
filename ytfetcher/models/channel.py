@@ -34,7 +34,8 @@ class Transcript(BaseModel):
     text: str
     start: float
     duration: float
-    
+
+
 class FailedTranscript(BaseModel):
     video_id: str
     reason: str
@@ -50,6 +51,10 @@ class VideoTranscript(BaseModel):
 class VideoComments(BaseModel):
     video_id: str
     comments: list[Comment]
+    
+class TranscriptFetchResult(BaseModel):
+    success: list[VideoTranscript]
+    failed: list[FailedTranscript]
 
 class ChannelData(BaseModel):
     video_id: str
