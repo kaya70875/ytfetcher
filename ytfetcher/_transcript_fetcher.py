@@ -120,7 +120,7 @@ class TranscriptFetcher:
         )
 
         if not self.video_ids:
-            return []
+            return TranscriptFetchResult(success=[], failed=[])
 
         try:
             with futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
