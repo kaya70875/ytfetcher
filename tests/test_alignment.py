@@ -1,7 +1,15 @@
 import pytest
 from ytfetcher._core import YTFetcher, CommentFetcher
 from ytfetcher.config import FetchOptions
-from ytfetcher.models.channel import DLSnippet, VideoTranscript, Transcript, VideoComments, Comment
+from ytfetcher.models.channel import (
+    DLSnippet,
+    VideoTranscript,
+    Transcript,
+    VideoComments,
+    Comment,
+    FailedTranscript,
+    TranscriptFetchResult,
+)
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from pytest_mock import MockerFixture
 
@@ -43,7 +51,7 @@ def mock_dependencies(mocker: MockerFixture, bulk_snippets, bulk_transcripts_shu
     mocker.patch.object(
         TranscriptFetcher, 
         'fetch', 
-        return_value=bulk_transcripts_shuffled
+        return_value=TranscriptFetchResult(success=bulk_transcripts_shuffled, failed=[])
     )
 
 @pytest.fixture
@@ -103,7 +111,20 @@ def test_partial_data_failures(mocker: MockerFixture, initialized_fetcher):
         VideoComments(video_id='vid_2', comments=[Comment(id='c2', text='Comment 2')]),
     ]
 
-    mocker.patch.object(TranscriptFetcher, 'fetch', return_value=partial_transcripts)
+    mocker.patch.object(
+        TranscriptFetcher,
+        'fetch',
+        return_value=TranscriptFetchResult(
+            success=partial_transcripts,
+            failed=[
+                FailedTranscript(
+                    video_id="vid_2",
+                    reason="NoTranscriptFound",
+                    message=None,
+                )
+            ],
+        ),
+    )
     mocker.patch.object(CommentFetcher, 'fetch', return_value=partial_comments)
 
     results = initialized_fetcher.fetch_with_comments()
@@ -131,7 +152,11 @@ def test_ignores_ghost_data(mocker: MockerFixture, initialized_fetcher):
         VideoTranscript(video_id="vid_ghost", transcripts=[Transcript(text="Ghost Text", start=0, duration=1)]),
     ]
 
-    mocker.patch.object(TranscriptFetcher, 'fetch', return_value=weird_transcripts)
+    mocker.patch.object(
+        TranscriptFetcher,
+        'fetch',
+        return_value=TranscriptFetchResult(success=weird_transcripts, failed=[]),
+    )
 
     results = initialized_fetcher.fetch_youtube_data()
 
@@ -140,3 +165,31 @@ def test_ignores_ghost_data(mocker: MockerFixture, initialized_fetcher):
     ids = [r.video_id for r in results]
     assert "vid_ghost" not in ids
     assert "vid_1" in ids
+
+def test_records_failed_transcripts_on_fetch(mocker: MockerFixture, initialized_fetcher):
+    mocker.patch.object(
+        TranscriptFetcher,
+        "fetch",
+        return_value=TranscriptFetchResult(
+            success=[
+                VideoTranscript(
+                    video_id="vid_1",
+                    transcripts=[Transcript(text="Text 1", start=0, duration=1)],
+                )
+            ],
+            failed=[
+                FailedTranscript(
+                    video_id="vid_2",
+                    reason="NoTranscriptFound",
+                    message=None,
+                )
+            ],
+        ),
+    )
+
+    initialized_fetcher.fetch_transcripts()
+    failed = initialized_fetcher.get_failed_transcripts()
+
+    assert len(failed) == 1
+    assert failed[0].video_id == "vid_2"
+    assert failed[0].reason == "NoTranscriptFound"
