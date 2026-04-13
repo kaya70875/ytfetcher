@@ -4,7 +4,8 @@ from ytfetcher.models.channel import (
     ChannelData,
     DLSnippet,
     Transcript,
-    VideoTranscript
+    VideoTranscript,
+    TranscriptFetchResult,
 )
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.config.fetch_config import FetchOptions
@@ -75,12 +76,19 @@ def mock_search_fetcher_class(mocker, sample_snippet):
 
 @pytest.fixture
 def mock_transcript_fetcher(mocker: MockerFixture, sample_transcripts):
-    mock_transcript_fetcher = mocker.patch.object(TranscriptFetcher, 'fetch', return_value=[
-        VideoTranscript(
-            video_id="id1",
-            transcripts=sample_transcripts,
-        )
-    ])
+    mock_transcript_fetcher = mocker.patch.object(
+        TranscriptFetcher,
+        'fetch',
+        return_value=TranscriptFetchResult(
+            success=[
+                VideoTranscript(
+                    video_id="id1",
+                    transcripts=sample_transcripts,
+                )
+            ],
+            failed=[],
+        ),
+    )
 
     return mock_transcript_fetcher
 
