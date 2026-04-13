@@ -161,7 +161,7 @@ class SQLiteCache:
         failures: list[FailedTranscript] = []
 
         for video_id, status, fail_reason, payload in rows:
-            if status == "SUCCESS":
+            if status == "SUCCESS" and payload:
                 successes.append(VideoTranscript.model_validate_json(payload))
             else:
                 failures.append(FailedTranscript(
