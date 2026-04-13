@@ -11,7 +11,9 @@ from ytfetcher._youtube_dl import (
 )
 from ytfetcher.config.fetch_config import FetchOptions
 from ytfetcher.cache import SQLiteCache
+from ytfetcher.utils.constants import TRANSIENT_FAILURE_REASONS
 from typing import Literal
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -328,8 +330,11 @@ class YTFetcher:
             logger.debug(f"Cache miss for {len(missing_ids)} videos. Fetching missing transcripts...")
             new_successes, new_failures = self._fetch_with_retry(video_ids=missing_ids)
 
+            # Any failures that are transient should not be marked as permanently failed in the cache, allowing for future retries.
+            permanent_failures = [f for f in new_failures if f.reason not in TRANSIENT_FAILURE_REASONS]
+
             self._cache.upsert_transcripts(transcripts=new_successes, cache_key=cache_key)
-            self._cache.upsert_failures(failures=new_failures, cache_key=cache_key)
+            self._cache.upsert_failures(failures=permanent_failures, cache_key=cache_key)
             self._failed_transcripts.extend(new_failures)
 
             transcript_map.update({t.video_id: t for t in new_successes})
@@ -337,14 +342,11 @@ class YTFetcher:
         return [transcript_map[vid] for vid in video_ids if vid in transcript_map]
 
     def _fetch_with_retry(self, video_ids: list[str]) -> tuple[list[VideoTranscript], list[FailedTranscript]]:
-        import time
-        RETRYABLE = {"RequestBlocked", "IpBlocked", "YouTubeRequestFailed"}
-
         result = self._create_transcript_fetcher(video_ids=video_ids).fetch()
         successes = result.success
         failures = result.failed
 
-        retry_ids = [f.video_id for f in failures if f.reason in RETRYABLE]
+        retry_ids = [f.video_id for f in failures if f.reason in TRANSIENT_FAILURE_REASONS]
 
         if retry_ids:
             logger.info("Retrying %d transient failures in 5 seconds...", len(retry_ids))
