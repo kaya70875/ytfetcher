@@ -160,7 +160,13 @@ class TranscriptFetcher:
             yt_api = YouTubeTranscriptApi(http_client=self.session, proxy_config=self.proxy_config)
             transcript: list[Transcript] | None = self._decide_fetch_method(yt_api, video_id)
 
-            if not transcript: return None
+            if not transcript:
+                logger.warning("No transcript found for video_id: %s", video_id)
+                return FailedTranscript(
+                    video_id=video_id,
+                    reason="NoTranscriptFound",
+                    message=None
+                )
 
             cleaned_transcript = self._clean_transcripts(transcript)
             logger.debug("Transcript fetched for %s", video_id)
@@ -332,6 +338,12 @@ class TranscriptFetcher:
                 raise
             except Exception as e:
                 logger.exception('Unexpected error while retrieving result from future.')
+                failed.append(FailedTranscript(
+                    video_id="unknown",
+                    reason="UnexpectedError",
+                    message=str(e)
+                ))
+
 
         logger.info("Collected %d successful transcripts out of %d tasks", len(success), len(tasks))
 
