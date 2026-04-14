@@ -199,6 +199,26 @@ fetcher = YTFetcher.from_channel(channel_handle="TEDx", options=FetchOptions(man
 !!! Tip
     Also it makes sense to use this flag to fetch channels like `TEDx` which naturally has more **manually created** transcripts.
 
+## Failed Transcripts & Retry Behavior
+
+YTFetcher tracks transcript failures and exposes them in a structured format after fetch operations.
+
+- Transient failures are retried once automatically.
+- Permanent failures remain available through `get_failed_transcripts()`.
+- Cached runs avoid persisting transient failures as permanent cache failures.
+
+```python
+from ytfetcher import YTFetcher
+
+fetcher = YTFetcher.from_channel(channel_handle="TheOffice", max_results=20)
+channel_data = fetcher.fetch_youtube_data()
+
+for failed in fetcher.get_failed_transcripts():
+    print(failed.video_id, failed.reason, failed.message)
+```
+
+This is useful for data-quality audits and targeted retries on problematic video IDs.
+
 ## Filtering
 
 `ytfetcher` allows you to filter videos **before** fetching transcripts, which helps you focus on specific content and save processing time. Filters are applied to video metadata (duration, view count, title) and work with all fetcher methods.

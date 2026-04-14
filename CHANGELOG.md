@@ -11,11 +11,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Simplified logging by removing custom `log` method and use built-in `logging` for colorful CLI logs.
 - Removed `--quiet` argument from CLI.
 - Updated `yt-dlp` to latest version `2026.03.17`.
+- Added `YTFetcher.get_failed_transcripts()` to expose structured failures (`video_id`, `reason`, `message`) after fetch calls.
+- Added explicit transient failure categories used by the retry and caching pipeline for transcript fetching.
 
 ### Changed
 - Used `ValidationError` from pydantic instead of using general `Exception` class.
+- Transcript fetching now performs an automatic retry pass for transient failures before marking them as final failures.
+- Cache behavior now stores only permanent transcript failures, so transient failures can recover in future runs.
 
 ### Fixed
+- Improved transcript result validation to guarantee successful transcript payloads are present before processing.
+- Fixed transcript fetch return typing to consistently return `list[VideoTranscript]` and `list[FailedTranscript]` tuples.
 
 ## [2.2] - 2026-03-01
 ### Added
