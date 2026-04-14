@@ -1,5 +1,5 @@
 from ytfetcher import YTFetcher, DLSnippet, VideoTranscript
-from ytfetcher.models.channel import Transcript
+from ytfetcher.models.channel import Transcript, TranscriptFetchResult
 from ytfetcher.config import FetchOptions, HTTPConfig
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher.cache.sqlite_cache import SQLiteCache
@@ -39,8 +39,14 @@ def test_transcripts_are_cached(tmp_path, sample_transcripts):
 
     mocked_fetch = MagicMock(
         side_effect=[
-            [VideoTranscript(video_id='id1', transcripts=sample_transcripts)],
-            [VideoTranscript(video_id='id1', transcripts=sample_transcripts)],
+            TranscriptFetchResult(
+                success=[VideoTranscript(video_id='id1', transcripts=sample_transcripts)],
+                failed=[],
+            ),
+            TranscriptFetchResult(
+                success=[VideoTranscript(video_id='id1', transcripts=sample_transcripts)],
+                failed=[],
+            ),
         ]
     )
 
@@ -93,12 +99,15 @@ def test_custom_cache_path_is_used(tmp_path, sample_transcripts):
             TranscriptFetcher,
             "fetch",
             MagicMock(
-                return_value=[
-                    VideoTranscript(
-                        video_id="id1",
-                        transcripts=sample_transcripts,
-                    )
-                ]
+                return_value=TranscriptFetchResult(
+                    success=[
+                        VideoTranscript(
+                            video_id="id1",
+                            transcripts=sample_transcripts,
+                        )
+                    ],
+                    failed=[],
+                )
             ),
         )
 
@@ -143,12 +152,15 @@ def test_cache_clear_removes_all_rows(tmp_path, sample_transcripts):
             TranscriptFetcher,
             "fetch",
             MagicMock(
-                return_value=[
-                    VideoTranscript(
-                        video_id="id1",
-                        transcripts=sample_transcripts,
-                    )
-                ]
+                return_value=TranscriptFetchResult(
+                    success=[
+                        VideoTranscript(
+                            video_id="id1",
+                            transcripts=sample_transcripts,
+                        )
+                    ],
+                    failed=[],
+                )
             ),
         )
 
@@ -201,8 +213,9 @@ def test_ttl_does_not_remove_fresh_rows(tmp_path):
     removed = cache.purge_expired()
     assert removed == 0
 
-    rows = cache.get_transcripts(["fresh"], "k")
-    assert len(rows) == 1
+    successes, failures = cache.get_cached_states(["fresh"], "k")
+    assert len(successes) == 1
+    assert len(failures) == 0
 
 def test_ttl_zero_disables_expiration(tmp_path):
     cache = SQLiteCache(tmp_path, ttl=0)

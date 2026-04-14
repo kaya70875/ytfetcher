@@ -1,7 +1,7 @@
 import pytest
 from pytest_mock import MockerFixture
 from youtube_transcript_api._errors import NoTranscriptFound
-from ytfetcher.models.channel import VideoTranscript, Transcript
+from ytfetcher.models.channel import VideoTranscript, Transcript, FailedTranscript, TranscriptFetchResult
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
 from youtube_transcript_api.proxies import GenericProxyConfig
@@ -39,9 +39,11 @@ def test_fetch_method_returns_correct_data(mocker: MockerFixture, mock_video_ids
     
     results = fetcher.fetch()
 
-    assert isinstance(results[0], VideoTranscript)
-    assert results[0].transcripts[0].text == 'text1'
-    assert results[0].video_id == 'video_id'
+    assert isinstance(results, TranscriptFetchResult)
+    assert isinstance(results.success[0], VideoTranscript)
+    assert results.success[0].transcripts[0].text == 'text1'
+    assert results.success[0].video_id == 'video_id'
+    assert results.failed == []
 
 def test_fetch_single_returns_correct_data(mocker, mock_video_ids):
     fetcher = TranscriptFetcher(mock_video_ids)
@@ -82,7 +84,8 @@ def test_concurrent_fetching(mocker, mock_video_ids):
 
     results = fetcher.fetch()
 
-    assert len(results) == len(mock_video_ids)
+    assert len(results.success) == len(mock_video_ids)
+    assert results.failed == []
     assert mock_fetch_single.call_count == len(mock_video_ids)
 
 
@@ -206,8 +209,37 @@ def test_fetch_manual_transcript_no_transcript(mocker):
 
     result = fetcher._fetch_single(video_id)
 
-    assert result is None
-    assert fetcher._failures["NoTranscriptFound"] == 1
+    assert isinstance(result, FailedTranscript)
+    assert result.video_id == video_id
+    assert result.reason == "NoTranscriptFound"
+    assert result.message is None
+
+def test_fetch_tracks_success_and_failed_transcripts(mocker):
+    fetcher = TranscriptFetcher(["ok_video", "bad_video"])
+
+    results_by_video = {
+        "ok_video": VideoTranscript(
+            video_id="ok_video",
+            transcripts=[Transcript(text="ok", start=0, duration=1)],
+        ),
+        "bad_video": FailedTranscript(
+            video_id="bad_video",
+            reason="NoTranscriptFound",
+            message=None,
+        ),
+    }
+
+    mocker.patch.object(
+        fetcher,
+        "_fetch_single",
+        side_effect=lambda video_id: results_by_video[video_id],
+    )
+
+    result = fetcher.fetch()
+
+    assert [entry.video_id for entry in result.success] == ["ok_video"]
+    assert [entry.video_id for entry in result.failed] == ["bad_video"]
+    assert result.failed[0].reason == "NoTranscriptFound"
 
 def test_fetch_first_available_transcript_empty(mocker):
     video_id = "abc"
