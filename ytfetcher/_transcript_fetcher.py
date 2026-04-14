@@ -293,8 +293,8 @@ class TranscriptFetcher:
 
         return self._convert_to_transcript_object(raw)
 
-
-    def _collect_results(self, tasks: list[futures.Future]) -> list[VideoTranscript]:
+    @staticmethod
+    def _collect_results(tasks: list[futures.Future]) -> list[VideoTranscript]:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -318,7 +318,7 @@ class TranscriptFetcher:
                     results.append(result)
             except IpBlocked:
                 logger.error('IP blocked. Stopping all operations.')
-                raise
+                raise TranscriptFetchError('IP blocked. Please try using a proxy or wait before retrying.')
             except Exception as e:
                 logger.exception('Unexpected error while retrieving result from future.')
                 self._failures[type(e).__name__] += 1
