@@ -23,6 +23,7 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Filtering](#filtering)
 - [Converting ChannelData to Rows](#converting-channeldata-to-rows)
 - [SQLite Cache](#sqlite-cache)
+- [Failed Transcripts & Retry Behavior](#failed-transcripts--retry-behavior)
 - [Fetching Only Manually Created Transcripts](#fetching-only-manually-created-transcripts)
 - [Exporting](#exporting)
 - [Comments](#Fetching-Comments)
@@ -402,6 +403,29 @@ Or clear a custom cache path:
 ```bash
 ytfetcher cache --clean --cache-path ./my_cache
 ```
+
+---
+
+## Failed Transcripts & Retry Behavior
+
+`ytfetcher` keeps transcript failures in a structured list and retries transient failures once automatically.
+
+- Transient failures (for example temporary YouTube-side issues) are retried after a short delay.
+- Permanent failures are tracked and can be inspected after any fetch operation.
+- When cache is enabled, transient failures are not persisted as permanent cache failures.
+
+```python
+from ytfetcher import YTFetcher
+
+fetcher = YTFetcher.from_channel(channel_handle="TheOffice", max_results=20)
+results = fetcher.fetch_youtube_data()
+
+failed = fetcher.get_failed_transcripts()
+for item in failed:
+    print(item.video_id, item.reason, item.message)
+```
+
+Use this when you want to audit gaps in your dataset and decide whether to re-run or skip problematic videos.
 
 ---
 

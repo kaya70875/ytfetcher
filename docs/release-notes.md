@@ -7,6 +7,8 @@
 - Added `from_search` method for both Python API and CLI. This method allows user to fetch based on a `query`, similar to Youtube search.
 - Added a `--quiet` tag for CLI.
 - Added pre-fetch filters for `ytfetcher`.
+- Added `YTFetcher.get_failed_transcripts()` to inspect structured transcript failures after fetch calls.
+- Added transient failure categorization to improve retry/caching decisions.
 
 ### Changed
 - Removed deprecated `Exporter` class.
@@ -18,12 +20,17 @@
 - Changed main CLI arguments for easier usage and user experience.
 - Python API for `ytfetcher` is now completely silent as default. Logs and progress informations are only visible in CLI or by enabling `verbose` mode.
 - Changed `ytfetcher` to be completely **sync**.
+- Transcript fetching now retries transient failures once before returning final results.
+- Cache handling now persists only permanent transcript failures.
 
 ### Fixed
 - Fixed a very critical bug that **metadata, transcripts and comments** are not aligned.
 - Fixed `HTTPConfig` class `InvalidHeader` check.
 - Fixed VideoListFetcher performance issue with implementing `ThreadPoolExecutor`.
 - Fixed `CommentFetcher` doesn't fetch top comments.
+- Improved transcript result validation to ensure successful transcript payloads are present before processing.
+- Fixed return typing around transcript fetch results for better consistency.
+
 
 ## [1.5.3] - 2026-01-01
 ### Added
