@@ -336,6 +336,7 @@ class TranscriptFetcher:
             except IpBlocked:
                 logger.error('IP blocked. Stopping all operations.')
                 raise TranscriptFetchError('IP blocked. Please try using a proxy or wait before retrying.')
+                raise TranscriptFetchError('IP blocked. Please try using a proxy or wait before retrying.')
             except Exception as e:
                 logger.exception('Unexpected error while retrieving result from future.')
                 failed.append(FailedTranscript(
