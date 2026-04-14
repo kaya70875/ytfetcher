@@ -311,7 +311,7 @@ class TranscriptFetcher:
         return self._convert_to_transcript_object(raw)
 
 
-    def _collect_results(self, tasks: list[futures.Future]) -> TranscriptFetchResult | None:
+    def _collect_results(self, tasks: list[futures.Future]) -> TranscriptFetchResult:
         """
         Collects successful VideoTranscript objects from completed futures.
 
