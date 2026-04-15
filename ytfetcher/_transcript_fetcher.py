@@ -24,6 +24,11 @@ import re
 
 logger = logging.getLogger(__name__)
 
+class TimeoutSession(requests.Session):
+    def request(self, *args, **kwargs):
+        kwargs.setdefault('timeout', 10)
+        return super().request(*args, **kwargs)
+
 class TranscriptFetcher:
     """
     Synchronously fetches transcripts for a list of YouTube video IDs
@@ -85,7 +90,7 @@ class TranscriptFetcher:
         self.manually_created = manually_created
         self.max_workers = 25
 
-        self.session = requests.Session()
+        self.session = TimeoutSession()
         self.session.headers.update(self.http_config.headers)
 
         adapter = HTTPAdapter(
