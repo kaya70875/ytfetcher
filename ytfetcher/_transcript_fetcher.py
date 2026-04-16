@@ -15,6 +15,11 @@ from youtube_transcript_api._errors import (
 from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent import futures
 from requests.adapters import HTTPAdapter
+from requests.exceptions import (
+    ConnectionError,
+    Timeout,
+    SSLError
+)
 from tqdm import tqdm
 from typing import Iterable
 from collections import Counter
@@ -90,7 +95,7 @@ class TranscriptFetcher:
         self.manually_created = manually_created
         self.max_workers = 25
 
-        self.session = TimeoutSession()
+        self.session = requests.Session()
         self.session.headers.update(self.http_config.headers)
 
         adapter = HTTPAdapter(
@@ -129,7 +134,10 @@ class TranscriptFetcher:
 
         try:
             with futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                tasks = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
+                tasks = {
+                    executor.submit(self._fetch_single, video_id): video_id
+                    for video_id in self.video_ids
+                }
                 fetch_results = self._collect_results(tasks)
                 
             if not fetch_results and self.manually_created: 
@@ -316,7 +324,7 @@ class TranscriptFetcher:
         return self._convert_to_transcript_object(raw)
 
     @staticmethod
-    def _collect_results(tasks: list[futures.Future]) -> TranscriptFetchResult:
+    def _collect_results(tasks: dict[futures.Future, str]) -> TranscriptFetchResult:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -332,6 +340,7 @@ class TranscriptFetcher:
         failed: list[FailedTranscript] = []
 
         for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript', disable=should_disable_progress()):
+            video_id = tasks[future]
             try:
                 result = future.result()
                 if isinstance(result, VideoTranscript):
@@ -344,7 +353,7 @@ class TranscriptFetcher:
             except Exception as e:
                 logger.exception('Unexpected error while retrieving result from future.')
                 failed.append(FailedTranscript(
-                    video_id="unknown",
+                    video_id=video_id,
                     reason="UnexpectedError",
                     message=str(e)
                 ))
