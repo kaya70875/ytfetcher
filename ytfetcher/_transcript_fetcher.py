@@ -197,6 +197,13 @@ class TranscriptFetcher:
                 reason=type(e).__name__,
                 message=None
             )
+        except (ConnectionError, Timeout, SSLError) as e:
+            logger.warning("Network error while fetching transcript for %s: %s", video_id, str(e))
+            return FailedTranscript(
+                video_id=video_id,
+                reason="TransientNetworkError",
+                message=str(e)
+            )
         except Exception as e:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
             raise
@@ -357,7 +364,6 @@ class TranscriptFetcher:
                     reason="UnexpectedError",
                     message=str(e)
                 ))
-
 
         logger.info("Collected %d successful transcripts out of %d tasks", len(success), len(tasks))
 
