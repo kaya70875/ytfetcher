@@ -7,6 +7,7 @@ from ytfetcher.models.channel import (
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.exceptions import TranscriptFetchError
 from ytfetcher.utils.state import should_disable_progress
+from ytfetcher.utils.constants import PERMANENTLY_FAILED_EXCEPTIONS
 from youtube_transcript_api.proxies import ProxyConfig
 from youtube_transcript_api._errors import (
     CouldNotRetrieveTranscript,
@@ -207,7 +208,8 @@ class TranscriptFetcher:
             return FailedTranscript(
                 video_id=video_id,
                 reason=type(e).__name__,
-                message=None
+                message=None,
+                is_permanent_exception=isinstance(e, PERMANENTLY_FAILED_EXCEPTIONS)
             )
         except RequestException as e:
             logger.debug("Network error while fetching transcript for %s: %s", video_id, str(e))
