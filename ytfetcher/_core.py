@@ -346,11 +346,14 @@ class YTFetcher:
         successes = result.success
         failures = result.failed
 
+        if not self.options.with_recovery:
+            return successes, failures
+
         retry_ids = [f.video_id for f in failures if f.reason in RETRYABLE_ERRORS]
 
         if retry_ids:
-            logger.info("Retrying %d transient failures in 5 seconds...", len(retry_ids))
-            time.sleep(5)
+            logger.info(f"Retrying %d transient failures in {self.options.recovery_delay} seconds...", len(retry_ids))
+            time.sleep(self.options.recovery_delay)
 
             retry_result = self._create_transcript_fetcher(video_ids=retry_ids).fetch()
             successes.extend(retry_result.success)
