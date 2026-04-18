@@ -40,6 +40,7 @@ class FailedTranscript(BaseModel):
     video_id: str
     reason: str
     message: str | None = None
+    is_permanent_exception: bool = False
 
 class VideoTranscript(BaseModel):
     video_id: str
