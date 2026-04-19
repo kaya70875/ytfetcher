@@ -4,7 +4,18 @@ All notable changes to this project will be documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [UNRELEASED]
+## [2.3.1]
+### Added
+- Added retry logic for `_fetch_single` using `tenacity`.
+
+### Changed
+- Changed retryable exceptions.
+
+### Fixed
+- Fixed general exceptions hides `video_id` information.
+- Fixed ytfetcher retries IPBlocked exceptions which is not ideal.
+
+## [2.3]
 ### Added
 - Added new exceptions for `_youtube_dl` file and it's classes.
 - Added new exceptions and improve error handling for `TranscriptFetcher`.
