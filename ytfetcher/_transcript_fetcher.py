@@ -7,6 +7,7 @@ from ytfetcher.models.channel import (
 from ytfetcher.config.http_config import HTTPConfig
 from ytfetcher.exceptions import TranscriptFetchError
 from ytfetcher.utils.state import should_disable_progress
+from ytfetcher.utils.constants import PERMANENTLY_FAILED_EXCEPTIONS
 from youtube_transcript_api.proxies import ProxyConfig
 from youtube_transcript_api._errors import (
     CouldNotRetrieveTranscript,
@@ -15,14 +16,27 @@ from youtube_transcript_api._errors import (
 from youtube_transcript_api import YouTubeTranscriptApi
 from concurrent import futures
 from requests.adapters import HTTPAdapter
+from requests.exceptions import RequestException
 from tqdm import tqdm
 from typing import Iterable
 from collections import Counter
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
 import requests
 import logging
 import re
+import threading
 
 logger = logging.getLogger(__name__)
+
+class TimeoutSession(requests.Session):
+    def request(self, *args, **kwargs):
+        kwargs.setdefault('timeout', 10)
+        return super().request(*args, **kwargs)
 
 class TranscriptFetcher:
     """
@@ -85,7 +99,10 @@ class TranscriptFetcher:
         self.manually_created = manually_created
         self.max_workers = 25
 
-        self.session = requests.Session()
+        self._network_warning_shown = False
+        self._warning_lock = threading.Lock()
+
+        self.session = TimeoutSession()
         self.session.headers.update(self.http_config.headers)
 
         adapter = HTTPAdapter(
@@ -124,7 +141,10 @@ class TranscriptFetcher:
 
         try:
             with futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                tasks = [executor.submit(self._fetch_single, video_id) for video_id in self.video_ids]
+                tasks = {
+                    executor.submit(self._fetch_single, video_id): video_id
+                    for video_id in self.video_ids
+                }
                 fetch_results = self._collect_results(tasks)
                 
             if not fetch_results and self.manually_created: 
@@ -142,6 +162,12 @@ class TranscriptFetcher:
         finally:
             self.session.close()
 
+    @retry(
+    reraise=True,
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=3, max=8),
+    retry=retry_if_exception_type((RequestException))
+)
     def _fetch_single(self, video_id: str) -> VideoTranscript | FailedTranscript:
         """
         Fetches a single transcript and returns structured data.
@@ -165,7 +191,8 @@ class TranscriptFetcher:
                 return FailedTranscript(
                     video_id=video_id,
                     reason="NoTranscriptFound",
-                    message=None
+                    message=None,
+                    is_permanent_exception=True
                 )
 
             cleaned_transcript = self._clean_transcripts(transcript)
@@ -182,8 +209,20 @@ class TranscriptFetcher:
             return FailedTranscript(
                 video_id=video_id,
                 reason=type(e).__name__,
-                message=None
+                message=None,
+                is_permanent_exception=isinstance(e, PERMANENTLY_FAILED_EXCEPTIONS)
             )
+        except RequestException as e:
+            logger.debug("Network error while fetching transcript for %s: %s", video_id, str(e))
+            with self._warning_lock:
+                if not self._network_warning_shown:
+                    logger.warning(
+                        "Network issues detected while fetching transcripts. This may be due to connectivity problems or rate limiting. "
+                        "The fetcher will automatically retry failed requests up to 3 times with exponential backoff. "
+                        "If you continue to see this warning, consider using a proxy or checking your network connection."
+                    )
+                    self._network_warning_shown = True
+            raise
         except Exception as e:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
             raise
@@ -311,7 +350,7 @@ class TranscriptFetcher:
         return self._convert_to_transcript_object(raw)
 
     @staticmethod
-    def _collect_results(tasks: list[futures.Future]) -> TranscriptFetchResult:
+    def _collect_results(tasks: dict[futures.Future, str]) -> TranscriptFetchResult:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -327,6 +366,7 @@ class TranscriptFetcher:
         failed: list[FailedTranscript] = []
 
         for future in tqdm(futures.as_completed(tasks), total=len(tasks), desc="Fetching transcripts", unit='transcript', disable=should_disable_progress()):
+            video_id = tasks[future]
             try:
                 result = future.result()
                 if isinstance(result, VideoTranscript):
@@ -336,14 +376,24 @@ class TranscriptFetcher:
             except IpBlocked:
                 logger.error('IP blocked. Stopping all operations.')
                 raise TranscriptFetchError('IP blocked. Please try using a proxy or wait before retrying.')
+            except RequestException as e:
+                logger.debug(
+                    "Failed to fetch transcript for %s after retries: %s",
+                    video_id,
+                    str(e)
+                )
+                failed.append(FailedTranscript(
+                    video_id=video_id,
+                    reason="TransientNetworkError",
+                    message="Connection failed after retries"
+                ))
             except Exception as e:
                 logger.exception('Unexpected error while retrieving result from future.')
                 failed.append(FailedTranscript(
-                    video_id="unknown",
+                    video_id=video_id,
                     reason="UnexpectedError",
                     message=str(e)
                 ))
-
 
         logger.info("Collected %d successful transcripts out of %d tasks", len(success), len(tasks))
 

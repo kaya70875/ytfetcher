@@ -47,3 +47,9 @@ class FetchOptions:
 
     cache_ttl: int = 7
     """Cache Time-To-Live in days. Data older than this will be re-fetched."""
+
+    with_recovery: bool = True
+    """Retry transient failures once more after a short delay."""
+
+    recovery_delay: int = 5
+    """Seconds to wait before the recovery retry."""
