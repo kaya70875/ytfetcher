@@ -191,7 +191,8 @@ class TranscriptFetcher:
                 return FailedTranscript(
                     video_id=video_id,
                     reason="NoTranscriptFound",
-                    message=None
+                    message=None,
+                    is_permanent_exception=True
                 )
 
             cleaned_transcript = self._clean_transcripts(transcript)
