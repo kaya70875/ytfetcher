@@ -97,7 +97,7 @@ class TranscriptFetcher:
         self.video_ids = video_ids
         self.languages = languages
         self.manually_created = manually_created
-        self._max_workers = 25
+        self.max_workers = 25
 
         self._network_warning_shown = False
         self._warning_lock = threading.Lock()
