@@ -103,15 +103,15 @@ class TranscriptFetcher:
         self._warning_lock = threading.Lock()
 
         self._session = TimeoutSession()
-        self.session.headers.update(self.http_config.headers)
+        self._session.headers.update(self.http_config.headers)
 
         adapter = HTTPAdapter(
             pool_connections=self.max_workers,
             pool_maxsize=self.max_workers
         )
 
-        self.session.mount("https://", adapter)
-        self.session.mount("http://", adapter)
+        self._session.mount("https://", adapter)
+        self._session.mount("http://", adapter)
 
         if manually_created and not languages:
             raise TranscriptFetchError(
