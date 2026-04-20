@@ -102,16 +102,16 @@ class TranscriptFetcher:
         self._network_warning_shown = False
         self._warning_lock = threading.Lock()
 
-        self.session = TimeoutSession()
-        self.session.headers.update(self.http_config.headers)
+        self._session = TimeoutSession()
+        self._session.headers.update(self.http_config.headers)
 
         adapter = HTTPAdapter(
             pool_connections=self.max_workers,
             pool_maxsize=self.max_workers
         )
 
-        self.session.mount("https://", adapter)
-        self.session.mount("http://", adapter)
+        self._session.mount("https://", adapter)
+        self._session.mount("http://", adapter)
 
         if manually_created and not languages:
             raise TranscriptFetchError(
@@ -160,7 +160,7 @@ class TranscriptFetcher:
 
             return fetch_results
         finally:
-            self.session.close()
+            self._session.close()
 
     @retry(
     reraise=True,
@@ -183,7 +183,7 @@ class TranscriptFetcher:
                          or None if transcript is unavailable.
         """
         try:
-            yt_api = YouTubeTranscriptApi(http_client=self.session, proxy_config=self.proxy_config)
+            yt_api = YouTubeTranscriptApi(http_client=self._session, proxy_config=self.proxy_config)
             transcript: list[Transcript] | None = self._decide_fetch_method(yt_api, video_id)
 
             if not transcript:
