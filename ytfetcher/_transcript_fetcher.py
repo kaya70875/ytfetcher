@@ -97,12 +97,12 @@ class TranscriptFetcher:
         self.video_ids = video_ids
         self.languages = languages
         self.manually_created = manually_created
-        self.max_workers = 25
+        self._max_workers = 25
 
         self._network_warning_shown = False
         self._warning_lock = threading.Lock()
 
-        self.session = TimeoutSession()
+        self._session = TimeoutSession()
         self.session.headers.update(self.http_config.headers)
 
         adapter = HTTPAdapter(
