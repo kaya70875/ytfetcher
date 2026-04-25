@@ -395,6 +395,12 @@ class TranscriptFetcher:
                     failed.append(result)
             except IpBlocked:
                 logger.error('IP blocked. Stopping all operations.')
+                failed.append(FailedTranscript(
+                    video_id=video_id,
+                    reason="IpBlocked",
+                    message="Fetch stopped due to IP block",
+                    is_permanent_exception=False
+                ))
                 self._cancel_tasks(tasks=tasks, failed_transcripts=failed)
                 break
             except RequestException as e:
