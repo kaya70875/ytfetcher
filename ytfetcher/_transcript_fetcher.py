@@ -401,7 +401,7 @@ class TranscriptFetcher:
                     message="Fetch stopped due to IP block",
                     is_permanent_exception=False
                 ))
-                self._cancel_tasks(tasks=tasks, failed_transcripts=failed)
+                self._cancel_tasks(tasks=tasks)
                 break
             except RequestException as e:
                 logger.debug(
@@ -427,16 +427,18 @@ class TranscriptFetcher:
         return TranscriptFetchResult(success=success, failed=failed)
     
     @staticmethod
-    def _cancel_tasks(tasks: dict[futures.Future, str], failed_transcripts: list[FailedTranscript]):
+    def _cancel_tasks(tasks: dict[futures.Future, str]):
+        cancelled_count = 0
         for f, vid in tasks.items():
             if not f.done():
-                f.cancel()
-                failed_transcripts.append(FailedTranscript(
-                    video_id=vid,
-                    reason="IpBlocked",
-                    message="Cancelled due to IP block",
-                    is_permanent_exception=False
-                ))
+                cancelled = f.cancel()
+                if not cancelled:
+                    logger.debug("Task for %s still running and cannot be cancelled", vid)
+                else:
+                    cancelled_count += 1
+        
+        if cancelled_count:
+            logger.debug("Cancelled %d queued tasks due to IP block.", cancelled_count)
 
     @staticmethod
     def _clean_transcripts(transcripts: list[Transcript]) -> list[Transcript]:
