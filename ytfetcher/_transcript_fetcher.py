@@ -100,6 +100,7 @@ class TranscriptFetcher:
         self.max_workers = 25
 
         self._network_warning_shown = threading.Event()
+        self._warning_lock = threading.Lock()
         self._ip_blocked = threading.Event()
 
         self._session = TimeoutSession()
@@ -220,14 +221,14 @@ class TranscriptFetcher:
             )
         except RequestException as e:
             logger.debug("Network error while fetching transcript for %s: %s", video_id, str(e))
-            if not self._network_warning_shown.is_set():
-                self._network_warning_shown.set()
-                logger.warning(
-                    "Network issues detected while fetching transcripts. This may be due to connectivity problems or rate limiting. "
-                    "The fetcher will automatically retry failed requests up to 3 times with exponential backoff. "
-                    "If you continue to see this warning, consider using a proxy or checking your network connection."
-                )
-                    
+            with self._warning_lock:
+                if not self._network_warning_shown.is_set():
+                    self._network_warning_shown.set()
+                    logger.warning(
+                        "Network issues detected while fetching transcripts. This may be due to connectivity problems or rate limiting. "
+                        "The fetcher will automatically retry failed requests up to 3 times with exponential backoff. "
+                        "If you continue to see this warning, consider using a proxy or checking your network connection."
+                    )
             raise
         except Exception as e:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
