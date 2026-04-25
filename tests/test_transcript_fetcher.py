@@ -1,6 +1,6 @@
 import pytest
 from pytest_mock import MockerFixture
-from youtube_transcript_api._errors import NoTranscriptFound
+from youtube_transcript_api._errors import NoTranscriptFound, IpBlocked
 from ytfetcher.models.channel import VideoTranscript, Transcript, FailedTranscript, TranscriptFetchResult
 from ytfetcher._transcript_fetcher import TranscriptFetcher
 from ytfetcher.config.http_config import HTTPConfig
@@ -252,3 +252,39 @@ def test_fetch_first_available_transcript_empty(mocker):
     result = fetcher._fetch_first_available_transcript(mock_api, video_id)
 
     assert result is None
+
+def test_collect_results_returns_partial_success_and_cancels_pending_tasks(mocker):
+    fetcher = TranscriptFetcher(["ok_video", "blocked_video", "pending_video"])
+
+    success_future = mocker.MagicMock()
+    success_future.result.return_value = VideoTranscript(
+        video_id="ok_video",
+        transcripts=[Transcript(text="ok", start=0, duration=1)]
+    )
+    success_future.done.return_value = True
+
+    blocked_future = mocker.MagicMock()
+    blocked_future.result.side_effect = IpBlocked("blocked")
+    blocked_future.done.return_value = True
+
+    pending_future = mocker.MagicMock()
+    pending_future.done.return_value = False
+    pending_future.cancel.return_value = True
+
+    tasks = {
+        success_future: "ok_video",
+        blocked_future: "blocked_video",
+        pending_future: "pending_video",
+    }
+
+    mocker.patch(
+        "ytfetcher._transcript_fetcher.futures.as_completed",
+        return_value=[success_future, blocked_future],
+    )
+
+    result = fetcher._collect_results(tasks=tasks)
+
+    assert [entry.video_id for entry in result.success] == ["ok_video"]
+    assert [entry.video_id for entry in result.failed] == ["blocked_video"]
+    assert result.failed[0].reason == "IpBlocked"
+    pending_future.cancel.assert_called_once_with()
