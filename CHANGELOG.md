@@ -4,6 +4,12 @@ All notable changes to this project will be documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.3.2]
+### Fixed
+- Available results are no longer lost when `IpBlocked` is raised mid-fetch — collected transcripts are returned instead of raising an exception.
+- The video ID that triggers `IpBlocked` is now correctly added to `result.failed` instead of silently disappearing.
+- `_cancel_tasks()` no longer marks still-running futures as failed when `cancel()` returns `False` — only successfully cancelled queued tasks are logged and counted.
+
 ## [2.3.1]
 ### Added
 - Added retry logic for `_fetch_single` using `tenacity`.
