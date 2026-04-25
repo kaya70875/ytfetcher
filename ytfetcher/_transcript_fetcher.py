@@ -439,7 +439,7 @@ class TranscriptFetcher:
                     cancelled_count += 1
         
         if cancelled_count:
-            logger.debug("Cancelled %d queued tasks due to IP block.", cancelled_count)
+            logger.info("Cancelled %d queued tasks due to IP block.", cancelled_count)
 
     @staticmethod
     def _clean_transcripts(transcripts: list[Transcript]) -> list[Transcript]:
