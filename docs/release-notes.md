@@ -2,6 +2,7 @@
 
 ## Latest Changes
 ### Added
+- Available results are no longer lost when `IpBlocked` is raised mid-fetch — collected transcripts are returned instead of raising an exception.
 - Introduced a new `FetchOptions` data class for defining fetcher options like `languages`, `filters` etc.
 - Added a `--sort` argument for choosing **top or new** comments with CLI.
 - Added `from_search` method for both Python API and CLI. This method allows user to fetch based on a `query`, similar to Youtube search.
