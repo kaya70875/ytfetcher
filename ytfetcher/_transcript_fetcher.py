@@ -100,6 +100,7 @@ class TranscriptFetcher:
         self.max_workers = 25
 
         self._network_warning_shown = False
+        self._ip_blocked = threading.Event()
         self._warning_lock = threading.Lock()
 
         self._session = TimeoutSession()
@@ -141,33 +142,31 @@ class TranscriptFetcher:
 
         try:
             with futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                tasks = {
-                    executor.submit(self._fetch_single, video_id): video_id
-                    for video_id in self.video_ids
-                }
-                fetch_results = self._collect_results(tasks)
-                
-            if not fetch_results and self.manually_created: 
-                logger.info(f"No manually created transcripts found for requested languages: {self.languages}")
-            
-            if len(self.video_ids) == len(fetch_results.failed):
-                summary = Counter(f.reason for f in fetch_results.failed)
-                logger.warning(
-                    "All %d transcript fetches failed. Reasons: %s",
-                    len(self.video_ids),
-                    dict(summary)
-                )
+                tasks, cancelled = self._submit_tasks(executor=executor)
+                result = self._collect_results(tasks=tasks)
+                result.failed.extend(cancelled)
 
-            return fetch_results
+                if not result.success and self.manually_created: 
+                    logger.info(f"No manually created transcripts found for requested languages: {self.languages}")
+            
+                if len(self.video_ids) == len(result.failed):
+                    summary = Counter(f.reason for f in result.failed)
+                    logger.warning(
+                        "All %d transcript fetches failed. Reasons: %s",
+                        len(self.video_ids),
+                        dict(summary)
+                    )
+
+                return result
         finally:
             self._session.close()
 
     @retry(
-    reraise=True,
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=3, max=8),
-    retry=retry_if_exception_type((RequestException))
-)
+        reraise=True,
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=3, max=8),
+        retry=retry_if_exception_type((RequestException))
+    )
     def _fetch_single(self, video_id: str) -> VideoTranscript | FailedTranscript:
         """
         Fetches a single transcript and returns structured data.
@@ -183,6 +182,13 @@ class TranscriptFetcher:
                          or None if transcript is unavailable.
         """
         try:
+            if self._ip_blocked.is_set():
+                return FailedTranscript(
+                    video_id=video_id,
+                    reason='IpBlocked',
+                    message="Cancelled due to IP block",
+                    is_permanent_exception=False
+                )
             yt_api = YouTubeTranscriptApi(http_client=self._session, proxy_config=self.proxy_config)
             transcript: list[Transcript] | None = self._decide_fetch_method(yt_api, video_id)
 
@@ -203,6 +209,7 @@ class TranscriptFetcher:
             )
         except IpBlocked as e:
             logger.error("YouTube is blocking your IP address. Please try using a proxy or wait before retrying.", exc_info=True)
+            self._ip_blocked.set()
             raise
         except CouldNotRetrieveTranscript as e:
             logger.debug(str(e).replace(e.GITHUB_REFERRAL, ''), exc_info=True)
@@ -226,7 +233,7 @@ class TranscriptFetcher:
         except Exception as e:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
             raise
-    
+
     def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
         """
         Selects and executes the appropriate transcript retrieval strategy.
@@ -349,8 +356,22 @@ class TranscriptFetcher:
 
         return self._convert_to_transcript_object(raw)
 
-    @staticmethod
-    def _collect_results(tasks: dict[futures.Future, str]) -> TranscriptFetchResult:
+    def _submit_tasks(self, executor: futures.ThreadPoolExecutor) -> tuple[dict[futures.Future, str], list[FailedTranscript]]:
+        tasks = {}
+        cancelled = []
+        for video_id in self.video_ids:
+            if self._ip_blocked.is_set():
+                cancelled.append(FailedTranscript(
+                    video_id=video_id,
+                    reason="IpBlocked",
+                    message="Cancelled due to IP block",
+                    is_permanent_exception=False
+                ))
+            else:
+                tasks[executor.submit(self._fetch_single, video_id)] = video_id
+        return tasks, cancelled
+
+    def _collect_results(self, tasks: dict[futures.Future, str]) -> TranscriptFetchResult:
         """
         Collects successful VideoTranscript objects from completed futures.
 
@@ -375,7 +396,8 @@ class TranscriptFetcher:
                     failed.append(result)
             except IpBlocked:
                 logger.error('IP blocked. Stopping all operations.')
-                raise TranscriptFetchError('IP blocked. Please try using a proxy or wait before retrying.')
+                self._cancel_tasks(tasks=tasks, failed_transcripts=failed)
+                break
             except RequestException as e:
                 logger.debug(
                     "Failed to fetch transcript for %s after retries: %s",
@@ -398,6 +420,18 @@ class TranscriptFetcher:
         logger.info("Collected %d successful transcripts out of %d tasks", len(success), len(tasks))
 
         return TranscriptFetchResult(success=success, failed=failed)
+    
+    @staticmethod
+    def _cancel_tasks(tasks: dict[futures.Future, str], failed_transcripts: list[FailedTranscript]):
+        for f, vid in tasks.items():
+            if not f.done():
+                f.cancel()
+                failed_transcripts.append(FailedTranscript(
+                    video_id=vid,
+                    reason="IpBlocked",
+                    message="Cancelled due to IP block",
+                    is_permanent_exception=False
+                ))
 
     @staticmethod
     def _clean_transcripts(transcripts: list[Transcript]) -> list[Transcript]:
