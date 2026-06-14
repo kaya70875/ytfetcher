@@ -96,7 +96,7 @@ class PreviewRenderer:
 
         return table
 
-    def _create_comments_view(self, comments: list[Comment] | None, limit: int) -> Table | None:
+    def _create_comments_view(self, comments: list[Comment], limit: int) -> Table | None:
         if not comments:
             return None
 

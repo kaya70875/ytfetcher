@@ -125,7 +125,7 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
         self.max_comments = max_comments
         self.sort = sort
             
-    def fetch_single(self, video_id: str) -> VideoComments | None:
+    def fetch_single(self, video_id: str) -> VideoComments:
         video_url = f'https://www.youtube.com/watch?v={video_id}'
         ydl_opts_deep = {
             "quiet": True,
@@ -143,16 +143,16 @@ class CommentFetcher(ConcurrentYoutubeDLFetcher):
         try:       
             with yt_dlp.YoutubeDL(ydl_opts_deep) as ydl: #type: ignore[arg-type]
                 info_dict = ydl.extract_info(video_url, download=False)
-                data = cast(list[dict[str, Any]], info_dict.get('comments', None) or [])
+                data = cast(list[dict[str, Any]], info_dict.get('comments', []))
                 validated_comments = self._safe_validate_comments(raw_comments=data)
                 return VideoComments(video_id=video_id, comments=validated_comments)
         except DownloadError as e:
             logger.debug(f"yt-dlp error while fetching comments for {video_id}", exc_info=True)
-            logger.warning(f"Failed to fetch comments for {video_id} : {str(e)}")
-            return None
+            logger.info(f"Failed to fetch comments for {video_id} : {str(e)}")
+            return VideoComments(video_id=video_id, comments=[])
         except Exception:
             logger.exception(f"Unexpected error while fetching comments for video id: {video_id}")
-            return None
+            return VideoComments(video_id=video_id, comments=[])
         
     def _safe_validate_comments(self, raw_comments: list[dict[str, Any]]) -> list[Comment]:
         """Handles comments with missing fields and returns completed data."""
