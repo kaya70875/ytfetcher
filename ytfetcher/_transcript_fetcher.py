@@ -253,7 +253,7 @@ class TranscriptFetcher:
 
         Returns:
             A list of validated Transcript objects if successful,
-            otherwise None when no suitable transcript is found.
+            otherwise an empty list when no suitable transcript is found.
         """
         if self.manually_created:
             return self._fetch_manual_transcript(yt_api=yt_api, video_id=video_id)
@@ -267,13 +267,13 @@ class TranscriptFetcher:
         self,
         yt_api: YouTubeTranscriptApi,
         video_id: str
-    ) -> list[Transcript] | None:
+    ) -> list[Transcript]:
         """
         Fetches manually created transcripts for the given video.
 
         Attempts to retrieve a manually created transcript matching the
         configured language priority. If no such transcript exists,
-        returns None without raising an exception.
+        returns an empty list without raising an exception.
 
         Args:
             yt_api: Initialized YouTubeTranscriptApi instance.
@@ -281,7 +281,7 @@ class TranscriptFetcher:
 
         Returns:
             A list of validated Transcript objects if a manually created
-            transcript is found, otherwise None.
+            transcript is found, otherwise an empty list.
         """
 
         assert self.languages is not None, "languages must not be None here."
@@ -298,7 +298,7 @@ class TranscriptFetcher:
         self,
         yt_api: YouTubeTranscriptApi,
         video_id: str
-    ) -> list[Transcript] | None:
+    ) -> list[Transcript]:
         """
         Fetches the first available transcript for a video.
 
@@ -312,7 +312,7 @@ class TranscriptFetcher:
 
         Returns:
             A list of validated Transcript objects if any transcript
-            is available, otherwise None.
+            is available, otherwise an empty list.
         """
 
         transcript_list = yt_api.list(video_id)
@@ -320,13 +320,12 @@ class TranscriptFetcher:
             raw = transcript.fetch().to_raw_data()
             return self._convert_to_transcript_object(raw)
         
-        return None
-
+        return []
     def _fetch_by_languages(
         self,
         yt_api: YouTubeTranscriptApi,
         video_id: str
-    ) -> list[Transcript] | None:
+    ) -> list[Transcript]:
         """
         Fetches a transcript matching the configured language priority.
 
