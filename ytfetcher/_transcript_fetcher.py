@@ -190,7 +190,7 @@ class TranscriptFetcher:
                     is_permanent_exception=False
                 )
             yt_api = YouTubeTranscriptApi(http_client=self._session, proxy_config=self.proxy_config)
-            transcript: list[Transcript] | None = self._decide_fetch_method(yt_api, video_id)
+            transcript: list[Transcript] = self._decide_fetch_method(yt_api, video_id)
 
             if not transcript:
                 logger.warning("No transcript found for video_id: %s", video_id)
@@ -234,7 +234,7 @@ class TranscriptFetcher:
             logger.exception("Unexpected error while fetching transcript for %s", video_id)
             raise
 
-    def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript] | None:
+    def _decide_fetch_method(self, yt_api: YouTubeTranscriptApi, video_id: str) -> list[Transcript]:
         """
         Selects and executes the appropriate transcript retrieval strategy.
 

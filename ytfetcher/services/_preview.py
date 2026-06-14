@@ -79,7 +79,7 @@ class PreviewRenderer:
         
         return grid
 
-    def _create_transcript_table(self, transcripts: list[Transcript] | None, limit: int) -> Table | None:
+    def _create_transcript_table(self, transcripts: list[Transcript], limit: int) -> Table | None:
         if not transcripts:
             return None
 

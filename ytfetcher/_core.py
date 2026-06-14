@@ -366,7 +366,7 @@ class YTFetcher:
     def _build_response(
             self,
             snippets: list[DLSnippet],
-            transcripts: list[VideoTranscript] | None = None,
+            transcripts: list[VideoTranscript],
             comments: list[VideoComments] | None = None
     ) -> list[ChannelData]:
         """
@@ -382,8 +382,8 @@ class YTFetcher:
         for snippet in snippets:
             vid = snippet.video_id
 
-            vid_transcripts = transcript_map.get(vid)
-            vid_comments = comments_map.get(vid)
+            vid_transcripts = transcript_map.get(vid, [])
+            vid_comments = comments_map.get(vid, [])
 
             results.append(
                 ChannelData(
