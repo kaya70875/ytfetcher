@@ -327,18 +327,14 @@ class VideoListFetcher(ConcurrentYoutubeDLFetcher):
         """
         super().__init__(video_ids, 'metadata', 'Extracting Metadata')
 
-    def fetch_single(self, video_id: str) -> DLSnippet | None:
-        ydl_opts = {
-            "quiet": True,
-            "skip_download": True,
-            "extract_flat": True,
-            "no_warnings": True,
-        }
+    def fetch_single(self, video_id: str) -> DLSnippet:
+        ydl_opts = self._setup_ydl_opts()
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl: #type: ignore[arg-type]
                 url = f"https://www.youtube.com/watch?v={video_id}"
                 metadata = cast(dict[str, Any], ydl.extract_info(url, download=False))
-                if not metadata: return None
+                if not metadata:
+                    raise VideoListFetchError(f"No metadata found for video ID: {video_id}")
 
                 return DLSnippet.model_validate(metadata)
         except DownloadError as e:

@@ -60,7 +60,7 @@ class TranscriptFetchResult(BaseModel):
 class ChannelData(BaseModel):
     video_id: str
     transcripts: list[Transcript]
-    metadata: DLSnippet | None = None
+    metadata: DLSnippet
     comments: list[Comment]
 
     def to_dict(self) -> dict:
