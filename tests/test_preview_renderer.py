@@ -96,7 +96,12 @@ def test_render_outputs_video_preview_and_hidden_video_count_summary():
         transcripts=[Transcript(text="hello", start=0, duration=1)],
         comments=[Comment(id="c1", author="alice", text="great", like_count=1, _time_text="today")],
     )
-    hidden = ChannelData(video_id="vid-2", metadata=_snippet("vid-2", title="Hidden video"))
+    hidden = ChannelData(
+        video_id="vid-2",
+        metadata=_snippet("vid-2", title="Hidden video"),
+        transcripts=[],
+        comments=[],
+    )
 
     renderer.render([visible, hidden], limit=1)
 

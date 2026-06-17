@@ -167,7 +167,8 @@ def test_fetch_transcripts_method_with_channel_name(mock_transcript_fetcher, ini
     assert isinstance(results[0].transcripts[0], Transcript)
     assert results[0].video_id == 'id1'
     assert results[0].transcripts[0].text == 'text1'
-    assert results[0].metadata == None
+    assert results[0].metadata.title == 'channelname1'
+    assert results[0].comments == []
 
 def test_fetch_snippets_method_with_channel_name(initialize_ytfetcher_with_channel_name):
     fetcher = initialize_ytfetcher_with_channel_name
@@ -176,6 +177,8 @@ def test_fetch_snippets_method_with_channel_name(initialize_ytfetcher_with_chann
     assert isinstance(results[0], ChannelData)
     assert results[0].video_id == 'id1'
     assert results[0].metadata.title == 'channelname1'
+    assert results[0].transcripts == []
+    assert results[0].comments == []
 
 def test_fetch_transcripts_method_with_video_ids(mock_transcript_fetcher, initialize_ytfetcher_with_video_ids):
     fetcher = initialize_ytfetcher_with_video_ids
@@ -186,7 +189,8 @@ def test_fetch_transcripts_method_with_video_ids(mock_transcript_fetcher, initia
     assert isinstance(results[0].transcripts[0], Transcript)
     assert results[0].video_id == 'id1'
     assert results[0].transcripts[0].text == 'text1'
-    assert results[0].metadata == None
+    assert results[0].metadata.title == 'channelname1'
+    assert results[0].comments == []
 
 def test_http_config(mock_transcript_fetcher):
 

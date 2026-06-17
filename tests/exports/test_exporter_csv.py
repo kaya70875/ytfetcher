@@ -34,7 +34,8 @@ def mock_transcript_response(sample_snippet):
         ChannelData(
             video_id="id1",
             transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
-            metadata=sample_snippet
+            metadata=sample_snippet,
+            comments=[],
         )
     ]
 
@@ -119,7 +120,8 @@ def test_csv_special_characters(mocker: MockerFixture, sample_snippet):
     exotic_data = [ChannelData(
         video_id="vid1",
         transcripts=[{"text": "Tést,Chárs", "start": 0, "duration": 1}],
-        metadata=sample_snippet
+        metadata=sample_snippet,
+        comments=[],
     )]
     
     m = mock_open()

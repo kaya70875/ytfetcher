@@ -55,7 +55,10 @@ def test_fetch_single_success(mock_ydl_class, mock_comment_data):
 @patch.object(CommentFetcher, 'fetch_single')
 def test_fetch_batch_logic(mock_fetch_single):
     """Test the multithreading orchestration in fetch()."""
-    mock_fetch_single.return_value = [MagicMock(spec=Comment)]
+    mock_fetch_single.side_effect = lambda video_id: VideoComments(
+        video_id=video_id,
+        comments=[MagicMock(spec=Comment)],
+    )
     
     video_ids = ["vid1", "vid2", "vid3"]
     fetcher = CommentFetcher(video_ids=video_ids)
