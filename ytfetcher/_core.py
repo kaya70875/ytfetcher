@@ -210,18 +210,12 @@ class YTFetcher:
         Returns only the transcripts from cached or freshly fetched YouTube data.
 
         Returns:
-            list[ChannelData]: Transcripts only with video_id (excluding metadata).
+            list[ChannelData]: Transcripts with video_id, metadata, and empty comments.
         """
         
+        snippets = self._get_snippets()
         transcripts = self._get_transcripts()
-        return [
-            ChannelData(
-                video_id=transcript.video_id,
-                metadata=None,
-                transcripts=transcript.transcripts
-            )
-            for transcript in transcripts
-        ]
+        return self._build_response(snippets=snippets, transcripts=transcripts)
     
     def fetch_snippets(self) -> list[ChannelData]:
         """
@@ -233,14 +227,7 @@ class YTFetcher:
 
         snippets = self._get_snippets()
 
-        return [
-            ChannelData(
-                video_id=snippet.video_id,
-                transcripts=None,
-                metadata=snippet
-            )
-            for snippet in snippets
-        ]
+        return self._build_response(snippets=snippets)
     
     def get_failed_transcripts(self) -> list[FailedTranscript]:
         return self._failed_transcripts.copy()
@@ -382,8 +369,8 @@ class YTFetcher:
         for snippet in snippets:
             vid = snippet.video_id
 
-            vid_transcripts = transcript_map.get(vid)
-            vid_comments = comments_map.get(vid)
+            vid_transcripts = transcript_map.get(vid, [])
+            vid_comments = comments_map.get(vid, [])
 
             results.append(
                 ChannelData(

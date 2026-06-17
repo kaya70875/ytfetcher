@@ -136,12 +136,12 @@ def test_partial_data_failures(mocker: MockerFixture, initialized_fetcher):
     assert results[0].comments is not None
 
     assert results[1].video_id == "vid_2"
-    assert results[1].transcripts is None
+    assert results[1].transcripts == []
     assert results[1].comments is not None
 
     assert results[2].video_id == "vid_3"
     assert results[2].transcripts is not None
-    assert results[2].comments is None
+    assert results[2].comments == []
 
 def test_ignores_ghost_data(mocker: MockerFixture, initialized_fetcher):
     """

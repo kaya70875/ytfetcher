@@ -79,7 +79,7 @@ class PreviewRenderer:
         
         return grid
 
-    def _create_transcript_table(self, transcripts: list[Transcript] | None, limit: int) -> Table | None:
+    def _create_transcript_table(self, transcripts: list[Transcript], limit: int) -> Table | None:
         if not transcripts:
             return None
 
@@ -96,7 +96,7 @@ class PreviewRenderer:
 
         return table
 
-    def _create_comments_view(self, comments: list[Comment] | None, limit: int) -> Table | None:
+    def _create_comments_view(self, comments: list[Comment], limit: int) -> Table | None:
         if not comments:
             return None
 

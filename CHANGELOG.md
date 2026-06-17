@@ -4,6 +4,10 @@ All notable changes to this project will be documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.4.0]
+### Changed
+- Improved developer experience with returning empty list objects on some methods instead of `None`.
+
 ## [2.3.2]
 ### Fixed
 - Available results are no longer lost when `IpBlocked` is raised mid-fetch — collected transcripts are returned instead of raising an exception.

@@ -47,6 +47,7 @@ def test_channel_data_to_rows_excludes_comments_when_disabled():
             video_id="xyz789",
             transcripts=[Transcript(text="Only text", start=0.0, duration=1.0)],
             comments=[Comment(id="1", text="Nice.")],
+            metadata=DLSnippet(id="xyz789", title="Sample"),
         )
     ]
 
@@ -56,5 +57,7 @@ def test_channel_data_to_rows_excludes_comments_when_disabled():
         {
             "video_id": "xyz789",
             "text": "Only text",
+            "title": "Sample",
+            "url": "https://youtube.com/watch?v=xyz789",
         }
     ]

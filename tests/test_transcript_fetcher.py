@@ -251,7 +251,7 @@ def test_fetch_first_available_transcript_empty(mocker):
 
     result = fetcher._fetch_first_available_transcript(mock_api, video_id)
 
-    assert result is None
+    assert result == []
 
 def test_collect_results_returns_partial_success_and_cancels_pending_tasks(mocker):
     fetcher = TranscriptFetcher(["ok_video", "blocked_video", "pending_video"])

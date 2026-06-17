@@ -34,7 +34,8 @@ def mock_transcript_response(sample_snippet):
         ChannelData(
             video_id="id1",
             transcripts=[{"text": "text1", "start": 1.11, "duration": 2.22}],
-            metadata=sample_snippet
+            metadata=sample_snippet,
+            comments=[],
         )
     ]
 
