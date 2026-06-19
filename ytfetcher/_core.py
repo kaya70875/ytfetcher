@@ -196,15 +196,8 @@ class YTFetcher:
                 and their associated comment data.
         """
         comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
-        full_comments: list[VideoComments] = comment_fetcher.fetch()
+        return comment_fetcher.fetch()
 
-        snippets = self._get_snippets()
-
-        return self._build_response(
-            snippets=snippets,
-            comments=full_comments
-        )
-    
     def fetch_transcripts(self) -> list[VideoTranscript]:
         """
         Returns only the transcripts from cached or freshly fetched YouTube data.
@@ -213,9 +206,7 @@ class YTFetcher:
             list[VideoTranscript]: A list of transcript objects.
         """
         
-        snippets = self._get_snippets()
-        transcripts = self._get_transcripts()
-        return self._build_response(snippets=snippets, transcripts=transcripts)
+        return self._get_transcripts()
     
     def fetch_snippets(self) -> list[DLSnippet]:
         """
@@ -225,9 +216,7 @@ class YTFetcher:
             list[DLSnippet]: A list of snippet objects containing video metadata and IDs.
         """
 
-        snippets = self._get_snippets()
-
-        return self._build_response(snippets=snippets)
+        return self._get_snippets()
     
     def get_failed_transcripts(self) -> list[FailedTranscript]:
         return self._failed_transcripts.copy()
