@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [2.4.0]
 ### Changed
 - Improved developer experience with returning empty list objects on some methods instead of `None`.
+- Changed return types and values for `fetch_transcripts`, `fetch_snippets` and `fetch_comments` to improve type hints.
+
 
 ## [2.3.2]
 ### Fixed
