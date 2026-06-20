@@ -13,9 +13,8 @@ from ytfetcher.config import (
     HTTPConfig,
     FetchOptions
 )
-from ytfetcher.exceptions import (
-    YTFetcherError
-)
+from ytfetcher.exceptions import YTFetcherError
+from ytfetcher.models.types import FetchResult
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
 from ytfetcher.services._preview import PreviewRenderer
 from ytfetcher.models.channel import ChannelData, DLSnippet, VideoTranscript, VideoComments
@@ -65,7 +64,7 @@ class YTFetcherCLI:
     
     def _fetch_data(
         self, fetcher: YTFetcher
-    ) -> list[ChannelData] | list[VideoComments] | list[VideoTranscript] | list[DLSnippet]:
+    ) -> FetchResult:
         """
         Dispatches to the correct fetch method based on CLI flags.
         Flags are mutually exclusive, so exactly one branch applies.
@@ -99,7 +98,7 @@ class YTFetcherCLI:
 
         self._handle_output(data=data)
     
-    def _handle_output(self, data: list[ChannelData] | list[VideoComments] | list[VideoTranscript] | list[DLSnippet]) -> None:
+    def _handle_output(self, data: FetchResult) -> None:
         should_show_preview = (
             sys.stdout.isatty() 
             and not self.args.stdout 
@@ -157,7 +156,7 @@ class YTFetcherCLI:
         
         return exporter_class
 
-    def _export(self, channel_data: list[ChannelData] | list[VideoComments] | list[VideoTranscript] | list[DLSnippet]) -> None:
+    def _export(self, channel_data: FetchResult) -> None:
         exporter_class = self._get_exporter(self.args.format)
         exporter = exporter_class(
             channel_data=channel_data,

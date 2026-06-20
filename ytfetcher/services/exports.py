@@ -7,6 +7,7 @@ import json
 import csv
 import logging
 
+from ytfetcher.models.types import FetchResult
 from ytfetcher.utils.helpers import normalize_for_export
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ class BaseExporter(ABC):
     Supports customization of which metadata fields to include and whether to include transcript timing.
 
     Parameters:
-        channel_data (list[ChannelData]): The transcript and metadata to export.
+        channel_data (FetchResult): The transcript and metadata to export.
         allowed_metadata_list (list): Metadata fields to include (e.g., ['title', 'description']).
         timing (bool): Whether to include start/duration timing in exports.
         filename (str): Output filename without extension.
@@ -31,7 +32,7 @@ class BaseExporter(ABC):
         NoDataToExport: If no data is provided.
         OutputDirectoryNotFoundError: If specified path cannot found.
     """
-    def __init__(self, channel_data: list[ChannelData], allowed_metadata_list: Sequence[METADATA_LIST] = DEFAULT_METADATA, timing: bool = True, filename: str = 'data', output_dir: str | None = None):
+    def __init__(self, channel_data: FetchResult, allowed_metadata_list: Sequence[METADATA_LIST] = DEFAULT_METADATA, timing: bool = True, filename: str = 'data', output_dir: str | None = None):
         self.channel_data = channel_data
         self.allowed_metadata_list = allowed_metadata_list
         self.timing = timing

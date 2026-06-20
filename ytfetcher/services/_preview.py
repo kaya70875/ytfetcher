@@ -5,13 +5,14 @@ from rich.text import Text
 from rich.box import ROUNDED, SIMPLE
 
 from ytfetcher.models.channel import ChannelData, Transcript, Comment, DLSnippet
+from ytfetcher.models.types import FetchResult
 from ytfetcher.utils.helpers import normalize_for_export
 
 class PreviewRenderer:
     def __init__(self):
         self.console = Console()
 
-    def render(self, data: list[ChannelData], limit: int = 4) -> None:
+    def render(self, data: FetchResult, limit: int = 4) -> None:
         """
         Renders a rich preview.
         
