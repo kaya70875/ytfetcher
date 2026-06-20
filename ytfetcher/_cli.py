@@ -17,7 +17,6 @@ from ytfetcher.exceptions import YTFetcherError
 from ytfetcher.models.types import FetchResult
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
 from ytfetcher.services._preview import PreviewRenderer
-from ytfetcher.models.channel import ChannelData, DLSnippet, VideoTranscript, VideoComments
 from ytfetcher import filters
 from ytfetcher.utils.state import RuntimeConfig
 
@@ -258,7 +257,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
 
     fetch_mode_group = parser.add_mutually_exclusive_group()
     fetch_mode_group.add_argument("-c", "--comments", action="store_true", help="Add top comments to the metadata alongside with transcripts.")
-    fetch_mode_group.add_argument("--comments-only", action="store_true", help="Fetch only comments with metadata.")
+    fetch_mode_group.add_argument("--comments-only", action="store_true", help="Fetch only comments, no metadata or transcripts.")
     fetch_mode_group.add_argument("--transcripts-only", action="store_true", help="Fetch only transcripts, no metadata.")
     fetch_mode_group.add_argument("--snippets-only", action="store_true", help="Fetch only metadata, no transcripts.")
 
