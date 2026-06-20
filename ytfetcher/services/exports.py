@@ -33,7 +33,7 @@ class BaseExporter(ABC):
         OutputDirectoryNotFoundError: If specified path cannot found.
     """
     def __init__(self, channel_data: FetchResult, allowed_metadata_list: Sequence[METADATA_LIST] = DEFAULT_METADATA, timing: bool = True, filename: str = 'data', output_dir: str | None = None):
-        self.channel_data = channel_data
+        self.channel_data: list[ChannelData] = normalize_for_export(channel_data)
         self.allowed_metadata_list = allowed_metadata_list
         self.timing = timing
         self.filename = filename
@@ -87,7 +87,7 @@ class TXTExporter(BaseExporter):
     """
     Exports the data as a plain text file, including transcript and metadata.
     """
-    def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
+    def __init__(self, channel_data: FetchResult, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
         self.channel_data = normalize_for_export(channel_data)
     
@@ -132,7 +132,7 @@ class JSONExporter(BaseExporter):
     """
     Exports the data as a structured JSON file.
     """
-    def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
+    def __init__(self, channel_data: FetchResult, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
         self.channel_data = normalize_for_export(channel_data)
     
@@ -189,7 +189,7 @@ class CSVExporter(BaseExporter):
     """
     Exports the data as a flat CSV file, row-per-transcript-entry.
     """
-    def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
+    def __init__(self, channel_data: FetchResult, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
         self.channel_data = normalize_for_export(channel_data)
     
