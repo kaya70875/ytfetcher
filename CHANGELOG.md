@@ -5,9 +5,15 @@ All notable changes to this project will be documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [2.4.0]
+### Added
+- Added a `FetchResult` type alias for fetch results that may contain `ChannelData`, `VideoTranscript`, `VideoComments`, or `DLSnippet` objects.
+- Added `--transcripts-only` and `--snippets-only` CLI fetch modes.
+
 ### Changed
 - Improved developer experience with returning empty list objects on some methods instead of `None`.
 - Changed return types and values for `fetch_transcripts`, `fetch_snippets` and `fetch_comments` to improve type hints.
+- Changed CLI comment flags: `--comments` and `--comments-only` now select the fetch mode, while `--max-comments` controls the number of comments per video.
+- Exporters, `PreviewRenderer`, and `channel_data_to_rows()` now accept any supported fetch result shape and normalize it internally.
 
 
 ## [2.3.2]
