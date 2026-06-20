@@ -91,7 +91,8 @@ def test_comments_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_configurati
     args = parser.parse_args([
         "channel",
         "TestChannel",
-        "--comments", "10",
+        "--comments",
+        "--max-comments", "10",
         "--sort", "new"
     ])
 
@@ -124,7 +125,8 @@ def test_comments_only_passed_correctly_to_ytfetcher(mock_ytfetcher, mock_config
     args = parser.parse_args([
         "channel",
         "TestChannel",
-        "--comments-only", "10",
+        "--comments-only",
+        "--max-comments", "10",
     ])
 
     cli = YTFetcherCLI(args=args)
