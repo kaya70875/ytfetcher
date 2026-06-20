@@ -1,8 +1,8 @@
 # Exporting
 
-The exporting feature allows you to save channel data in **multiple formats for analysis, reporting, or integration with other tools.** `ytfetcher` supports three widely-used export formats to suit different use cases and preferences.
+The exporting feature allows you to save fetched data in **multiple formats for analysis, reporting, or integration with other tools.** `ytfetcher` supports three widely-used export formats to suit different use cases and preferences.
 
-Use the `BaseExporter` class to export `ChannelData` in **csv, json, or txt**:
+Use the exporter classes to export `ChannelData` or any other supported fetch result in **csv, json, or txt**. Results from `fetch_youtube_data()`, `fetch_with_comments()`, `fetch_transcripts()`, `fetch_snippets()`, and `fetch_comments()` are normalized internally before writing.
 
 ```py
 from ytfetcher.services import JSONExporter # OR you can import other exporters: TXTExporter, CSVExporter

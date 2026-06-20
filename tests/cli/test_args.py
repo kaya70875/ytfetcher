@@ -54,12 +54,14 @@ def test_comments_argument():
         "channel",
         "TestChannel",
         "-f", "json",
-        "--comments", "5"
+        "--comments",
+        "--max-comments", "5"
     ])
 
     cli = YTFetcherCLI(args=args)
 
-    assert cli.args.comments == 5
+    assert cli.args.comments == True
+    assert cli.args.max_comments == 5
 
 def test_comments_only_argument():
     parser = create_parser()
@@ -67,12 +69,14 @@ def test_comments_only_argument():
         "channel",
         "TestChannel",
         "-f", "json",
-        "--comments-only", "5"
+        "--comments-only",
+        "--max-comments", "5"
     ])
 
     cli = YTFetcherCLI(args=args)
 
-    assert cli.args.comments_only == 5
+    assert cli.args.comments_only == True
+    assert cli.args.max_comments == 5
 
 def test_comments_argument_default():
     parser = create_parser()

@@ -69,7 +69,7 @@ def test_filter_snippets_returns_filtered_data(mock_channel_fetcher_class, sampl
     ]))
 
     channel_data = fetcher.fetch_snippets()
-    snippets = channel_data[0].metadata
+    snippets = channel_data[0]
 
     assert len(channel_data) == 1
     assert snippets == sample_snippets[1]
@@ -106,7 +106,7 @@ def test_filter_snippets_with_multiple_filters(mock_channel_fetcher_class_with_b
     ]))
 
     channel_data = fetcher.fetch_snippets()
-    snippets = channel_data[0].metadata
+    snippets = channel_data[0]
 
     assert len(channel_data) == 1
     assert snippets == sample_missing_snippets[1]
@@ -117,7 +117,7 @@ def test_filter_snippets_with_case_sensitivity(mock_channel_fetcher_class, sampl
     ]))
 
     channel_data = fetcher.fetch_snippets()
-    snippets = channel_data[0].metadata
+    snippets = channel_data[0]
 
     assert len(fetcher.options.filters) == 1
     assert snippets == sample_snippets[1]

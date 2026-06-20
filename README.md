@@ -19,9 +19,9 @@ A python tool for fetching thousands of videos fast from a Youtube channel along
 - [Features](#features)
 - [Fetching Specific Channel Tabs (Videos / Shorts / Streams)](#fetching-specific-channel-tabs-videos--shorts--streams)
 - [Using Different Fetchers](#using-different-fetchers)
-- [Retreive Different Languages](#retreive-different-languages)
+- [Retrieve Different Languages](#retrieve-different-languages)
 - [Filtering](#filtering)
-- [Converting ChannelData to Rows](#converting-channeldata-to-rows)
+- [Converting Fetch Results to Rows](#converting-fetch-results-to-rows)
 - [SQLite Cache](#sqlite-cache)
 - [Failed Transcripts & Retry Behavior](#failed-transcripts--retry-behavior)
 - [Fetching Only Manually Created Transcripts](#fetching-only-manually-created-transcripts)
@@ -232,7 +232,7 @@ These options can be passed to any of the fetcher methods (`from_channel`, `from
 
 See below for examples of usages.
 
-## Retreive Different Languages
+## Retrieve Different Languages
 
 You can use the `languages` param to retrieve your desired language. (Default en)
 
@@ -314,9 +314,9 @@ ytfetcher channel TheOffice -m 50 -f json --min-views 1000 --min-duration 300 --
 
 ---
 
-## Converting ChannelData to Rows
+## Converting Fetch Results to Rows
 
-If you want a flat, row-based structure for ML workflows (Pandas, HuggingFace datasets, JSON/Parquet), you can use the helper in `ytfetcher.utils` to join transcript segments. Comments are only included if you fetched them with `fetch_with_comments` or `fetch_comments`.
+If you want a flat, row-based structure for ML workflows (Pandas, HuggingFace datasets, JSON/Parquet), you can use the helper in `ytfetcher.utils` to join transcript segments. It accepts any fetch result returned by the public API, including `ChannelData`, `VideoTranscript`, `VideoComments`, and `DLSnippet` lists.
 
 ```python
 from ytfetcher import YTFetcher
@@ -327,6 +327,8 @@ channel_data = fetcher.fetch_with_comments(max_comments=5)
 
 rows = channel_data_to_rows(channel_data, include_comments=True)
 ```
+
+When comments are available, pass `include_comments=True` to include comment text in the output rows.
 
 ---
 
@@ -451,7 +453,7 @@ ytfetcher channel TEDx -f csv --manually-created
 
 ## Exporting
 
-Use the `BaseExporter` class to export `ChannelData` in **csv**, **json**, or **txt**:
+Use the exporter classes to export `ChannelData` or any other supported fetch result in **csv**, **json**, or **txt**.
 
 ```python
 from ytfetcher.services import JSONExporter # OR you can import other exporters: TXTExporter, CSVExporter
@@ -527,18 +529,21 @@ fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
 comments = fetcher.fetch_comments(max_comments=20)
 ```
 
-This will return list of `Comment` like this:
+This will return a list of `VideoComments` objects like this:
 
 ```python
 [
-    Comment(
-        text='Comment one.',
-        like_count=20,
-        author='@author',
-        time_text='8 days ago'
+    VideoComments(
+        video_id='id1',
+        comments=[
+            Comment(
+                text='Comment one.',
+                like_count=20,
+                author='@author',
+                time_text='8 days ago'
+            )
+        ]
     )
-
-    ## OTHER COMMENT OBJECTS...
 ]
 ```
 
@@ -546,16 +551,16 @@ This will return list of `Comment` like this:
 
 Fetching comments in `ytfetcher` with CLI is very easy.
 
-To fetch comments with transcripts you can use `--comments` argument:
+To fetch comments with transcripts you can use the `--comments` mode. Use `--max-comments` to choose how many comments to fetch per video:
 
 ```bash
-ytfetcher channel TheOffice -m 20 --comments 10 -f json
+ytfetcher channel TheOffice -m 20 --comments --max-comments 10 -f json
 ```
 
-To fetch only comments with metadata you can use `--comments-only` argument:
+To fetch only comments you can use the `--comments-only` mode:
 
 ```bash
-ytfetcher channel TheOffice -m 20 --comments-only 10 -f json
+ytfetcher channel TheOffice -m 20 --comments-only --max-comments 10 -f json
 ```
 
 ## Other Methods
@@ -571,12 +576,16 @@ data = fetcher.fetch_transcripts()
 print(data)
 ```
 
+`fetch_transcripts()` returns `list[VideoTranscript]`. Each item contains the `video_id` and that video's transcript segments.
+
 ### Fetch Snippets
 
 ```python
 data = fetcher.fetch_snippets()
 print(data)
 ```
+
+`fetch_snippets()` returns `list[DLSnippet]` with video metadata only.
 
 ---
 
@@ -672,6 +681,7 @@ ytfetcher channel TheOffice -m 20 --tab shorts -f json
 
 # Fetch from the Live/Streams tab
 ytfetcher channel TheOffice -m 20 --tab streams -f json
+```
 
 ### Fetching by Video IDs
 
@@ -693,13 +703,13 @@ ytfetcher search "AI Getting Jobs" -f json -m 25
 ### Using Webshare Proxy
 
 ```bash
-ytfetcher <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>" --webshare-proxy-password "<PASSWORD>"
+ytfetcher channel <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>" --webshare-proxy-password "<PASSWORD>"
 ```
 
 ### Using Custom Proxy
 
 ```bash
-ytfetcher <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
+ytfetcher channel <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
 ```
 ---
 
@@ -714,7 +724,7 @@ docker-compose build
 Use `docker-compose run` to execute your desired command inside the container.
 
 ```bash
-docker-compose run ytfetcher poetry run ytfetcher channel -c TheOffice -m 20 -f json
+docker-compose run ytfetcher poetry run ytfetcher channel TheOffice -m 20 -f json
 ```
 ---
 

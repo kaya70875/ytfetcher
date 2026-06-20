@@ -177,7 +177,7 @@ class YTFetcher:
             comments=full_comments
         )
     
-    def fetch_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[ChannelData]:
+    def fetch_comments(self, max_comments: int = 20, sort: Literal['top', 'new'] = ('top')) -> list[VideoComments]:
         """
         Retrieves comments for all identified videos, bypassing transcript extraction.
 
@@ -192,42 +192,31 @@ class YTFetcher:
                 Defaults to 'top'.
 
         Returns:
-            list[ChannelData]: A list of objects containing the video identifiers 
+            list[VideoComments]: A list of objects containing the video identifiers 
                 and their associated comment data.
         """
         comment_fetcher = CommentFetcher(max_comments=max_comments, video_ids=self._get_video_ids(), sort=sort)
-        full_comments: list[VideoComments] = comment_fetcher.fetch()
+        return comment_fetcher.fetch()
 
-        snippets = self._get_snippets()
-
-        return self._build_response(
-            snippets=snippets,
-            comments=full_comments
-        )
-    
-    def fetch_transcripts(self) -> list[ChannelData]:
+    def fetch_transcripts(self) -> list[VideoTranscript]:
         """
         Returns only the transcripts from cached or freshly fetched YouTube data.
 
         Returns:
-            list[ChannelData]: Transcripts with video_id, metadata, and empty comments.
+            list[VideoTranscript]: A list of transcript objects.
         """
         
-        snippets = self._get_snippets()
-        transcripts = self._get_transcripts()
-        return self._build_response(snippets=snippets, transcripts=transcripts)
+        return self._get_transcripts()
     
-    def fetch_snippets(self) -> list[ChannelData]:
+    def fetch_snippets(self) -> list[DLSnippet]:
         """
         Returns the raw snippet data (metadata and video IDs) retrieved from the YouTube Data API.
 
         Returns:
-            list[ChannelData]: An object containing video metadata and IDs.
+            list[DLSnippet]: A list of snippet objects containing video metadata and IDs.
         """
 
-        snippets = self._get_snippets()
-
-        return self._build_response(snippets=snippets)
+        return self._get_snippets()
     
     def get_failed_transcripts(self) -> list[FailedTranscript]:
         return self._failed_transcripts.copy()
@@ -352,7 +341,7 @@ class YTFetcher:
 
     def _build_response(
             self,
-            snippets: list[DLSnippet],
+            snippets: list[DLSnippet], # We need snippets to ensure the order of the response matches the order of the original video IDs.
             transcripts: list[VideoTranscript] | None = None,
             comments: list[VideoComments] | None = None
     ) -> list[ChannelData]:

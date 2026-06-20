@@ -13,12 +13,10 @@ from ytfetcher.config import (
     HTTPConfig,
     FetchOptions
 )
-from ytfetcher.exceptions import (
-    YTFetcherError
-)
+from ytfetcher.exceptions import YTFetcherError
+from ytfetcher.models.types import FetchResult
 from ytfetcher.services.exports import TXTExporter, CSVExporter, JSONExporter, BaseExporter, DEFAULT_METADATA
 from ytfetcher.services._preview import PreviewRenderer
-from ytfetcher.models import ChannelData
 from ytfetcher import filters
 from ytfetcher.utils.state import RuntimeConfig
 
@@ -63,16 +61,21 @@ class YTFetcherCLI:
     def __init__(self, args: argparse.Namespace):
         self.args = args
     
-    def _fetch_data(self, fetcher: YTFetcher) -> list[ChannelData]:
+    def _fetch_data(
+        self, fetcher: YTFetcher
+    ) -> FetchResult:
         """
-        Decides correct method and returns data based on `comments` argument.
+        Dispatches to the correct fetch method based on CLI flags.
+        Flags are mutually exclusive, so exactly one branch applies.
         """
-        if self.args.comments > 0:
-            return fetcher.fetch_with_comments(max_comments=self.args.comments, sort=self.args.sort)
-
-        elif self.args.comments_only > 0:
-            return fetcher.fetch_comments(max_comments=self.args.comments_only, sort=self.args.sort)
-
+        if self.args.comments:
+            return fetcher.fetch_with_comments(max_comments=self.args.max_comments, sort=self.args.sort)
+        if self.args.comments_only:
+            return fetcher.fetch_comments(max_comments=self.args.max_comments, sort=self.args.sort)
+        if self.args.transcripts_only:
+            return fetcher.fetch_transcripts()
+        if self.args.snippets_only:
+            return fetcher.fetch_snippets()
         return fetcher.fetch_youtube_data()
 
     def _run_fetcher(self, factory_method: type[YTFetcher], **kwargs) -> None:
@@ -94,7 +97,7 @@ class YTFetcherCLI:
 
         self._handle_output(data=data)
     
-    def _handle_output(self, data: list[ChannelData]) -> None:
+    def _handle_output(self, data: FetchResult) -> None:
         should_show_preview = (
             sys.stdout.isatty() 
             and not self.args.stdout 
@@ -152,7 +155,7 @@ class YTFetcherCLI:
         
         return exporter_class
 
-    def _export(self, channel_data: list[ChannelData]) -> None:
+    def _export(self, channel_data: FetchResult) -> None:
         exporter_class = self._get_exporter(self.args.format)
         exporter = exporter_class(
             channel_data=channel_data,
@@ -252,9 +255,14 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     transcript_group.add_argument("--languages", nargs="+", default=None, help="List of language codes in priority order (e.g. en de fr). Defaults to None.")
     transcript_group.add_argument("--manually-created", action="store_true", help="Fetch only videos that has manually created transcripts.")
 
+    fetch_mode_group = parser.add_mutually_exclusive_group()
+    fetch_mode_group.add_argument("-c", "--comments", action="store_true", help="Add top comments to the metadata alongside with transcripts.")
+    fetch_mode_group.add_argument("--comments-only", action="store_true", help="Fetch only comments, no metadata or transcripts.")
+    fetch_mode_group.add_argument("--transcripts-only", action="store_true", help="Fetch only transcripts, no metadata.")
+    fetch_mode_group.add_argument("--snippets-only", action="store_true", help="Fetch only metadata, no transcripts.")
+
     comments_group = parser.add_argument_group("Comment Options")
-    comments_group.add_argument("-c", "--comments", default=0, type=int, help="Add top comments to the metadata alongside with transcripts.")
-    comments_group.add_argument("--comments-only", default=0, type=int, help="Fetch only comments with metadata.")
+    comments_group.add_argument("--max-comments", type=int, default=20, help="Maximum comments to fetch per video.")
     comments_group.add_argument("--sort", type=str, default='top', choices=['new', 'top'], help='Sort comments: "top" (most liked) or "new" (most recent).')
 
     filter_group = parser.add_argument_group("Filtering Options (Pre-Fetch)")

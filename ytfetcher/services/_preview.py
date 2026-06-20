@@ -5,12 +5,14 @@ from rich.text import Text
 from rich.box import ROUNDED, SIMPLE
 
 from ytfetcher.models.channel import ChannelData, Transcript, Comment, DLSnippet
+from ytfetcher.models.types import FetchResult
+from ytfetcher.utils.helpers import normalize_for_export
 
 class PreviewRenderer:
     def __init__(self):
         self.console = Console()
 
-    def render(self, data: list[ChannelData], limit: int = 4) -> None:
+    def render(self, data: FetchResult, limit: int = 4) -> None:
         """
         Renders a rich preview.
         
@@ -22,13 +24,12 @@ class PreviewRenderer:
         if not data:
             self.console.print("[yellow]No data found to preview.[/yellow]")
             return
+        
+        data = normalize_for_export(data)
 
         visible_items = data[:limit]
 
         for item in visible_items:
-            if not item.metadata:
-                continue
-            
             video_content = self._build_video_view(item, limit)
             
             self.console.print("\n")
@@ -38,14 +39,14 @@ class PreviewRenderer:
 
     def _build_video_view(self, item: ChannelData, limit: int) -> Panel:
         """Orchestrates the layout for a single video."""
-        assert item.metadata is not None
+        layout = Table.grid(padding=(1, 0))
+        
+        if item.metadata:
+            meta_grid = self._create_metadata_grid(item.metadata)
+            layout.add_row(meta_grid)
 
-        meta_grid = self._create_metadata_grid(item.metadata)
         transcript_table = self._create_transcript_table(item.transcripts, limit)
         comment_section = self._create_comments_view(item.comments, limit)
-
-        layout = Table.grid(padding=(1, 0))
-        layout.add_row(meta_grid)
         
         if transcript_table:
             layout.add_row(Panel(transcript_table, title="[b]Transcript Preview[/]", box=ROUNDED, border_style="dim"))
@@ -53,10 +54,13 @@ class PreviewRenderer:
         if comment_section:
             layout.add_row(Panel(comment_section, title="[b]Comment Preview[/]", box=ROUNDED, border_style="dim"))
 
+        title = f"[bold blue]{item.metadata.title}[/]" if item.metadata else f"[bold blue]{item.video_id}[/]"
+        subtitle = f"[dim]ID: {item.video_id}[/]" if item.metadata else None
+
         return Panel(
             layout,
-            title=f"[bold blue]{item.metadata.title}[/]",
-            subtitle=f"[dim]ID: {item.metadata.video_id}[/]",
+            title=title,
+            subtitle=subtitle,
             box=ROUNDED,
             expand=False
         )

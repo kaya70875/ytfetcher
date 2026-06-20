@@ -2,6 +2,8 @@
 
 ## Latest Changes
 ### Added
+- Added a `FetchResult` type alias for fetch results that may contain `ChannelData`, `VideoTranscript`, `VideoComments`, or `DLSnippet` objects.
+- Added `--transcripts-only` and `--snippets-only` CLI fetch modes.
 - Available results are no longer lost when `IpBlocked` is raised mid-fetch — collected transcripts are returned instead of raising an exception.
 - Introduced a new `FetchOptions` data class for defining fetcher options like `languages`, `filters` etc.
 - Added a `--sort` argument for choosing **top or new** comments with CLI.
@@ -12,6 +14,9 @@
 - Added transient failure categorization to improve retry/caching decisions.
 
 ### Changed
+- `fetch_transcripts()`, `fetch_snippets()`, and `fetch_comments()` now return more precise list types instead of mixed or optional shapes.
+- CLI comment flags now separate fetch mode from comment count: use `--comments` or `--comments-only` with `--max-comments`.
+- Exporters, `PreviewRenderer`, and `channel_data_to_rows()` now accept any supported fetch result shape and normalize it internally.
 - Removed deprecated `Exporter` class.
 - No more **network requests in __init__**.
 - `YTFetcher` now initializes correct `BaseYoutubeDLFetcher` inside classmethods.
