@@ -4,7 +4,6 @@ from typing import TypeAlias
 from ytfetcher.models.channel import (
     ChannelData,
     DLSnippet,
-    DLSnippet,
     VideoComments,
     VideoTranscript,
 )
