@@ -89,7 +89,6 @@ class TXTExporter(BaseExporter):
     """
     def __init__(self, channel_data: FetchResult, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
-        self.channel_data = normalize_for_export(channel_data)
     
     def write(self):
         output_path = self._initialize_output_path(export_type='txt')
@@ -134,7 +133,6 @@ class JSONExporter(BaseExporter):
     """
     def __init__(self, channel_data: FetchResult, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
-        self.channel_data = normalize_for_export(channel_data)
     
     def write(self):
         output_path = self._initialize_output_path(export_type='json')
@@ -191,7 +189,6 @@ class CSVExporter(BaseExporter):
     """
     def __init__(self, channel_data: FetchResult, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
-        self.channel_data = normalize_for_export(channel_data)
     
     def write(self):
         output_path = self._initialize_output_path(export_type='csv')
