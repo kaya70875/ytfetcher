@@ -7,6 +7,8 @@ import json
 import csv
 import logging
 
+from ytfetcher.utils.helpers import normalize_for_export
+
 logger = logging.getLogger(__name__)
 
 METADATA_LIST = Literal['title', 'description', 'url', 'duration', 'view_count', 'thumbnails', 'uploader_url']
@@ -79,12 +81,14 @@ class BaseExporter(ABC):
         #)
 
         return clean_meta
+
 class TXTExporter(BaseExporter):
     """
     Exports the data as a plain text file, including transcript and metadata.
     """
     def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
+        self.channel_data = normalize_for_export(channel_data)
     
     def write(self):
         output_path = self._initialize_output_path(export_type='txt')
@@ -129,6 +133,7 @@ class JSONExporter(BaseExporter):
     """
     def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
+        self.channel_data = normalize_for_export(channel_data)
     
     def write(self):
         output_path = self._initialize_output_path(export_type='json')
@@ -185,6 +190,7 @@ class CSVExporter(BaseExporter):
     """
     def __init__(self, channel_data, allowed_metadata_list = DEFAULT_METADATA, timing = True, filename = 'data', output_dir = None):
         super().__init__(channel_data, allowed_metadata_list, timing, filename, output_dir)
+        self.channel_data = normalize_for_export(channel_data)
     
     def write(self):
         output_path = self._initialize_output_path(export_type='csv')

@@ -1,5 +1,5 @@
 from typing import Any
-from ytfetcher.models.channel import ChannelData
+from ytfetcher.models.channel import ChannelData, VideoComments, VideoTranscript, DLSnippet
 
 def channel_data_to_rows(
     data: list[ChannelData],
@@ -41,3 +41,27 @@ def channel_data_to_rows(
         rows.append(row)
 
     return rows
+
+def normalize_for_export(data: list[ChannelData] | list[VideoComments] | list[VideoTranscript] | list[DLSnippet]) -> list[ChannelData]:
+    """
+    Adapts whichever fetch result was returned into a uniform ChannelData shape,
+    so the exporters only ever have to deal with one type.
+    """
+    if not data:
+        return []
+
+    first = data[0]
+
+    if isinstance(first, ChannelData):
+        return data
+
+    if isinstance(first, VideoComments):
+        return [ChannelData(video_id=d.video_id, metadata=None, transcripts=[], comments=d.comments) for d in data]
+
+    if isinstance(first, VideoTranscript):
+        return [ChannelData(video_id=d.video_id, metadata=None, transcripts=d.transcripts, comments=[]) for d in data]
+
+    if isinstance(first, DLSnippet):
+        return [ChannelData(video_id=d.video_id, metadata=d, transcripts=[], comments=[]) for d in data]
+
+    raise TypeError(f"Unsupported data type for export: {type(first)}")
