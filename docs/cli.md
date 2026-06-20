@@ -20,7 +20,7 @@ YTFetcher comes with a simple CLI so you can fetch data directly from your termi
 ytfetcher -h
 ```
 
-YTFetcher supports three main commands:
+YTFetcher supports four main commands:
 
 - `channel` - Fetch data from a YouTube channel handle
 - `video` - Fetch data from custom video IDs
@@ -159,21 +159,37 @@ All commands support the following common options:
 
 ### Comment Options
 
-**`--comments <NUMBER>`**
+**`--comments`**
 
-- Fetch top N comments alongside transcripts and metadata
-- Example: `ytfetcher channel TheOffice -m 20 --comments 10 -f json`
-- This fetches top 10 comments for each video along with transcripts
+- Fetch comments alongside transcripts and metadata
+- Example: `ytfetcher channel TheOffice -m 20 --comments --max-comments 10 -f json`
+- This fetches up to 10 comments for each video along with transcripts
 
-**`--comments-only <NUMBER>`**
+**`--comments-only`**
 
-- Fetch only comments with metadata (no transcripts)
-- Example: `ytfetcher channel TheOffice -m 20 --comments-only 10 -f json`
+- Fetch only comments (no transcripts or metadata)
+- Example: `ytfetcher channel TheOffice -m 20 --comments-only --max-comments 10 -f json`
+
+**`--max-comments <NUMBER>`**
+
+- Maximum comments to fetch per video
+- Default: `20`
+- Used with `--comments` or `--comments-only`
+
+**`--transcripts-only`**
+
+- Fetch only transcript data, without metadata
+- Example: `ytfetcher channel TheOffice -m 20 --transcripts-only -f json`
+
+**`--snippets-only`**
+
+- Fetch only video metadata, without transcripts
+- Example: `ytfetcher channel TheOffice -m 20 --snippets-only -f json`
 
 **`--sort` <`top`, `new`>**
 
 - Sort comments with top or newest ones (default to `top`).
-- Example: `ytfetcher channel TheOffice -m 10 -c --sort new`
+- Example: `ytfetcher channel TheOffice -m 10 --comments --max-comments 10 --sort new`
 
 !!! Warning
     Comment fetching is resource-intensive. Performance depends on your internet connection and the volume of comments being retrieved.
@@ -286,12 +302,6 @@ This command only processes videos that:
 - Get credentials from [Webshare Dashboard](https://dashboard.webshare.io/proxy/settings)
 - Example: `ytfetcher channel TheOffice -f json --webshare-proxy-username "your_username" --webshare-proxy-password "your_password"`
 
-**`--http-timeout`**
-
-- HTTP request timeout in seconds
-- Default: `4.0`
-- Example: `ytfetcher channel TheOffice --http-timeout 6.0`
-
 **`--http-headers`**
 
 - Custom HTTP headers (Python dictionary format)
@@ -317,7 +327,7 @@ This command:
 ### Fetch Comments with Transcripts
 
 ```bash
-ytfetcher channel TheOffice -m 10 --comments 5 -f csv -o ./data
+ytfetcher channel TheOffice -m 10 --comments --max-comments 5 -f csv -o ./data
 ```
 
 This command:
@@ -352,7 +362,7 @@ This command uses Webshare proxy to avoid rate limits when fetching large amount
 ### Export Only Comments
 
 ```bash
-ytfetcher channel TheOffice -m 20 --comments-only 15 -f json --filename comments_only
+ytfetcher channel TheOffice -m 20 --comments-only --max-comments 15 -f json --filename comments_only
 ```
 
 This command fetches only comments (no transcripts) and saves them to `comments_only.json`.

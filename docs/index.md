@@ -101,7 +101,7 @@ You can also preview this data using `PreviewRenderer` class from `ytfetcher.ser
 ```py
 from ytfetcher.services import PreviewRenderer
 
-channel_data = fetcher.fetch_youtube_data(max_comments=10)
+channel_data = fetcher.fetch_with_comments(max_comments=10)
 #print(channel_data)
 preview = PreviewRenderer()
 preview.render(data=channel_data, limit=4)
@@ -257,9 +257,9 @@ fetcher = YTFetcher.from_channel(
 )
 ```
 
-## Converting ChannelData to Rows
+## Converting Fetch Results to Rows
 
-If you want a flat, row-based structure for ML workflows (Pandas, HuggingFace datasets, JSON/Parquet), use the helper in `ytfetcher.utils` to join transcript segments. Comments are only included if you fetched them with `fetch_with_comments` or `fetch_comments`.
+If you want a flat, row-based structure for ML workflows (Pandas, HuggingFace datasets, JSON/Parquet), use the helper in `ytfetcher.utils` to join transcript segments. It accepts any fetch result returned by the public API, including `ChannelData`, `VideoTranscript`, `VideoComments`, and `DLSnippet` lists.
 
 ```python
 from ytfetcher import YTFetcher
@@ -270,6 +270,8 @@ channel_data = fetcher.fetch_with_comments(max_comments=5)
 
 rows = channel_data_to_rows(channel_data, include_comments=True)
 ```
+
+When comments are available, pass `include_comments=True` to include comment text in the output rows.
 
 ## Fetching Comments
 `ytfetcher` allows you fetch comments in bulk **with additional metadata and transcripts** or **just comments alone.**
@@ -328,7 +330,7 @@ To fetch comments alongside with transcripts and metadata you can use `fetch_wit
 
 ```py
 fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
-comments = fetcher.fetch_with_comments(max_comments=10, sort='top') # or new if you want latest comments
+channel_data = fetcher.fetch_with_comments(max_comments=10, sort='top') # or new if you want latest comments
 ```
 
 This will simply fetch **top 10 comments for every video** alongside with transcript data.
@@ -358,18 +360,21 @@ fetcher = YTFetcher.from_channel("TheOffice", max_results=5)
 comments = fetcher.fetch_comments(max_comments=20)
 ```
 
-This will return list of `Comment` like this:
+This will return a list of `VideoComments` objects like this:
 
 ```py
 [
-    Comment(
-        text='Comment one.',
-        like_count=20,
-        author='@author',
-        time_text='8 days ago'
+    VideoComments(
+        video_id='id1',
+        comments=[
+            Comment(
+                text='Comment one.',
+                like_count=20,
+                author='@author',
+                time_text='8 days ago'
+            )
+        ]
     )
-
-    ## OTHER COMMENT OBJECTS...
 ]
 ```
 
