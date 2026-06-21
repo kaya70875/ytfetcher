@@ -8,9 +8,9 @@ class ExporterError(Exception):
     Base exception for all Exporter errors.
     """
 
-class OutputDirectoryNotFoundError(ExporterError):
+class OutputDirectoryCannotBeCreated(ExporterError):
     """
-    Raised when the specified output directory does not exist.
+    Raised when the specified output directory cannot be created.
     """
 
 class NoDataToExport(ExporterError):

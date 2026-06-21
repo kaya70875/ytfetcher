@@ -14,7 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Changed return types and values for `fetch_transcripts`, `fetch_snippets` and `fetch_comments` to improve type hints.
 - Changed CLI comment flags: `--comments` and `--comments-only` now select the fetch mode, while `--max-comments` controls the number of comments per video.
 - Exporters, `PreviewRenderer`, and `channel_data_to_rows()` now accept any supported fetch result shape and normalize it internally.
+- `BaseExporter` now creates directory for exporter path instead of raising.
 
+### Fixed
+- Fixed ytfetcher raises an error if output directory could not found in `Exporter` class.
 
 ## [2.3.2]
 ### Fixed
