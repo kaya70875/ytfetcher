@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from ytfetcher.models.channel import ChannelData
-from ytfetcher.exceptions import NoDataToExport, OutputDirectoryNotFoundError
+from ytfetcher.exceptions import NoDataToExport, OutputDirectoryCannotBeCreated
 from typing import Literal, Sequence, get_args, Any
 import json
 import csv
@@ -41,9 +41,6 @@ class BaseExporter(ABC):
 
         if not self.channel_data:
             raise NoDataToExport("No data to export.")
-        
-        if not self.output_dir.exists():
-            raise OutputDirectoryNotFoundError("System path could not found.")
 
     @abstractmethod
     def write(self) -> None:
@@ -58,7 +55,7 @@ class BaseExporter(ABC):
             return output_path
         except OSError:
             logger.exception("Failed to initialize output directory %s", self.output_dir)
-            raise
+            raise OutputDirectoryCannotBeCreated(f"Output directory {self.output_dir} could not be created")
     
     def _get_clean_metadata(self, data: ChannelData):
         """
