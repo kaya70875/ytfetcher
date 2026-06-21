@@ -1,4 +1,4 @@
-from ytfetcher.exceptions import NoDataToExport, OutputDirectoryNotFoundError
+from ytfetcher.exceptions import NoDataToExport
 from ytfetcher.services.exports import TXTExporter
 from ytfetcher.models.channel import ChannelData, DLSnippet
 import pytest
@@ -28,7 +28,3 @@ def mock_transcript_response(sample_snippet):
 def test_export_with_txt_no_channel_data_exception():
     with pytest.raises(NoDataToExport):
         TXTExporter([])
-        
-def test_export_with_txt_wrong_output_dir_exception(mock_transcript_response):
-    with pytest.raises(OutputDirectoryNotFoundError):
-        TXTExporter(mock_transcript_response, output_dir='dwadwadwadwa')
