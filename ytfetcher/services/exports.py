@@ -30,7 +30,7 @@ class BaseExporter(ABC):
 
     Raises:
         NoDataToExport: If no data is provided.
-        OutputDirectoryNotFoundError: If specified path cannot found.
+        OutputDirectoryCannotBeCreated: If specified path cannot be created.
     """
     def __init__(self, channel_data: FetchResult, allowed_metadata_list: Sequence[METADATA_LIST] = DEFAULT_METADATA, timing: bool = True, filename: str = 'data', output_dir: str | None = None):
         self.channel_data: list[ChannelData] = normalize_for_export(channel_data)
@@ -53,9 +53,9 @@ class BaseExporter(ABC):
             
             logger.debug(f"Writing as {export_type} file, output path: {output_path}")
             return output_path
-        except OSError:
+        except OSError as e:
             logger.exception("Failed to initialize output directory %s", self.output_dir)
-            raise OutputDirectoryCannotBeCreated(f"Output directory {self.output_dir} could not be created")
+            raise OutputDirectoryCannotBeCreated(f"Output directory {self.output_dir} could not be created") from e
     
     def _get_clean_metadata(self, data: ChannelData):
         """
