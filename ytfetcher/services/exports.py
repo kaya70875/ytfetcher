@@ -89,7 +89,7 @@ class TXTExporter(BaseExporter):
     
     def write(self):
         output_path = self._initialize_output_path(export_type='txt')
-        with open(output_path, 'w', encoding='utf-8') as file:
+        with open(output_path, mode='w', encoding='utf-8', newline='') as file:
             for data in self.channel_data:
                 file.write(f"Transcript for {data.video_id}:\n")
 
@@ -146,7 +146,7 @@ class JSONExporter(BaseExporter):
 
             export_data.append(video_data)
 
-        with open(output_path, 'w', encoding='utf-8') as file:
+        with open(output_path, mode='w', encoding='utf-8', newline='') as file:
             json.dump(export_data, file, indent=2, ensure_ascii=False)
         
         logger.debug(
@@ -198,7 +198,7 @@ class CSVExporter(BaseExporter):
         fieldnames += metadata if any(d.metadata for d in self.channel_data) else []
         fieldnames += comments if any(d.comments for d in self.channel_data) else []
 
-        with open(output_path, 'w', encoding='utf-8') as file:
+        with open(output_path, mode='w', encoding='utf-8', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
 
