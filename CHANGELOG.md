@@ -17,7 +17,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `BaseExporter` now creates directory for exporter path instead of raising.
 
 ### Fixed
-- Fixed ytfetcher raises an error if output directory could not found in `Exporter` class.
+- fix: ytfetcher raises an error if output directory could not found in `Exporter` class.
+- fix: inherit ExporterError from YTFetcherError for better exception hierarchy.
+- fix: add newline parameter to file open for consistent line endings in exports.
 
 ## [2.3.2]
 ### Fixed
