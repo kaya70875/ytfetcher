@@ -4,6 +4,7 @@
 ### Added
 - Added a `FetchResult` type alias for fetch results that may contain `ChannelData`, `VideoTranscript`, `VideoComments`, or `DLSnippet` objects.
 - Added `--transcripts-only` and `--snippets-only` CLI fetch modes.
+- Added `FetchOptions.max_concurrent_requests` and the `--max-concurrency` CLI option to control transcript request concurrency.
 - Available results are no longer lost when `IpBlocked` is raised mid-fetch — collected transcripts are returned instead of raising an exception.
 - Introduced a new `FetchOptions` data class for defining fetcher options like `languages`, `filters` etc.
 - Added a `--sort` argument for choosing **top or new** comments with CLI.
