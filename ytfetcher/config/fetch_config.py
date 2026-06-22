@@ -53,3 +53,6 @@ class FetchOptions:
 
     recovery_delay: int = 5
     """Seconds to wait before the recovery retry."""
+
+    max_concurrent_requests: int = 20
+    """Maximum number of concurrent network requests to make when fetching transcripts."""
