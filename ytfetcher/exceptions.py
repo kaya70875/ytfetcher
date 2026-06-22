@@ -3,7 +3,7 @@ class YTFetcherError(Exception):
     Base exception for all YTFetcher errors.
     """
 
-class ExporterError(Exception):
+class ExporterError(YTFetcherError):
     """
     Base exception for all Exporter errors.
     """
