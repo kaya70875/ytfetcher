@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Added a `FetchResult` type alias for fetch results that may contain `ChannelData`, `VideoTranscript`, `VideoComments`, or `DLSnippet` objects.
 - Added `--transcripts-only` and `--snippets-only` CLI fetch modes.
+- Added `FetchOptions.max_concurrent_requests` and the `--max-concurrency` CLI option to control transcript request concurrency.
 
 ### Changed
 - Improved developer experience with returning empty list objects on some methods instead of `None`.
