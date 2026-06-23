@@ -104,6 +104,9 @@ class TranscriptFetcher:
         self.manually_created = manually_created
         self.max_concurrent_requests = max_concurrent_requests
 
+        if self.max_concurrent_requests < 1:
+            raise ValueError("max_concurrent_requests must be at least 1.")
+
         self._network_warning_shown = threading.Event()
         self._warning_lock = threading.Lock()
         self._ip_blocked = threading.Event()
