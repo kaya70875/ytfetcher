@@ -184,6 +184,25 @@ fetcher = YTFetcher.from_video_ids(video_ids=video_ids, options=options)
 
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
 
+### Controlling Transcript Concurrency
+
+By default, `ytfetcher` fetches up to 20 transcripts concurrently. Use `max_concurrent_requests` when you need to reduce pressure on your network/proxy setup or when you want to allow more parallel transcript requests.
+
+```py
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    max_concurrent_requests=10
+)
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    options=options
+)
+```
+
 ### Fetching Only Manually Created Transcripts
 
 `ytfetcher` allows you to fetch only manually created transcripts from a channel which allows you to get more precise transcripts.

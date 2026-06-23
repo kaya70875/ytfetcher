@@ -69,6 +69,9 @@ class TranscriptFetcher:
         manually_created (bool):
             If True, only fetch manually created transcripts (skips auto-generated).
             If False, fetches auto-generated transcripts. Defaults to False.
+        
+        max_concurrent_requests (int):
+            Maximum number of concurrent network requests to make when fetching transcripts.
     """
 
     def __init__(
@@ -78,6 +81,7 @@ class TranscriptFetcher:
         proxy_config: ProxyConfig | None = None,
         languages: Iterable[str] | None = None,
         manually_created: bool = False,
+        max_concurrent_requests: int = 20
     ):
         """
         Initialize the TranscriptFetcher.
@@ -90,6 +94,7 @@ class TranscriptFetcher:
             manually_created: If True, only fetch manually created transcripts
                 and skip auto-generated ones. When True and no manual transcripts
                 are found, logs an error. Defaults to False.
+            max_concurrent_requests: Maximum number of concurrent network requests to make when fetching transcripts.
         """
 
         self.http_config = http_config or HTTPConfig()
@@ -97,7 +102,10 @@ class TranscriptFetcher:
         self.video_ids = video_ids
         self.languages = languages
         self.manually_created = manually_created
-        self.max_workers = 25
+        self.max_concurrent_requests = max_concurrent_requests
+
+        if self.max_concurrent_requests < 1:
+            raise ValueError("max_concurrent_requests must be at least 1.")
 
         self._network_warning_shown = threading.Event()
         self._warning_lock = threading.Lock()
@@ -107,8 +115,8 @@ class TranscriptFetcher:
         self._session.headers.update(self.http_config.headers)
 
         adapter = HTTPAdapter(
-            pool_connections=self.max_workers,
-            pool_maxsize=self.max_workers
+            pool_connections=self.max_concurrent_requests,
+            pool_maxsize=self.max_concurrent_requests
         )
 
         self._session.mount("https://", adapter)
@@ -141,7 +149,7 @@ class TranscriptFetcher:
             return TranscriptFetchResult(success=[], failed=[])
 
         try:
-            with futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            with futures.ThreadPoolExecutor(max_workers=self.max_concurrent_requests) as executor:
                 tasks, cancelled = self._submit_tasks(executor=executor)
                 result = self._collect_results(tasks=tasks)
                 result.failed.extend(cancelled)

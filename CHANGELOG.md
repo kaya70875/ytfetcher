@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Added a `FetchResult` type alias for fetch results that may contain `ChannelData`, `VideoTranscript`, `VideoComments`, or `DLSnippet` objects.
 - Added `--transcripts-only` and `--snippets-only` CLI fetch modes.
+- Added `FetchOptions.max_concurrent_requests` and the `--max-concurrency` CLI option to control transcript request concurrency.
 
 ### Changed
 - Improved developer experience with returning empty list objects on some methods instead of `None`.
@@ -17,7 +18,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `BaseExporter` now creates directory for exporter path instead of raising.
 
 ### Fixed
-- Fixed ytfetcher raises an error if output directory could not found in `Exporter` class.
+- fix: ytfetcher raises an error if output directory could not found in `Exporter` class.
+- fix: inherit ExporterError from YTFetcherError for better exception hierarchy.
+- fix: add newline parameter to file open for consistent line endings in exports.
 
 ## [2.3.2]
 ### Fixed

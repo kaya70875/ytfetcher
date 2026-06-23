@@ -263,6 +263,15 @@ This command only processes videos that:
 - Example: `ytfetcher cache --clean`
 - Custom path example: `ytfetcher cache --clean --cache-path ./my_cache`
 
+### Network Options
+
+**`--max-concurrency <NUMBER>`**
+
+- Maximum number of concurrent transcript requests
+- Default: `20`
+- Lower this value for slower networks, stricter rate limits, or smaller proxy pools
+- Example: `ytfetcher channel TheOffice -m 50 -f json --max-concurrency 10`
+
 ### Export Options
 
 **`-f`, `--format`**
@@ -358,6 +367,14 @@ ytfetcher channel TheOffice -m 100 -f json \
 ```
 
 This command uses Webshare proxy to avoid rate limits when fetching large amounts of data.
+
+### Limit Transcript Concurrency
+
+```bash
+ytfetcher channel TheOffice -m 100 -f json --max-concurrency 10
+```
+
+This command fetches transcripts with up to 10 concurrent network requests instead of the default 20.
 
 ### Export Only Comments
 

@@ -262,7 +262,8 @@ class YTFetcher:
             http_config=self.options.http_config,
             proxy_config=self.options.proxy_config,
             languages=self.options.languages,
-            manually_created=self.options.manually_created
+            manually_created=self.options.manually_created,
+            max_concurrent_requests=self.options.max_concurrent_requests
         )
     
     def _get_video_ids(self) -> list[str]:

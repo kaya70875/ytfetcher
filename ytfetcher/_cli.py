@@ -88,7 +88,8 @@ class YTFetcherCLI:
                 filters=self._get_active_filters(),
                 cache_enabled=not self.args.no_cache,
                 cache_path=self.args.cache_path,
-                cache_ttl=self.args.cache_ttl
+                cache_ttl=self.args.cache_ttl,
+                max_concurrent_requests=self.args.max_concurrency
             ),
             **kwargs
         )
@@ -279,6 +280,7 @@ def _create_common_arguments(parser: ArgumentParser) -> None:
     export_group.add_argument("--filename", default="data", help="Decide filename to be exported.")
 
     net_group = parser.add_argument_group("Network Options")
+    net_group.add_argument("--max-concurrency", type=int, default=20, help="Maximum number of concurrent network requests to make when fetching transcripts.")
     net_group.add_argument("--http-headers", type=ast.literal_eval, help="Custom http headers.")
     net_group.add_argument("--webshare-proxy-username", default=None, type=str, help='Specify your Webshare "Proxy Username" found at https://dashboard.webshare.io/proxy/settings')
     net_group.add_argument("--webshare-proxy-password", default=None, type=str, help='Specify your Webshare "Proxy Password" found at https://dashboard.webshare.io/proxy/settings')

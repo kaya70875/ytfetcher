@@ -227,6 +227,7 @@ YTFetcher provides a simple interface for customizing your fetching process with
 - **http_config** Define custom http headers.
 - **cache_enabled** Enable or disable SQLite transcript cache. Enabled by default.
 - **cache_path** Choose where cache file (`cache.sqlite3`) is stored.
+- **max_concurrent_requests** Control how many transcript requests run at the same time.
 
 These options can be passed to any of the fetcher methods (`from_channel`, `from_video_ids`, `from_playlist_id`, or `from_search`) to tailor the fetching process for your needs. You can use `FetchOptions` dataclass from `ytfetcher.config` for easily configure your options.
 
@@ -253,6 +254,33 @@ ytfetcher channel TheOffice -m 50 -f csv --languages tr en
 ```
 
 `ytfetcher` first tries to fetch the `Turkish` transcript. If it's not available, it falls back to `English`.
+
+---
+
+## Controlling Transcript Concurrency
+
+By default, `ytfetcher` fetches up to 20 transcripts concurrently. You can lower this value for slower networks or stricter rate limits, or raise it when your network and proxy setup can handle more parallel requests.
+
+```python
+from ytfetcher import YTFetcher
+from ytfetcher.config import FetchOptions
+
+options = FetchOptions(
+    max_concurrent_requests=10
+)
+
+fetcher = YTFetcher.from_channel(
+    channel_handle="TheOffice",
+    max_results=50,
+    options=options
+)
+```
+
+The same setting is available in the CLI with `--max-concurrency`:
+
+```bash
+ytfetcher channel TheOffice -m 50 -f json --max-concurrency 10
+```
 
 ---
 
@@ -711,6 +739,15 @@ ytfetcher channel <CHANNEL_HANDLE> -f json --webshare-proxy-username "<USERNAME>
 ```bash
 ytfetcher channel <CHANNEL_HANDLE> -f json --http-proxy "http://user:pass@host:port" --https-proxy "https://user:pass@host:port"
 ```
+
+### Controlling Transcript Concurrency
+
+```bash
+ytfetcher channel TheOffice -m 50 -f json --max-concurrency 10
+```
+
+Use `--max-concurrency` to control how many transcript requests run at the same time. The default is `20`.
+
 ---
 
 ## Docker Quick Start
