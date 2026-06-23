@@ -251,7 +251,7 @@ class YTFetcher:
     def _get_transcripts(self) -> list[VideoTranscript]:
         video_ids = self._get_video_ids()
         if self._cache:
-            logger.info("Attempting to retrieve transcripts from cache...")
+            logger.debug("Attempting to retrieve transcripts from cache...")
             return self._get_or_fetch_transcripts(video_ids=video_ids)
 
         succeeded, failed = self._fetch_with_recovery_pass(video_ids=video_ids)
